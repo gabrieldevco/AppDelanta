@@ -1,0 +1,876 @@
+import 'package:flutter/material.dart';
+import '../../../auth/presentation/pages/login_page.dart';
+import 'employee_help_page.dart';
+import 'employee_notifications_page.dart';
+import '../providers/notification_provider.dart';
+
+class EmployeeProfilePage extends StatefulWidget {
+  const EmployeeProfilePage({super.key});
+
+  @override
+  State<EmployeeProfilePage> createState() => _EmployeeProfilePageState();
+}
+
+class _EmployeeProfilePageState extends State<EmployeeProfilePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool _isEditing = false;
+
+  // Controllers para datos personales
+  final _nameController = TextEditingController(text: 'Juan Pérez');
+  final _emailController = TextEditingController(text: 'juan.perez@empresa.com');
+  final _idController = TextEditingController(text: '1234567890');
+  final _salaryController = TextEditingController(text: '\$ 2.000.000');
+  final _addressController = TextEditingController(text: 'Calle 123 #45-67');
+  final _bankController = TextEditingController(text: 'Bancolombia');
+  final _accountController = TextEditingController(text: '1234567890');
+
+  // Controllers para seguridad
+  final _currentPassController = TextEditingController();
+  final _newPassController = TextEditingController();
+  final _confirmPassController = TextEditingController();
+
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _idController.dispose();
+    _salaryController.dispose();
+    _addressController.dispose();
+    _bankController.dispose();
+    _accountController.dispose();
+    _currentPassController.dispose();
+    _newPassController.dispose();
+    _confirmPassController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(context),
+
+            // TabBar
+            _buildTabBar(),
+
+            // Contenido
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildPersonalDataTab(),
+                  _buildSecurityTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top bar con logo y acciones
+          Row(
+            children: [
+              // Botón volver
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Color(0xFF374151),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Volver',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // Iconos de acción
+              _buildNotificationIconWithBadge(context),
+              IconButton(
+                icon: const Icon(Icons.help_outline, color: Color(0xFF374151)),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const EmployeeHelpPage()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.person_outline, color: Color(0xFF2563EB)),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout, color: Color(0xFFDC2626)),
+                onPressed: () => _showLogoutDialog(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Título de la página
+          const Text(
+            'Mi Perfil',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111827),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Gestiona tu información personal',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: TabBar(
+          controller: _tabController,
+          indicator: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          labelColor: const Color(0xFF111827),
+          unselectedLabelColor: const Color(0xFF6B7280),
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          dividerColor: Colors.transparent,
+          tabs: const [
+            Tab(text: 'Datos Personales'),
+            Tab(text: 'Seguridad'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonalDataTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Card de información personal
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header del card
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información Personal',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Actualiza tus datos de contacto',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF9CA3AF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Botón Editar
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _isEditing = !_isEditing;
+                        });
+                      },
+                      icon: Icon(
+                        _isEditing ? Icons.check : Icons.edit,
+                        size: 16,
+                      ),
+                      label: Text(_isEditing ? 'Guardar' : 'Editar'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF374151),
+                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Campos del formulario
+                _buildFormField(
+                  icon: Icons.person_outline,
+                  label: 'Nombre completo',
+                  controller: _nameController,
+                  enabled: _isEditing,
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  icon: Icons.email_outlined,
+                  label: 'Correo electrónico',
+                  controller: _emailController,
+                  enabled: _isEditing,
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  icon: Icons.badge_outlined,
+                  label: 'Cédula',
+                  controller: _idController,
+                  enabled: false,
+                  helperText: 'La cédula no se puede modificar',
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  icon: Icons.attach_money,
+                  label: 'Salario',
+                  controller: _salaryController,
+                  enabled: false,
+                  helperText: 'Contacta a tu empleador para modificar tu salario',
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  icon: Icons.location_on_outlined,
+                  label: 'Dirección',
+                  controller: _addressController,
+                  enabled: _isEditing,
+                ),
+                const SizedBox(height: 16),
+                _buildDropdownField(
+                  icon: Icons.account_balance_outlined,
+                  label: 'Banco',
+                  value: _bankController.text,
+                  enabled: _isEditing,
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  icon: Icons.credit_card_outlined,
+                  label: 'Número de cuenta',
+                  controller: _accountController,
+                  enabled: _isEditing,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Info box
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFDBEAFE),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF93C5FD), width: 1),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: const Color(0xFF2563EB),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Información importante:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1E40AF),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _buildBulletPoint('Mantén tu información actualizada para recibir tus adelantos'),
+                _buildBulletPoint('Verifica que tu número de cuenta esté correcto'),
+                _buildBulletPoint('Los cambios en salario deben ser realizados por tu empleador'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecurityTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Card de cambiar contraseña
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Cambiar Contraseña',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Actualiza tu contraseña de acceso',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Campo contraseña actual
+                _buildPasswordField(
+                  label: 'Contraseña actual',
+                  controller: _currentPassController,
+                  obscure: _obscureCurrent,
+                  onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                ),
+                const SizedBox(height: 16),
+                // Campo nueva contraseña
+                _buildPasswordField(
+                  label: 'Nueva contraseña',
+                  controller: _newPassController,
+                  obscure: _obscureNew,
+                  onToggle: () => setState(() => _obscureNew = !_obscureNew),
+                ),
+                const SizedBox(height: 16),
+                // Campo confirmar contraseña
+                _buildPasswordField(
+                  label: 'Confirmar nueva contraseña',
+                  controller: _confirmPassController,
+                  obscure: _obscureConfirm,
+                  onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                ),
+                const SizedBox(height: 16),
+                // Info box amarillo
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCFBD4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFEF08A), width: 1),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            color: const Color(0xFFA16207),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Requisitos de contraseña:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF854D0E),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      _buildBulletPoint('Mínimo 6 caracteres', color: const Color(0xFFA16207)),
+                      _buildBulletPoint('Se recomienda usar letras, números y símbolos', color: const Color(0xFFA16207)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Botón actualizar
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // TODO: Implementar cambio de contraseña
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Contraseña actualizada exitosamente'),
+                          backgroundColor: Color(0xFF059669),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.key, size: 18),
+                    label: const Text(
+                      'Actualizar Contraseña',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF111827),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Info box seguridad
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFDBEAFE),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF93C5FD), width: 1),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.lock_outline,
+                      color: const Color(0xFF2563EB),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Seguridad de tu cuenta:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1E40AF),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _buildBulletPoint('Cambia tu contraseña regularmente', color: const Color(0xFF1E40AF)),
+                _buildBulletPoint('No compartas tu contraseña con nadie', color: const Color(0xFF1E40AF)),
+                _buildBulletPoint('Usa una contraseña única para esta plataforma', color: const Color(0xFF1E40AF)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormField({
+    required IconData icon,
+    required String label,
+    required TextEditingController controller,
+    bool enabled = true,
+    String? helperText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: const Color(0xFF6B7280)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          enabled: enabled,
+          style: TextStyle(
+            color: enabled ? const Color(0xFF111827) : Colors.grey[500],
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: enabled ? const Color(0xFFF9FAFB) : const Color(0xFFF3F4F6),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+        if (helperText != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            helperText,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool enabled = true,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: const Color(0xFF6B7280)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: enabled ? const Color(0xFFF9FAFB) : const Color(0xFFF3F4F6),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  color: enabled ? const Color(0xFF111827) : Colors.grey[500],
+                ),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down,
+                color: enabled ? const Color(0xFF6B7280) : Colors.grey[400],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF374151),
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          obscureText: obscure,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            suffixIcon: IconButton(
+              icon: Icon(
+                obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                color: const Color(0xFF6B7280),
+                size: 20,
+              ),
+              onPressed: onToggle,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBulletPoint(String text, {Color color = const Color(0xFF1E40AF)}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('• ', style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                color: color,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout,
+                  color: Color(0xFFDC2626),
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Cerrar Sesión',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                '¿Estás seguro que deseas cerrar sesión?\nDeberás ingresar tus credenciales nuevamente.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF6B7280),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF374151),
+                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC2626),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Sí, salir',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationIconWithBadge(BuildContext context) {
+    return AnimatedBuilder(
+      animation: notificationProvider,
+      builder: (context, child) {
+        final unreadCount = notificationProvider.unreadCount;
+        return Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined, color: Color(0xFF374151)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EmployeeNotificationsPage()),
+                );
+              },
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFDC2626),
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 9 ? '9+' : '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
