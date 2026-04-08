@@ -13,7 +13,6 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
   
   final double _maxAmount = 1000000;
   final double _minAmount = 50000;
-  final double _salary = 2000000;
   final double _fee = 5000;
   final double _monthlyRate = 0.025; // 2.5%
 

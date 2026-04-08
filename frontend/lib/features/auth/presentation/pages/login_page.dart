@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../employee/presentation/pages/employee_main_page.dart';
+import '../../../employer/presentation/pages/employer_main_page.dart';
 import 'forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,20 +23,41 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login() {
-    // TODO: Implementar login con BLoC
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    if (email == 'juan.perez@empresa.com' && password == '123456') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const EmployeeMainPage()),
+      );
+    } else if (email == 'empresa@abc.com' && password == '123456') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const EmployerMainPage()),
+      );
+    } else if (email == 'admin@nominaya.com' && password == 'admin123') {
+      // TODO: Navigate to admin page
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Credenciales incorrectas'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _quickAccess(String role) {
     if (role == 'empleado') {
       _emailController.text = 'juan.perez@empresa.com';
       _passwordController.text = '123456';
-      
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const EmployeeMainPage()),
-        );
-      });
+    } else if (role == 'empleador') {
+      _emailController.text = 'empresa@abc.com';
+      _passwordController.text = '123456';
+    } else if (role == 'administrador') {
+      _emailController.text = 'admin@nominaya.com';
+      _passwordController.text = 'admin123';
     }
   }
 
