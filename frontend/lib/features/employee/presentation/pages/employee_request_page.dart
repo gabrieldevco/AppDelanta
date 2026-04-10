@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../widgets/employee_header.dart';
+import '../widgets/employee_bottom_nav.dart';
+import '../widgets/employee_notifications_drawer.dart';
 
 class EmployeeRequestPage extends StatefulWidget {
   const EmployeeRequestPage({super.key});
@@ -28,37 +31,17 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Solicitar Adelanto',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Elige el monto y plazo que necesitas',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-        toolbarHeight: 80,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      endDrawer: const EmployeeNotificationsDrawer(),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const EmployeeHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
             // Disponible card
             Container(
               padding: const EdgeInsets.all(20),
@@ -392,9 +375,14 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                 ],
               ),
             ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
+      bottomNavigationBar: const EmployeeBottomNav(currentIndex: 1),
     );
   }
 

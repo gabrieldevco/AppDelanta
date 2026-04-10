@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../auth/presentation/pages/login_page.dart';
-import '../widgets/employer_bottom_nav.dart';
+import '../widgets/employer_header.dart';
+import '../widgets/employer_notifications_drawer.dart';
 
 class EmployerProfilePage extends StatefulWidget {
   const EmployerProfilePage({super.key});
@@ -39,10 +40,11 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      endDrawer: const EmployerNotificationsDrawer(),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            const EmployerHeader(),
             Container(
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -97,42 +99,19 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
           ],
         ),
       ),
-      bottomNavigationBar: const EmployerBottomNav(currentIndex: 0),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF2563EB),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: const Icon(Icons.attach_money, color: Colors.white, size: 22),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        backgroundColor: const Color(0xFF2563EB),
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        label: const Text(
+          'Volver',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(width: 10),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('AppDelanta', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
-                Text('Empresa ABC S.A.S', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
-              ],
-            ),
-          ),
-          IconButton(icon: const Icon(Icons.notifications_outlined, size: 22), color: const Color(0xFF6B7280), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.help_outline, size: 22), color: const Color(0xFF6B7280), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.logout, size: 22), color: const Color(0xFFDC2626), onPressed: () => _showLogoutDialog(context)),
-        ],
+        ),
       ),
     );
   }
@@ -398,7 +377,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                         Navigator.pop(context);
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          MaterialPageRoute(builder: (_) => LoginPage()),
                           (route) => false,
                         );
                       },

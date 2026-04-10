@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (_) => const EmployerMainPage()),
       );
-    } else if (email == 'admin@nominaya.com' && password == 'admin123') {
+    } else if (email == 'admin@appdelanta.com' && password == 'admin123') {
       // TODO: Navigate to admin page
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
       _emailController.text = 'empresa@abc.com';
       _passwordController.text = '123456';
     } else if (role == 'administrador') {
-      _emailController.text = 'admin@nominaya.com';
+      _emailController.text = 'admin@appdelanta.com';
       _passwordController.text = 'admin123';
     }
   }
@@ -324,22 +324,22 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     // Botones de acceso rápido
                     _buildQuickAccessButton(
-                      icon: Icons.person,
-                      iconColor: const Color(0xFF7C3AED),
+                      icon: Icons.person_outline,
+                      iconColor: const Color(0xFF2563EB),
                       label: 'Empleado',
                       onTap: () => _quickAccess('empleado'),
                     ),
                     const SizedBox(height: 8),
                     _buildQuickAccessButton(
-                      icon: Icons.business,
-                      iconColor: const Color(0xFF6B7280),
+                      icon: Icons.business_center_outlined,
+                      iconColor: const Color(0xFF059669),
                       label: 'Empleador',
                       onTap: () => _quickAccess('empleador'),
                     ),
                     const SizedBox(height: 8),
                     _buildQuickAccessButton(
-                      icon: Icons.settings,
-                      iconColor: const Color(0xFF6B7280),
+                      icon: Icons.admin_panel_settings_outlined,
+                      iconColor: const Color(0xFF7C3AED),
                       label: 'Administrador',
                       onTap: () => _quickAccess('administrador'),
                     ),

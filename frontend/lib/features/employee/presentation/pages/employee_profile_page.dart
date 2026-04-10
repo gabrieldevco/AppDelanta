@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../widgets/employee_header.dart';
+import '../widgets/employee_notifications_drawer.dart';
 import 'employee_help_page.dart';
-import 'employee_notifications_page.dart';
 import '../providers/notification_provider.dart';
+import 'employee_main_page.dart';
 
 class EmployeeProfilePage extends StatefulWidget {
   const EmployeeProfilePage({super.key});
@@ -60,11 +62,12 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      endDrawer: const EmployeeNotificationsDrawer(),
       body: SafeArea(
         child: Column(
           children: [
             // Header
-            _buildHeader(context),
+            const EmployeeHeader(),
 
             // TabBar
             _buildTabBar(),
@@ -82,84 +85,19 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top bar con logo y acciones
-          Row(
-            children: [
-              // Botón volver
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Color(0xFF374151),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Volver',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              // Iconos de acción
-              _buildNotificationIconWithBadge(context),
-              IconButton(
-                icon: const Icon(Icons.help_outline, color: Color(0xFF374151)),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const EmployeeHelpPage()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_outline, color: Color(0xFF2563EB)),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Color(0xFFDC2626)),
-                onPressed: () => _showLogoutDialog(context),
-              ),
-            ],
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        backgroundColor: const Color(0xFF2563EB),
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        label: const Text(
+          'Volver',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 20),
-          // Título de la página
-          const Text(
-            'Mi Perfil',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111827),
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Gestiona tu información personal',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFF6B7280),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -688,6 +626,11 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFFF9FAFB),
+            hintText: '••••••',
+            hintStyle: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -732,145 +675,4 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
       ),
     );
   }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFEE2E2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.logout,
-                  color: Color(0xFFDC2626),
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Cerrar Sesión',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                '¿Estás seguro que deseas cerrar sesión?\nDeberás ingresar tus credenciales nuevamente.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF6B7280),
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF374151),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text(
-                        'Sí, salir',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationIconWithBadge(BuildContext context) {
-    return AnimatedBuilder(
-      animation: notificationProvider,
-      builder: (context, child) {
-        final unreadCount = notificationProvider.unreadCount;
-        return Stack(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Color(0xFF374151)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EmployeeNotificationsPage()),
-                );
-              },
-            ),
-            if (unreadCount > 0)
-              Positioned(
-                right: 6,
-                top: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFDC2626),
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                  child: Center(
-                    child: Text(
-                      unreadCount > 9 ? '9+' : '$unreadCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
 }
-

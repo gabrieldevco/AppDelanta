@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../pages/employer_main_page.dart';
-import '../pages/employer_requests_page.dart';
-import '../pages/employer_employees_page.dart';
+import '../pages/employee_home_page.dart';
+import '../pages/employee_request_page.dart';
+import '../pages/employee_history_page.dart';
 
-class EmployerBottomNav extends StatelessWidget {
+class EmployeeBottomNav extends StatelessWidget {
   final int currentIndex;
 
-  const EmployerBottomNav({
+  const EmployeeBottomNav({
     super.key,
     required this.currentIndex,
   });
@@ -19,16 +19,16 @@ class EmployerBottomNav extends StatelessWidget {
       color: Color(0xFF2563EB),
     ),
     NavItemData(
-      icon: Icons.description_outlined,
-      activeIcon: Icons.description,
-      label: 'Solicitudes',
-      color: Color(0xFF7C3AED),
+      icon: Icons.attach_money,
+      activeIcon: Icons.attach_money,
+      label: 'Solicitar',
+      color: Color(0xFF059669),
     ),
     NavItemData(
-      icon: Icons.people_outlined,
-      activeIcon: Icons.people,
-      label: 'Empleados',
-      color: Color(0xFF059669),
+      icon: Icons.description_outlined,
+      activeIcon: Icons.description,
+      label: 'Historial',
+      color: Color(0xFF7C3AED),
     ),
   ];
 
@@ -52,19 +52,19 @@ class EmployerBottomNav extends StatelessWidget {
                   if (index == 0) {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => const EmployerMainPage()),
+                      MaterialPageRoute(builder: (_) => EmployeeHomePage()),
                       (route) => false,
                     );
                   } else if (index == 1) {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => const EmployerRequestsPage()),
+                      MaterialPageRoute(builder: (_) => EmployeeRequestPage()),
                       (route) => false,
                     );
                   } else if (index == 2) {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => const EmployerEmployeesPage()),
+                      MaterialPageRoute(builder: (_) => EmployeeHistoryPage()),
                       (route) => false,
                     );
                   }
