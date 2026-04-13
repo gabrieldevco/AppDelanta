@@ -162,7 +162,7 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
                     child: Text(
                       'Notificaciones',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF111827),
                       ),

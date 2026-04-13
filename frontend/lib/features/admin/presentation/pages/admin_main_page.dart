@@ -18,7 +18,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -91,7 +91,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
               ),
               const SizedBox(height: 16),
               _buildInfoCard(),
-              const SizedBox(height: 80),
+              const SizedBox(height: 140),
             ],
           ),
         ),

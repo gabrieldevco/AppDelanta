@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Google Fonts - Fuente Inter
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
 
   # Shared Preferences - Almacenamiento local
   shared_preferences: ^2.2.2

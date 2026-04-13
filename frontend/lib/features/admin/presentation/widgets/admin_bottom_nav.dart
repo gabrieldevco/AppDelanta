@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../pages/admin_main_page.dart';
+import '../pages/admin_disbursements_page.dart';
+import '../pages/admin_reports_page.dart';
+import '../pages/admin_settings_page.dart';
 
 class AdminBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -38,11 +41,20 @@ class AdminBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    final navHeight = isSmallScreen ? 68.0 : 76.0;
+    final iconSize = isSmallScreen ? 22.0 : 24.0;
+    final activeIconSize = isSmallScreen ? 24.0 : 26.0;
+    final fontSize = isSmallScreen ? 11.0 : 12.0;
+    final activeFontSize = isSmallScreen ? 12.0 : 13.0;
+
     return BottomAppBar(
       elevation: 8,
       shadowColor: Colors.black.withOpacity(0.1),
-      height: 80,
+      height: navHeight,
       color: Colors.white,
+      padding: EdgeInsets.zero,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(_navItems.length, (index) {
@@ -59,68 +71,77 @@ class AdminBottomNav extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const AdminMainPage()),
                       (route) => false,
                     );
+                  } else if (index == 1) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AdminDisbursementsPage()),
+                      (route) => false,
+                    );
+                  } else if (index == 2) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AdminReportsPage()),
+                      (route) => false,
+                    );
+                  } else if (index == 3) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AdminSettingsPage()),
+                      (route) => false,
+                    );
                   }
-                  // TODO: Navigate to other pages
                 }
               },
               behavior: HitTestBehavior.opaque,
-              child: Container(
-                height: double.infinity,
-                alignment: Alignment.center,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                            width: isSelected ? 32 : 28,
-                            height: isSelected ? 32 : 28,
-                            decoration: BoxDecoration(
-                              color: isSelected ? item.color : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: item.color.withOpacity(0.4),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                          AnimatedScale(
-                            scale: isSelected ? 1.0 : 0.85,
-                            duration: const Duration(milliseconds: 200),
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                              size: isSelected ? 22 : 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          color: isSelected ? item.color : const Color(0xFF94A3B8),
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                          fontSize: isSelected ? 15 : 14,
-                          letterSpacing: isSelected ? 0.3 : 0,
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        width: isSelected ? activeIconSize + 12 : 0,
+                        height: isSelected ? activeIconSize + 8 : 0,
+                        decoration: BoxDecoration(
+                          color: isSelected ? item.color : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: item.color.withOpacity(0.35),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
                         ),
-                        child: Text(item.label),
+                      ),
+                      AnimatedScale(
+                        scale: isSelected ? 1.0 : 0.85,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          isSelected ? item.activeIcon : item.icon,
+                          color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                          size: isSelected ? activeIconSize : iconSize,
+                        ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 3),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
+                    style: TextStyle(
+                      color: isSelected ? item.color : const Color(0xFF94A3B8),
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: isSelected ? activeFontSize : fontSize,
+                      letterSpacing: isSelected ? 0.2 : 0,
+                    ),
+                    child: Text(item.label),
+                  ),
+                ],
               ),
             ),
           );
