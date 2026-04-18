@@ -37,10 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
+    # Apps del proyecto
+    'users',
+    'companies',
+    'advances',
+    'notifications',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -48,6 +58,22 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS - Permitir conexión desde Flutter
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
 
 ROOT_URLCONF = 'config.urls'
 
@@ -75,9 +101,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mydatabase",
+        "NAME": "appdelanta",
         "USER": "mydatabaseuser",
-        "PASSWORD": "mypassword",
+        "PASSWORD": "mydatabasepassword",
         "HOST": "db",
         "PORT": "5432",
     }
@@ -118,3 +144,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Modelo de usuario personalizado
+AUTH_USER_MODEL = 'users.User'
+
+# Tipo de campo auto para primary keys
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
