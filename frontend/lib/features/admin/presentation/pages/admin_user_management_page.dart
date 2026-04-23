@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../widgets/admin_header.dart';
-import '../widgets/admin_bottom_nav.dart';
-import '../widgets/admin_notifications_drawer.dart';
-import '../../../../core/services/api_service.dart';
+import 'package:frontend/core/services/api_service.dart';
+import 'package:frontend/features/admin/presentation/widgets/admin_bottom_nav.dart';
 
 class AdminUserManagementPage extends StatefulWidget {
   const AdminUserManagementPage({super.key});
@@ -15,17 +12,16 @@ class AdminUserManagementPage extends StatefulWidget {
 class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<Map<String, dynamic>> _employees = [];
-  List<Map<String, dynamic>> _employers = [];
-  bool _loadingEmployees = true;
-  bool _loadingEmployers = true;
+  List<dynamic> _employees = [];
+  List<dynamic> _employers = [];
+  bool _loadingEmployees = false;
+  bool _loadingEmployers = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadEmployees();
-    _loadEmployers();
+    _loadData();
   }
 
   @override
@@ -34,15 +30,27 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     super.dispose();
   }
 
+  Future<void> _loadData() async {
+    await Future.wait([
+      _loadEmployees(),
+      _loadEmployers(),
+    ]);
+  }
+
   Future<void> _loadEmployees() async {
     setState(() => _loadingEmployees = true);
     try {
-      final response = await apiService.get('/api/user-management/?role=employee');
-      setState(() {
-        _employees = List<Map<String, dynamic>>.from(response);
-      });
+      final response = await apiService.get('/api/users/employees/');
+      setState(() => _employees = response['data'] ?? []);
     } catch (e) {
-      debugPrint('Error cargando empleados: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar empleados'),
+            backgroundColor: Color(0xFFDC2626),
+          ),
+        );
+      }
     } finally {
       setState(() => _loadingEmployees = false);
     }
@@ -51,12 +59,17 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   Future<void> _loadEmployers() async {
     setState(() => _loadingEmployers = true);
     try {
-      final response = await apiService.get('/api/user-management/?role=employer');
-      setState(() {
-        _employers = List<Map<String, dynamic>>.from(response);
-      });
+      final response = await apiService.get('/api/users/employers/');
+      setState(() => _employers = response['data'] ?? []);
     } catch (e) {
-      debugPrint('Error cargando empleadores: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar empleadores'),
+            backgroundColor: Color(0xFFDC2626),
+          ),
+        );
+      }
     } finally {
       setState(() => _loadingEmployers = false);
     }
@@ -67,68 +80,32 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
       await apiService.patch('/api/companies/$companyId/verify/', data: {
         'is_verified': verify,
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(verify ? 'Empresa verificada' : 'Verificación removida'),
-          backgroundColor: verify ? const Color(0xFF059669) : const Color(0xFFF59E0B),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(verify ? 'Empresa verificada' : 'Verificación removida'),
+            backgroundColor: verify ? const Color(0xFF059669) : const Color(0xFFF59E0B),
+          ),
+        );
+      }
       await _loadEmployers();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: const Color(0xFFDC2626),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al verificar empresa'),
+            backgroundColor: Color(0xFFDC2626),
+          ),
+        );
+      }
     }
   }
 
-  Future<void> _viewPdf(String? pdfUrl) async {
-    if (pdfUrl == null || pdfUrl.isEmpty) {
+  Future<void> _viewPdf(String pdfUrl) async {
+    // Implementar visualización de PDF
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay documento adjunto'),
-          backgroundColor: Color(0xFFF59E0B),
-        ),
-      );
-      return;
-    }
-    try {
-      final uri = Uri.parse(pdfUrl);
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        throw 'No se pudo abrir el PDF';
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error abriendo PDF: $e'),
-          backgroundColor: const Color(0xFFDC2626),
-        ),
-      );
-    }
-  }
-
-  Future<void> _deleteUser(int userId, String userType) async {
-    try {
-      await apiService.delete('/api/users/$userId/');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$userType eliminado exitosamente'),
-          backgroundColor: const Color(0xFF059669),
-        ),
-      );
-      if (userType == 'Empleado') {
-        await _loadEmployees();
-      } else {
-        await _loadEmployers();
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al eliminar: ${e.toString()}'),
-          backgroundColor: const Color(0xFFDC2626),
-        ),
+        const SnackBar(content: Text('Función PDF en desarrollo')),
       );
     }
   }
@@ -136,20 +113,48 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   Future<void> _deleteCompany(int companyId) async {
     try {
       await apiService.delete('/api/companies/$companyId/');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Empresa eliminada exitosamente'),
-          backgroundColor: Color(0xFF059669),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empresa eliminada'),
+            backgroundColor: Color(0xFF059669),
+          ),
+        );
+      }
       await _loadEmployers();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al eliminar empresa: ${e.toString()}'),
-          backgroundColor: const Color(0xFFDC2626),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al eliminar empresa'),
+            backgroundColor: Color(0xFFDC2626),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteUser(int userId, String userType) async {
+    try {
+      await apiService.delete('/api/users/$userId/');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$userType eliminado'),
+            backgroundColor: const Color(0xFF059669),
+          ),
+        );
+      }
+      await _loadData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar $userType'),
+            backgroundColor: const Color(0xFFDC2626),
+          ),
+        );
+      }
     }
   }
 
@@ -157,30 +162,19 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(Icons.warning, color: Color(0xFFDC2626)),
-            const SizedBox(width: 12),
-            Text(title, style: const TextStyle(fontSize: 18)),
-          ],
-        ),
+        title: Text(title),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
               onConfirm();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Eliminar'),
+            child: const Text('Eliminar', style: TextStyle(color: Color(0xFFDC2626))),
           ),
         ],
       ),
@@ -190,96 +184,84 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      endDrawer: const AdminNotificationsDrawer(),
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('Gestión de Usuarios'),
+        backgroundColor: const Color(0xFF1F2937),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Container(
+        color: const Color(0xFFF9FAFB),
         child: Column(
           children: [
-            const AdminHeader(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Gestión de Usuarios',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
-                      ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1F2937),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Administrar Usuarios',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Administra empleados y empleadores',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF6B7280),
-                      ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(height: 16),
-                    // Tabs
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
+                    child: TabBar(
+                      controller: _tabController,
+                      indicator: BoxDecoration(
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: TabBar(
-                        controller: _tabController,
-                        indicator: BoxDecoration(
-                          color: const Color(0xFF2563EB),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: const Color(0xFF6B7280),
-                        labelStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                        unselectedLabelStyle: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                        ),
-                        tabs: const [
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.people_outline, size: 18),
-                                SizedBox(width: 8),
-                                Text('Empleados'),
-                              ],
-                            ),
+                      labelColor: const Color(0xFF1F2937),
+                      unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                      tabs: const [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.people_outline, size: 18),
+                              SizedBox(width: 8),
+                              Text('Empleados'),
+                            ],
                           ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.business_outlined, size: 18),
-                                SizedBox(width: 8),
-                                Text('Empleadores'),
-                              ],
-                            ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.business_outlined, size: 18),
+                              SizedBox(width: 8),
+                              Text('Empleadores'),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    // Tab content
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildEmployeesList(),
-                          _buildEmployersList(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildEmployeesList(),
+                  _buildEmployersList(),
+                ],
               ),
             ),
           ],
@@ -454,106 +436,6 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             ),
             icon: const Icon(Icons.delete_outline, color: Color(0xFFDC2626)),
             tooltip: 'Eliminar empleado',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUserCard({
-    required String name,
-    required String email,
-    required String document,
-    required String role,
-    required IconData icon,
-    required Color color,
-    String? companyName,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name.trim().isEmpty ? 'Sin nombre' : name,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                if (document.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    'CC: $document',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF9CA3AF),
-                    ),
-                  ),
-                ],
-                if (companyName != null) ...[
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDBEAFE),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      companyName,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF2563EB),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              role,
-              style: TextStyle(
-                fontSize: 11,
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
           ),
         ],
       ),
@@ -749,13 +631,13 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
                   child: OutlinedButton.icon(
                     onPressed: () => _showDeleteConfirmation(
                       'Eliminar Empresa',
-                      '¿Estás seguro de que deseas eliminar la empresa "$companyName"? Esta acción no se puede deshacer.',
+                      '¿Estás seguro de que deseas eliminar esta empresa? Esta acción no se puede deshacer.',
                       () => _deleteCompany(companyId),
                     ),
-                    icon: const Icon(Icons.delete_forever, size: 18, color: Color(0xFF7C3AED)),
-                    label: const Text('Eliminar Empresa', style: TextStyle(color: Color(0xFF7C3AED))),
+                    icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFDC2626)),
+                    label: const Text('Eliminar Empresa', style: TextStyle(color: Color(0xFFDC2626))),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF7C3AED)),
+                      side: const BorderSide(color: Color(0xFFDC2626)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
