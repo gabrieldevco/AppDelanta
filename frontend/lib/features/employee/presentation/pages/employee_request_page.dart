@@ -173,7 +173,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 'Cancelar',
-                style: TextStyle(color: Color(0xFF6B7280)),
+                style: TextStyle(color: Color(0xFF64748B)),
               ),
             ),
             ElevatedButton(
@@ -182,7 +182,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                 _submitAdvanceRequest(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: const Color(0xFF00A86B),
                 foregroundColor: Colors.white,
               ),
               child: const Text('Confirmar'),
@@ -247,7 +247,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
         scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('Solicitud enviada exitosamente'),
-            backgroundColor: Color(0xFF059669),
+            backgroundColor: Color(0xFF10B981),
           ),
         );
 
@@ -300,7 +300,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
         }
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: const Color(0xFFF6F8FB),
           endDrawer: const EmployeeNotificationsDrawer(),
           body: SafeArea(
             child: Column(
@@ -316,9 +316,22 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD1FAE5),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFE8FFF2), Color(0xFFBBF7D0)],
+                            ),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFA7F3D0)),
+                            border: Border.all(color: const Color(0xFF22C55E)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF00A86B,
+                                ).withValues(alpha: 0.14),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
                           ),
                           child: Column(
                             children: [
@@ -326,7 +339,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                 'Disponible para adelantar (50% de \$${_formatCurrency(salary)})',
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF059669),
+                                  color: Color(0xFF047857),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -335,7 +348,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF059669),
+                                  color: Color(0xFF00A86B),
                                 ),
                               ),
                             ],
@@ -364,11 +377,11 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                 decoration: InputDecoration(
                                   prefixText: '\$ ',
                                   prefixStyle: const TextStyle(
-                                    color: Color(0xFF6B7280),
+                                    color: Color(0xFF64748B),
                                     fontSize: 16,
                                   ),
                                   filled: true,
-                                  fillColor: const Color(0xFFF3F4F6),
+                                  fillColor: const Color(0xFFF8FAFC),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide.none,
@@ -409,9 +422,9 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                               const SizedBox(height: 8),
                               SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: const Color(0xFF111827),
-                                  inactiveTrackColor: const Color(0xFFE5E7EB),
-                                  thumbColor: const Color(0xFF111827),
+                                  activeTrackColor: const Color(0xFF00A86B),
+                                  inactiveTrackColor: const Color(0xFFE8FFF2),
+                                  thumbColor: const Color(0xFF047857),
                                   trackHeight: 8,
                                 ),
                                 child: Slider(
@@ -475,7 +488,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2563EB),
+                                      color: Color(0xFF00A86B),
                                     ),
                                   ),
                                 ],
@@ -483,9 +496,9 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                               const SizedBox(height: 16),
                               SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: const Color(0xFF111827),
-                                  inactiveTrackColor: const Color(0xFFE5E7EB),
-                                  thumbColor: const Color(0xFF111827),
+                                  activeTrackColor: const Color(0xFF00A86B),
+                                  inactiveTrackColor: const Color(0xFFE8FFF2),
+                                  thumbColor: const Color(0xFF047857),
                                   trackHeight: 8,
                                 ),
                                 child: Slider(
@@ -526,7 +539,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                 'El interés se calcula proporcional a los días seleccionados',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF6B7280),
+                                  color: Color(0xFF64748B),
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -542,8 +555,8 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                             children: [
                               _buildSummaryRow(
                                 icon: Icons.attach_money,
-                                iconColor: const Color(0xFF2563EB),
-                                bgColor: const Color(0xFFDBEAFE),
+                                iconColor: const Color(0xFF00A86B),
+                                bgColor: const Color(0xFFE8FFF2),
                                 label: 'Monto adelantado',
                                 value:
                                     '\$ ${_amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
@@ -552,12 +565,12 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                               const SizedBox(height: 12),
                               _buildSummaryRow(
                                 icon: Icons.receipt,
-                                iconColor: const Color(0xFF7C3AED),
-                                bgColor: const Color(0xFFEDE9FE),
+                                iconColor: const Color(0xFFF59E0B),
+                                bgColor: const Color(0xFFFEF3C7),
                                 label: 'Fee transacción',
                                 value:
                                     '\$ ${_fee.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
-                                valueColor: const Color(0xFF7C3AED),
+                                valueColor: const Color(0xFFF59E0B),
                               ),
                               const SizedBox(height: 12),
                               _buildSummaryRow(
@@ -611,7 +624,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                           child: ElevatedButton(
                             onPressed: () => _showConfirmationDialog(context),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
+                              backgroundColor: const Color(0xFF00A86B),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -633,7 +646,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFDBEAFE),
+                            color: const Color(0xFFE8FFF2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -644,7 +657,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                   const Icon(
                                     Icons.description,
                                     size: 16,
-                                    color: Color(0xFF2563EB),
+                                    color: Color(0xFF00A86B),
                                   ),
                                   const SizedBox(width: 8),
                                   const Text(
@@ -652,7 +665,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1E40AF),
+                                      color: Color(0xFF047857),
                                     ),
                                   ),
                                 ],
@@ -762,11 +775,11 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(color: Color(0xFF2563EB))),
+          const Text('• ', style: TextStyle(color: Color(0xFF00A86B))),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF1E40AF)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF047857)),
             ),
           ),
         ],

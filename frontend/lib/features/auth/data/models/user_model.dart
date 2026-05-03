@@ -10,7 +10,7 @@ class UserModel {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // Perfiles específicos por rol
   final EmployeeProfile? employeeProfile;
   final AdminProfile? adminProfile;
@@ -44,17 +44,18 @@ class UserModel {
       phone: json['phone'],
       documentNumber: json['document_number'],
       isActive: json['is_active'] ?? true,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null 
+      updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at']) ?? DateTime.now()
           : DateTime.now(),
       employeeProfile: json['employee_profile'] != null
           ? EmployeeProfile.fromJson(json['employee_profile'])
-          : json['profile'] != null  // Backend devuelve 'profile' en algunos endpoints
-              ? EmployeeProfile.fromJson(json['profile'])
-              : null,
+          : json['profile'] !=
+                null // Backend devuelve 'profile' en algunos endpoints
+          ? EmployeeProfile.fromJson(json['profile'])
+          : null,
       adminProfile: json['admin_profile'] != null
           ? AdminProfile.fromJson(json['admin_profile'])
           : null,
@@ -83,7 +84,7 @@ class UserModel {
   }
 
   String get fullName => '$firstName $lastName'.trim();
-  
+
   bool get isEmployee => role == 'employee';
   bool get isEmployer => role == 'employer';
   bool get isAdmin => role == 'admin';
@@ -147,11 +148,15 @@ class EmployeeProfile {
       id: json['id'] ?? 0,
       companyId: json['company'],
       companyName: json['company_name'],
-      salary: json['salary'] != null ? double.parse(json['salary'].toString()) : 0.0,
-      availableAdvanceLimit: json['available_advance_limit'] != null 
-          ? double.parse(json['available_advance_limit'].toString()) 
+      salary: json['salary'] != null
+          ? double.parse(json['salary'].toString())
           : 0.0,
-      hireDate: json['hire_date'] != null ? DateTime.tryParse(json['hire_date']) : null,
+      availableAdvanceLimit: json['available_advance_limit'] != null
+          ? double.parse(json['available_advance_limit'].toString())
+          : 0.0,
+      hireDate: json['hire_date'] != null
+          ? DateTime.tryParse(json['hire_date'])
+          : null,
       bankAccount: json['bank_account'],
       bankName: json['bank_name'],
     );

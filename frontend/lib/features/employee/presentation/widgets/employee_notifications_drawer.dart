@@ -26,49 +26,18 @@ class _EmployeeNotificationsDrawerState
     return Consumer<NotificationProvider>(
       builder: (context, notificationProvider, child) {
         return Container(
-          width: MediaQuery.of(context).size.width * 0.85,
-          color: const Color(0xFFF8FAFC),
+          width: MediaQuery.of(context).size.width * 0.88,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF0FDF4), Color(0xFFF8FAFC)],
+            ),
+          ),
           child: SafeArea(
             child: Column(
               children: [
-                // Header del drawer
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.notifications_outlined,
-                        color: Color(0xFFDC2626),
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Notificaciones',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF111827),
-                          ),
-                        ),
-                      ),
-                      if (notificationProvider.unreadCount > 0)
-                        TextButton.icon(
-                          onPressed: () => notificationProvider.markAllAsRead(),
-                          icon: const Icon(Icons.done_all, size: 18),
-                          label: const Text('Marcar todo'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF2563EB),
-                          ),
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Color(0xFF6B7280)),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildHeader(context, notificationProvider),
                 // Contenido
                 Expanded(
                   child: Builder(
@@ -76,7 +45,11 @@ class _EmployeeNotificationsDrawerState
                       final notifications = notificationProvider.notifications;
 
                       if (notificationProvider.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF00A86B),
+                          ),
+                        );
                       }
 
                       if (notifications.isEmpty) {
@@ -110,7 +83,7 @@ class _EmployeeNotificationsDrawerState
     if (type.contains('success') ||
         type == 'aprobado' ||
         type == 'desembolsado') {
-      iconColor = const Color(0xFF059669);
+      iconColor = const Color(0xFF10B981);
       iconData = Icons.check_circle;
     } else if (type.contains('warning') ||
         type == 'rechazado' ||
@@ -118,7 +91,7 @@ class _EmployeeNotificationsDrawerState
       iconColor = const Color(0xFFF59E0B);
       iconData = Icons.warning;
     } else {
-      iconColor = const Color(0xFF2563EB);
+      iconColor = const Color(0xFF00A86B);
       iconData = Icons.info;
     }
 
@@ -128,8 +101,8 @@ class _EmployeeNotificationsDrawerState
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEE2E2),
-          borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFFFE4E6),
+          borderRadius: BorderRadius.circular(18),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -141,14 +114,28 @@ class _EmployeeNotificationsDrawerState
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.white : const Color(0xFFDBEAFE),
-            borderRadius: BorderRadius.circular(12),
+            gradient: notification.isRead
+                ? null
+                : const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFE8FFF2), Color(0xFFECFEFF)],
+                  ),
+            color: notification.isRead ? Colors.white : null,
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: notification.isRead
-                  ? const Color(0xFFE5E7EB)
-                  : const Color(0xFF93C5FD),
+                  ? const Color(0xFFE2E8F0)
+                  : const Color(0xFF4ADE80),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -158,10 +145,10 @@ class _EmployeeNotificationsDrawerState
                   width: 4,
                   height: 80,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF2563EB),
+                    color: Color(0xFF00A86B),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
+                      topLeft: Radius.circular(18),
+                      bottomLeft: Radius.circular(18),
                     ),
                   ),
                 ),
@@ -176,7 +163,7 @@ class _EmployeeNotificationsDrawerState
                         height: 40,
                         decoration: BoxDecoration(
                           color: iconColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(iconData, color: iconColor, size: 20),
                       ),
@@ -205,7 +192,7 @@ class _EmployeeNotificationsDrawerState
                                     width: 8,
                                     height: 8,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF2563EB),
+                                      color: Color(0xFF00A86B),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -217,7 +204,7 @@ class _EmployeeNotificationsDrawerState
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: Color(0xFF6B7280),
+                                color: Color(0xFF64748B),
                                 height: 1.4,
                               ),
                               maxLines: 2,
@@ -242,6 +229,89 @@ class _EmployeeNotificationsDrawerState
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+    BuildContext context,
+    NotificationProvider notificationProvider,
+  ) {
+    final unread = notificationProvider.unreadCount;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 10, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: const Border(bottom: BorderSide(color: Color(0xFFBBF7D0))),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF00A86B), Color(0xFF22C55E)],
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Notificaciones',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                Text(
+                  unread > 0 ? '$unread sin leer' : 'Todo al dia',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (unread > 0)
+            TextButton.icon(
+              onPressed: () => notificationProvider.markAllAsRead(),
+              icon: const Icon(Icons.done_all, size: 17),
+              label: const Text('Leidas'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF00A86B),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          IconButton(
+            icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
     );
   }
@@ -271,10 +341,18 @@ class _EmployeeNotificationsDrawerState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.notifications_off_outlined,
-            size: 64,
-            color: Colors.grey[400],
+          Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8FFF2),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Icon(
+              Icons.notifications_off_outlined,
+              size: 38,
+              color: Color(0xFF00A86B),
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -282,7 +360,7 @@ class _EmployeeNotificationsDrawerState
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+              color: Color(0xFF111827),
             ),
           ),
           const SizedBox(height: 8),
@@ -291,7 +369,7 @@ class _EmployeeNotificationsDrawerState
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: Colors.grey[500],
+              color: Color(0xFF64748B),
             ),
           ),
         ],

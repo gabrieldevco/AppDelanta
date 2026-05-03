@@ -36,7 +36,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
     final isSmallScreen = MediaQuery.of(context).size.width < 800;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       drawer: const AdminNavDrawer(),
       body: SafeArea(
@@ -47,7 +47,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               padding: const EdgeInsets.all(16),
               child: const AdminHeader(),
             ),
-            
+
             // Contenido principal
             Expanded(
               child: Padding(
@@ -61,15 +61,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     // Título y filtros
                     _buildHeader(),
                     const SizedBox(height: 20),
-                    
+
                     // Filtros
                     _buildFilters(),
                     const SizedBox(height: 20),
-                    
+
                     // Lista de usuarios
-                    Expanded(
-                      child: _buildUsersList(),
-                    ),
+                    Expanded(child: _buildUsersList()),
                   ],
                 ),
               ),
@@ -86,14 +84,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF2563EB),
+            color: const Color(0xFF7C3AED),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.people,
-            color: Colors.white,
-            size: 24,
-          ),
+          child: const Icon(Icons.people, color: Colors.white, size: 24),
         ),
         const SizedBox(width: 16),
         const Expanded(
@@ -110,10 +104,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
               Text(
                 'Administra usuarios y documentos',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF6B7280),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               ),
             ],
           ),
@@ -134,7 +125,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Buscar usuarios...',
-              prefixIcon: const Icon(Icons.search, color: Color(0xFF6B7280)),
+              prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -152,7 +143,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
             onSubmitted: (_) => _loadUsers(),
           ),
         ),
-        
+
         // Filtro por rol
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -176,14 +167,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
             ),
           ),
         ),
-        
+
         // Botón buscar
         ElevatedButton.icon(
           onPressed: _loadUsers,
           icon: const Icon(Icons.filter_list, size: 18),
           label: const Text('Filtrar'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2563EB),
+            backgroundColor: const Color(0xFF7C3AED),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(
@@ -196,10 +187,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   DropdownMenuItem<String> _buildRoleFilterItem(String value, String label) {
-    return DropdownMenuItem(
-      value: value,
-      child: Text(label),
-    );
+    return DropdownMenuItem(value: value, child: Text(label));
   }
 
   Widget _buildUsersList() {
@@ -238,10 +226,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 SizedBox(height: 16),
                 Text(
                   'No hay usuarios registrados',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF6B7280),
-                  ),
+                  style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
                 ),
               ],
             ),
@@ -296,8 +281,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
   DataRow _buildUserDataRow(dynamic user) {
     final isEmployer = user.role == 'employer';
     final hasCompany = isEmployer && user.company != null;
-    final hasDocument = hasCompany && user.company['has_chamber_document'] == true;
-    final documentUrl = hasCompany ? user.company['chamber_of_commerce_document_url'] : null;
+    final hasDocument =
+        hasCompany && user.company['has_chamber_document'] == true;
+    final documentUrl = hasCompany
+        ? user.company['chamber_of_commerce_document_url']
+        : null;
 
     return DataRow(
       cells: [
@@ -312,7 +300,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
               Text(
                 user.email,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
             ],
           ),
@@ -322,11 +310,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
         DataCell(
           isEmployer
               ? (hasCompany
-                  ? Text(user.company['name'] ?? 'N/A')
-                  : const Text('Sin empresa'))
+                    ? Text(user.company['name'] ?? 'N/A')
+                    : const Text('Sin empresa'))
               : (user.employeeProfile != null
-                  ? Text('\$${user.employeeProfile['salary'] ?? '0'}')
-                  : const Text('N/A')),
+                    ? Text('\$${user.employeeProfile['salary'] ?? '0'}')
+                    : const Text('N/A')),
         ),
         DataCell(
           isEmployer && hasCompany
@@ -346,7 +334,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (isEmployer && hasCompany && !(user.company['is_verified'] ?? false))
+              if (isEmployer &&
+                  hasCompany &&
+                  !(user.company['is_verified'] ?? false))
                 IconButton(
                   onPressed: () => _verifyCompany(user.company['id']),
                   icon: const Icon(Icons.verified, color: Colors.green),
@@ -354,7 +344,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 ),
               IconButton(
                 onPressed: () => _showUserDetails(user),
-                icon: const Icon(Icons.visibility, color: Color(0xFF2563EB)),
+                icon: const Icon(Icons.visibility, color: Color(0xFF7C3AED)),
                 tooltip: 'Ver detalles',
               ),
             ],
@@ -367,8 +357,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
   Widget _buildUserCard(dynamic user) {
     final isEmployer = user.role == 'employer';
     final hasCompany = isEmployer && user.company != null;
-    final hasDocument = hasCompany && user.company['has_chamber_document'] == true;
-    final documentUrl = hasCompany ? user.company['chamber_of_commerce_document_url'] : null;
+    final hasDocument =
+        hasCompany && user.company['has_chamber_document'] == true;
+    final documentUrl = hasCompany
+        ? user.company['chamber_of_commerce_document_url']
+        : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -395,7 +388,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         user.email,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -408,11 +401,23 @@ class _UserManagementPageState extends State<UserManagementPage> {
             _buildInfoRow('Documento:', user.documentNumber ?? 'N/A'),
             if (isEmployer && hasCompany) ...[
               _buildInfoRow('Empresa:', user.company['name'] ?? 'N/A'),
-              _buildInfoRow('Razón Social:', user.company['legal_name'] ?? 'N/A'),
-              _buildInfoRow('Estado:', user.company['is_verified'] ? 'Verificada' : 'Pendiente'),
+              _buildInfoRow(
+                'Razón Social:',
+                user.company['legal_name'] ?? 'N/A',
+              ),
+              _buildInfoRow(
+                'Estado:',
+                user.company['is_verified'] ? 'Verificada' : 'Pendiente',
+              ),
             ] else if (user.employeeProfile != null) ...[
-              _buildInfoRow('Salario:', '\$${user.employeeProfile['salary'] ?? '0'}'),
-              _buildInfoRow('Límite Adelanto:', '\$${user.employeeProfile['available_advance_limit'] ?? '0'}'),
+              _buildInfoRow(
+                'Salario:',
+                '\$${user.employeeProfile['salary'] ?? '0'}',
+              ),
+              _buildInfoRow(
+                'Límite Adelanto:',
+                '\$${user.employeeProfile['available_advance_limit'] ?? '0'}',
+              ),
             ],
             if (hasDocument) ...[
               const SizedBox(height: 12),
@@ -429,7 +434,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
             const SizedBox(height: 12),
             Row(
               children: [
-                if (isEmployer && hasCompany && !(user.company['is_verified'] ?? false))
+                if (isEmployer &&
+                    hasCompany &&
+                    !(user.company['is_verified'] ?? false))
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () => _verifyCompany(user.company['id']),
@@ -441,7 +448,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       ),
                     ),
                   ),
-                if (isEmployer && hasCompany && !(user.company['is_verified'] ?? false))
+                if (isEmployer &&
+                    hasCompany &&
+                    !(user.company['is_verified'] ?? false))
                   const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
@@ -465,19 +474,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF6B7280),
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -488,8 +491,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   Widget _buildRoleBadge(String role) {
     final Map<String, dynamic> roleConfig = {
-      'employee': {'label': 'Empleado', 'color': const Color(0xFF2563EB)},
-      'employer': {'label': 'Empleador', 'color': const Color(0xFF059669)},
+      'employee': {'label': 'Empleado', 'color': const Color(0xFF7C3AED)},
+      'employer': {'label': 'Empleador', 'color': const Color(0xFF0D9488)},
       'admin': {'label': 'Admin', 'color': const Color(0xFF7C3AED)},
     };
 
@@ -516,7 +519,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isVerified ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+        color: isVerified
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -543,7 +548,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   Future<void> _openDocument(String? url) async {
     if (url == null) return;
-    
+
     try {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
@@ -556,16 +561,16 @@ class _UserManagementPageState extends State<UserManagementPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
   Future<void> _verifyCompany(int companyId) async {
     final adminProvider = context.read<AdminProvider>();
     final success = await adminProvider.verifyCompany(companyId);
-    
+
     if (!mounted) return;
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -607,13 +612,22 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 _buildDetailRow('Nombre:', user.company['name'] ?? 'N/A'),
-                _buildDetailRow('Razón Social:', user.company['legal_name'] ?? 'N/A'),
+                _buildDetailRow(
+                  'Razón Social:',
+                  user.company['legal_name'] ?? 'N/A',
+                ),
                 _buildDetailRow('NIT:', user.company['tax_id'] ?? 'N/A'),
                 _buildDetailRow('Dirección:', user.company['address'] ?? 'N/A'),
                 _buildDetailRow('Teléfono:', user.company['phone'] ?? 'N/A'),
-                _buildDetailRow('Cuenta Bancaria:', user.company['bank_account'] ?? 'N/A'),
+                _buildDetailRow(
+                  'Cuenta Bancaria:',
+                  user.company['bank_account'] ?? 'N/A',
+                ),
                 _buildDetailRow('Banco:', user.company['bank_name'] ?? 'N/A'),
-                _buildDetailRow('Verificada:', user.company['is_verified'] ? 'Sí' : 'No'),
+                _buildDetailRow(
+                  'Verificada:',
+                  user.company['is_verified'] ? 'Sí' : 'No',
+                ),
               ],
               if (user.role == 'employee' && user.employeeProfile != null) ...[
                 const Divider(),
@@ -621,10 +635,22 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   'Información de Empleado',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                _buildDetailRow('Salario:', '\$${user.employeeProfile['salary'] ?? '0'}'),
-                _buildDetailRow('Límite Adelanto:', '\$${user.employeeProfile['available_advance_limit'] ?? '0'}'),
-                _buildDetailRow('Cuenta Bancaria:', user.employeeProfile['bank_account'] ?? 'N/A'),
-                _buildDetailRow('Banco:', user.employeeProfile['bank_name'] ?? 'N/A'),
+                _buildDetailRow(
+                  'Salario:',
+                  '\$${user.employeeProfile['salary'] ?? '0'}',
+                ),
+                _buildDetailRow(
+                  'Límite Adelanto:',
+                  '\$${user.employeeProfile['available_advance_limit'] ?? '0'}',
+                ),
+                _buildDetailRow(
+                  'Cuenta Bancaria:',
+                  user.employeeProfile['bank_account'] ?? 'N/A',
+                ),
+                _buildDetailRow(
+                  'Banco:',
+                  user.employeeProfile['bank_name'] ?? 'N/A',
+                ),
               ],
             ],
           ),
@@ -645,10 +671,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(width: 8),
           Expanded(child: Text(value)),
         ],

@@ -142,7 +142,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
         _syncControllersFromUser(user);
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: const Color(0xFFF6F8FB),
           endDrawer: const EmployeeNotificationsDrawer(),
           body: SafeArea(
             child: Column(
@@ -170,7 +170,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             onPressed: () {
               Navigator.pop(context);
             },
-            backgroundColor: const Color(0xFF2563EB),
+            backgroundColor: const Color(0xFF00A86B),
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             label: const Text(
               'Volver',
@@ -187,30 +187,40 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
 
   Widget _buildTabBar() {
     return Container(
-      color: Colors.white,
+      color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         padding: const EdgeInsets.all(4),
         child: TabBar(
           controller: _tabController,
           indicator: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF00A86B), Color(0xFF22C55E)],
+            ),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                color: const Color(0xFF00A86B).withValues(alpha: 0.20),
+                blurRadius: 12,
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           indicatorSize: TabBarIndicatorSize.tab,
-          labelColor: const Color(0xFF111827),
-          unselectedLabelColor: const Color(0xFF6B7280),
+          labelColor: Colors.white,
+          unselectedLabelColor: const Color(0xFF64748B),
           labelStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -238,12 +248,13 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE8FFF2)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
                 ),
               ],
             ),
@@ -295,8 +306,9 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       ),
                       label: Text(_isEditing ? 'Guardar' : 'Editar'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF374151),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        foregroundColor: const Color(0xFF00A86B),
+                        side: const BorderSide(color: Color(0xFF86EFAC)),
+                        backgroundColor: const Color(0xFFE9FFF2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -382,9 +394,9 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           // Info box
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFDBEAFE),
+              color: const Color(0xFFE8FFF2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF93C5FD), width: 1),
+              border: Border.all(color: const Color(0xFF4ADE80), width: 1),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -394,7 +406,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                   children: [
                     Icon(
                       Icons.info_outline,
-                      color: const Color(0xFF2563EB),
+                      color: const Color(0xFF00A86B),
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -402,7 +414,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       'Información importante:',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E40AF),
+                        color: Color(0xFF047857),
                       ),
                     ),
                   ],
@@ -434,12 +446,13 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE8FFF2)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
                 ),
               ],
             ),
@@ -566,9 +579,9 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
           // Info box seguridad
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFDBEAFE),
+              color: const Color(0xFFE8FFF2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF93C5FD), width: 1),
+              border: Border.all(color: const Color(0xFF4ADE80), width: 1),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -578,7 +591,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                   children: [
                     Icon(
                       Icons.lock_outline,
-                      color: const Color(0xFF2563EB),
+                      color: const Color(0xFF00A86B),
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -586,7 +599,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       'Seguridad de tu cuenta:',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E40AF),
+                        color: Color(0xFF047857),
                       ),
                     ),
                   ],
@@ -594,15 +607,15 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                 const SizedBox(height: 8),
                 _buildBulletPoint(
                   'Cambia tu contraseña regularmente',
-                  color: const Color(0xFF1E40AF),
+                  color: const Color(0xFF047857),
                 ),
                 _buildBulletPoint(
                   'No compartas tu contraseña con nadie',
-                  color: const Color(0xFF1E40AF),
+                  color: const Color(0xFF047857),
                 ),
                 _buildBulletPoint(
                   'Usa una contraseña única para esta plataforma',
-                  color: const Color(0xFF1E40AF),
+                  color: const Color(0xFF047857),
                 ),
               ],
             ),
@@ -624,7 +637,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: const Color(0xFF6B7280)),
+            Icon(icon, size: 18, color: const Color(0xFF64748B)),
             const SizedBox(width: 8),
             Text(
               label,
@@ -647,23 +660,23 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             filled: true,
             fillColor: enabled
                 ? const Color(0xFFF9FAFB)
-                : const Color(0xFFF3F4F6),
+                : const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                color: Color(0xFF2563EB),
+                color: Color(0xFF00A86B),
                 width: 1.5,
               ),
             ),
@@ -717,7 +730,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             const Icon(
               Icons.account_balance_outlined,
               size: 18,
-              color: Color(0xFF6B7280),
+              color: Color(0xFF64748B),
             ),
             const SizedBox(width: 8),
             const Text(
@@ -740,10 +753,10 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             decoration: BoxDecoration(
               color: enabled
                   ? const Color(0xFFF9FAFB)
-                  : const Color(0xFFF3F4F6),
+                  : const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(10),
               border: enabled
-                  ? Border.all(color: const Color(0xFFE5E7EB))
+                  ? Border.all(color: const Color(0xFFE2E8F0))
                   : null,
             ),
             child: Row(
@@ -761,7 +774,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                 ),
                 Icon(
                   Icons.keyboard_arrow_down,
-                  color: enabled ? const Color(0xFF6B7280) : Colors.grey[400],
+                  color: enabled ? const Color(0xFF64748B) : Colors.grey[400],
                 ),
               ],
             ),
@@ -799,7 +812,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             const Icon(
               Icons.business_outlined,
               size: 18,
-              color: Color(0xFF6B7280),
+              color: Color(0xFF64748B),
             ),
             const SizedBox(width: 8),
             const Text(
@@ -820,7 +833,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             decoration: BoxDecoration(
               color: const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -829,7 +842,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                   selectedCompany['name'] ?? 'Seleccionar empresa...',
                   style: const TextStyle(color: Color(0xFF111827)),
                 ),
-                const Icon(Icons.keyboard_arrow_down, color: Color(0xFF6B7280)),
+                const Icon(Icons.keyboard_arrow_down, color: Color(0xFF64748B)),
               ],
             ),
           ),
@@ -865,7 +878,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                   width: 42,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -885,13 +898,13 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       ),
                       IconButton(
                         icon: const Icon(Icons.close),
-                        color: const Color(0xFF6B7280),
+                        color: const Color(0xFF64748B),
                         onPressed: () => Navigator.pop(sheetContext),
                       ),
                     ],
                   ),
                 ),
-                const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)),
                 Flexible(
                   child: ListView.separated(
                     shrinkWrap: true,
@@ -907,7 +920,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       return Material(
                         color: isSelected
                             ? const Color(0xFFEFF6FF)
-                            : const Color(0xFFF8FAFC),
+                            : const Color(0xFFF6F8FB),
                         borderRadius: BorderRadius.circular(12),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
@@ -928,19 +941,19 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                                   height: 36,
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFFDBEAFE)
+                                        ? const Color(0xFFE8FFF2)
                                         : Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
                                       color: isSelected
-                                          ? const Color(0xFF93C5FD)
-                                          : const Color(0xFFE5E7EB),
+                                          ? const Color(0xFF4ADE80)
+                                          : const Color(0xFFE2E8F0),
                                     ),
                                   ),
                                   child: Icon(
                                     Icons.business_outlined,
                                     color: isSelected
-                                        ? const Color(0xFF2563EB)
+                                        ? const Color(0xFF00A86B)
                                         : const Color(0xFF94A3B8),
                                     size: 20,
                                   ),
@@ -981,7 +994,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                                 if (isSelected)
                                   const Icon(
                                     Icons.check_circle,
-                                    color: Color(0xFF2563EB),
+                                    color: Color(0xFF00A86B),
                                     size: 22,
                                   ),
                               ],
@@ -1018,7 +1031,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
                 ),
                 child: Row(
                   children: [
@@ -1050,12 +1063,12 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                       leading: Icon(
                         Icons.account_balance,
                         color: isSelected
-                            ? const Color(0xFF2563EB)
+                            ? const Color(0xFF00A86B)
                             : Colors.grey[400],
                       ),
                       title: Text(bank),
                       trailing: isSelected
-                          ? const Icon(Icons.check, color: Color(0xFF2563EB))
+                          ? const Icon(Icons.check, color: Color(0xFF00A86B))
                           : null,
                       onTap: () {
                         onChanged(bank);
@@ -1106,7 +1119,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Te has unido a la empresa exitosamente'),
-            backgroundColor: Color(0xFF059669),
+            backgroundColor: Color(0xFF10B981),
           ),
         );
 
@@ -1225,7 +1238,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Contraseña actualizada exitosamente'),
-          backgroundColor: Color(0xFF059669),
+          backgroundColor: Color(0xFF10B981),
         ),
       );
     } catch (e) {
@@ -1276,7 +1289,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFF2563EB),
+                color: Color(0xFF00A86B),
                 width: 1.5,
               ),
             ),
@@ -1289,7 +1302,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
                 obscure
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: const Color(0xFF6B7280),
+                color: const Color(0xFF64748B),
                 size: 20,
               ),
               onPressed: onToggle,
@@ -1302,7 +1315,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
 
   Widget _buildBulletPoint(
     String text, {
-    Color color = const Color(0xFF1E40AF),
+    Color color = const Color(0xFF047857),
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),

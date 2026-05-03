@@ -22,9 +22,7 @@ class _EmployeeMainPageState extends State<EmployeeMainPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-    );
+    return Scaffold(body: _pages[_currentIndex]);
   }
 }
 

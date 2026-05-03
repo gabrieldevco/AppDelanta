@@ -26,35 +26,56 @@ class _AdminHeaderState extends State<AdminHeader> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.user;
-    final displayName = user?.username.isNotEmpty == true
-        ? user!.username
-        : 'Administrador';
+    final fullName = '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim();
+    final displayName = fullName.isNotEmpty
+        ? fullName
+        : (user?.username.isNotEmpty == true
+              ? user!.username
+              : 'Administrador');
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFFFFFF), Color(0xFFF7F1FF)],
+        ),
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFFE9D5FF), width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFF2563EB),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.28),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: const Icon(
               Icons.attach_money,
               color: Colors.white,
-              size: 20,
+              size: 22,
             ),
           ),
           const SizedBox(width: 10),
@@ -65,9 +86,9 @@ class _AdminHeaderState extends State<AdminHeader> {
                 Text(
                   'Appdelanta',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 Text(
@@ -76,7 +97,8 @@ class _AdminHeaderState extends State<AdminHeader> {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF6B7280),
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -87,43 +109,31 @@ class _AdminHeaderState extends State<AdminHeader> {
               return _buildNotificationIcon(context, notificationProvider);
             },
           ),
-          IconButton(
+          _HeaderActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminHelpPage()),
               );
             },
-            icon: const Icon(
-              Icons.help_outline,
-              color: Color(0xFF6B7280),
-              size: 20,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.help_outline, size: 20),
           ),
-          IconButton(
+          _HeaderActionButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminProfilePage()),
               );
             },
-            icon: const Icon(
-              Icons.person_outline,
-              color: Color(0xFF6B7280),
-              size: 20,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.person_outline, size: 20),
           ),
-          IconButton(
+          _HeaderActionButton(
             onPressed: () {
               _showLogoutConfirmation(context);
             },
-            icon: const Icon(Icons.logout, color: Color(0xFFDC2626), size: 20),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.logout, size: 20),
+            color: const Color(0xFFDC2626),
+            backgroundColor: const Color(0xFFFFE4E6),
           ),
         ],
       ),
@@ -138,18 +148,12 @@ class _AdminHeaderState extends State<AdminHeader> {
 
     return Stack(
       children: [
-        IconButton(
+        _HeaderActionButton(
           onPressed: () {
             Scaffold.of(context).openEndDrawer();
             notificationProvider.loadNotifications();
           },
-          icon: const Icon(
-            Icons.notifications_outlined,
-            color: Color(0xFF6B7280),
-            size: 20,
-          ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          icon: const Icon(Icons.notifications_outlined, size: 20),
         ),
         if (unreadCount > 0)
           Positioned(
@@ -212,7 +216,7 @@ class _AdminHeaderState extends State<AdminHeader> {
             const SizedBox(height: 8),
             const Text(
               '¿Estás seguro?',
-              style: TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+              style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
             ),
           ],
         ),
@@ -226,13 +230,13 @@ class _AdminHeaderState extends State<AdminHeader> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                   ),
                   child: const Text(
                     'Cancelar',
                     style: TextStyle(
-                      color: Color(0xFF6B7280),
+                      color: Color(0xFF64748B),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -275,6 +279,42 @@ class _AdminHeaderState extends State<AdminHeader> {
         ],
         actionsPadding: const EdgeInsets.all(20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    );
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  final Widget icon;
+  final VoidCallback onPressed;
+  final Color color;
+  final Color backgroundColor;
+
+  const _HeaderActionButton({
+    required this.icon,
+    required this.onPressed,
+    this.color = const Color(0xFF312E81),
+    this.backgroundColor = const Color(0xFFF5F3FF),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3),
+      child: IconButton(
+        icon: IconTheme(
+          data: IconThemeData(color: color),
+          child: icon,
+        ),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+        style: IconButton.styleFrom(
+          backgroundColor: backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed: onPressed,
       ),
     );
   }

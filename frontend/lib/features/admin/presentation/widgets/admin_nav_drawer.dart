@@ -11,15 +11,13 @@ class AdminNavDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: const Color(0xFF2563EB),
+        color: const Color(0xFF7C3AED),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             // Header del drawer
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF2563EB),
-              ),
+              decoration: const BoxDecoration(color: Color(0xFF7C3AED)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -34,7 +32,7 @@ class AdminNavDrawer extends StatelessWidget {
                     child: const Icon(
                       Icons.admin_panel_settings,
                       size: 32,
-                      color: Color(0xFF2563EB),
+                      color: Color(0xFF7C3AED),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -48,10 +46,7 @@ class AdminNavDrawer extends StatelessWidget {
                   ),
                   const Text(
                     'Administrador',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -143,11 +138,7 @@ class AdminNavDrawer extends StatelessWidget {
     Color? textColor,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: iconColor ?? Colors.white70,
-        size: 24,
-      ),
+      leading: Icon(icon, color: iconColor ?? Colors.white70, size: 24),
       title: Text(
         label,
         style: TextStyle(
@@ -163,7 +154,7 @@ class AdminNavDrawer extends StatelessWidget {
 
   Future<void> _logout(BuildContext context) async {
     Navigator.pop(context);
-    
+
     final authProvider = context.read<AuthProvider>();
     await authProvider.logout();
 

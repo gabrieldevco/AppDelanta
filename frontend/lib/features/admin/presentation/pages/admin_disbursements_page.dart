@@ -38,7 +38,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: Column(
@@ -73,7 +73,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                           'Procesa adelantos aprobados',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF6B7280),
+                            color: Color(0xFF64748B),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -116,25 +116,35 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
       height: 48,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFE5E7EB),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+          ),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.20),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         indicatorSize: TabBarIndicatorSize.tab,
-        labelColor: const Color(0xFF111827),
-        unselectedLabelColor: const Color(0xFF6B7280),
+        labelColor: Colors.white,
+        unselectedLabelColor: const Color(0xFF64748B),
         labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
         unselectedLabelStyle: const TextStyle(
           fontSize: 13,
@@ -185,8 +195,15 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -199,7 +216,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             textAlign: TextAlign.center,
           ),
         ],
@@ -220,8 +237,15 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,12 +257,14 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF5F3FF), Color(0xFFEDE9FE)],
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.account_balance_outlined,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF7C3AED),
                   size: 21,
                 ),
               ),
@@ -287,12 +313,12 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: hasBankInfo
-                  ? const Color(0xFFF8FAFC)
+                  ? const Color(0xFFFAF7FF)
                   : const Color(0xFFFFFBEB),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: hasBankInfo
-                    ? const Color(0xFFE2E8F0)
+                    ? const Color(0xFFE9D5FF)
                     : const Color(0xFFFDE68A),
               ),
             ),
@@ -371,7 +397,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                     icon: const Icon(Icons.check_circle_outline, size: 18),
                     label: const Text('Marcar como completado'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
+                      backgroundColor: const Color(0xFF7C3AED),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -389,8 +415,9 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: const Color(0xFFFAF7FF),
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +473,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFFF6F8FB),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
@@ -463,7 +490,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
 
   Widget _statusChip(String label) {
     final completed = label == 'Completado';
-    final color = completed ? const Color(0xFF059669) : const Color(0xFF2563EB);
+    final color = completed ? const Color(0xFF0D9488) : const Color(0xFF7C3AED);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(

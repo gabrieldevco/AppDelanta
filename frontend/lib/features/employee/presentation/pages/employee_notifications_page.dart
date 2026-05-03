@@ -9,7 +9,8 @@ class EmployeeNotificationsPage extends StatefulWidget {
   const EmployeeNotificationsPage({super.key});
 
   @override
-  State<EmployeeNotificationsPage> createState() => _EmployeeNotificationsPageState();
+  State<EmployeeNotificationsPage> createState() =>
+      _EmployeeNotificationsPageState();
 }
 
 class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
@@ -31,7 +32,8 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
     }
   }
 
-  List<NotificationData> get _notifications => notificationProvider.notifications;
+  List<NotificationData> get _notifications =>
+      notificationProvider.notifications;
 
   int get _unreadCount => notificationProvider.unreadCount;
 
@@ -50,7 +52,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       body: SafeArea(
         child: Column(
           children: [
@@ -88,11 +90,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                 onTap: () => Navigator.pop(context),
                 child: const Row(
                   children: [
-                    Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Color(0xFF374151),
-                    ),
+                    Icon(Icons.arrow_back, size: 20, color: Color(0xFF374151)),
                     SizedBox(width: 8),
                     Text(
                       'Volver',
@@ -118,7 +116,10 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.person_outline, color: Color(0xFF374151)),
+                icon: const Icon(
+                  Icons.person_outline,
+                  color: Color(0xFF374151),
+                ),
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
@@ -156,7 +157,9 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
-                      color: _unreadCount > 0 ? const Color(0xFFDC2626) : const Color(0xFF6B7280),
+                      color: _unreadCount > 0
+                          ? const Color(0xFFDC2626)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -168,7 +171,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                   icon: const Icon(Icons.done_all, size: 18),
                   label: const Text('Marcar todo'),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF2563EB),
+                    foregroundColor: const Color(0xFF00A86B),
                   ),
                 ),
             ],
@@ -182,7 +185,10 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
     return Stack(
       children: [
         IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Color(0xFF2563EB)),
+          icon: const Icon(
+            Icons.notifications_outlined,
+            color: Color(0xFF00A86B),
+          ),
           onPressed: () {},
         ),
         if (_unreadCount > 0)
@@ -195,10 +201,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                 color: Color(0xFFDC2626),
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Center(
                 child: Text(
                   _unreadCount > 9 ? '9+' : '$_unreadCount',
@@ -218,10 +221,10 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
   Widget _buildNotificationCard(NotificationData notification) {
     Color iconColor;
     IconData iconData;
-    
+
     switch (notification.type) {
       case NotificationType.success:
-        iconColor = const Color(0xFF059669);
+        iconColor = const Color(0xFF10B981);
         iconData = Icons.check_circle;
         break;
       case NotificationType.warning:
@@ -229,7 +232,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
         iconData = Icons.warning;
         break;
       case NotificationType.info:
-        iconColor = const Color(0xFF2563EB);
+        iconColor = const Color(0xFF00A86B);
         iconData = Icons.info;
         break;
     }
@@ -253,12 +256,12 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.white : const Color(0xFFDBEAFE),
+            color: notification.isRead ? Colors.white : const Color(0xFFE8FFF2),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: notification.isRead
-                  ? const Color(0xFFE5E7EB)
-                  : const Color(0xFF93C5FD),
+                  ? const Color(0xFFE2E8F0)
+                  : const Color(0xFF4ADE80),
               width: 1,
             ),
           ),
@@ -270,13 +273,13 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                   width: 4,
                   height: 80,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF2563EB),
+                    color: Color(0xFF00A86B),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       bottomLeft: Radius.circular(12),
                     ),
                   ),
-              ),
+                ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -290,11 +293,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                           color: iconColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
-                          iconData,
-                          color: iconColor,
-                          size: 20,
-                        ),
+                        child: Icon(iconData, color: iconColor, size: 20),
                       ),
                       const SizedBox(width: 12),
                       // Contenido
@@ -321,7 +320,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                                     width: 8,
                                     height: 8,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF2563EB),
+                                      color: Color(0xFF00A86B),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -333,7 +332,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
-                                color: const Color(0xFF6B7280),
+                                color: const Color(0xFF64748B),
                                 height: 1.4,
                               ),
                               maxLines: 2,
@@ -436,7 +435,7 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF6B7280),
+                  color: Color(0xFF64748B),
                   height: 1.4,
                 ),
               ),
@@ -448,8 +447,10 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF374151),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: const Text(
@@ -472,7 +473,9 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
                         backgroundColor: const Color(0xFFDC2626),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: const Text(
@@ -490,4 +493,3 @@ class _EmployeeNotificationsPageState extends State<EmployeeNotificationsPage> {
     );
   }
 }
-

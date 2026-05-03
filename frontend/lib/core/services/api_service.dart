@@ -9,11 +9,7 @@ class ApiException implements Exception {
   final int? statusCode;
   final dynamic data;
 
-  ApiException({
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
+  ApiException({required this.message, this.statusCode, this.data});
 
   @override
   String toString() => 'ApiException: $message (Status: $statusCode)';
@@ -44,7 +40,7 @@ class ApiService {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Token $_authToken';
           }
-          
+
           if (kDebugMode) {
             print('🔵 REQUEST: ${options.method} ${options.path}');
             print('Headers: ${options.headers}');
@@ -52,19 +48,23 @@ class ApiService {
               print('Body: ${options.data}');
             }
           }
-          
+
           return handler.next(options);
         },
         onResponse: (response, handler) {
           if (kDebugMode) {
-            print('🟢 RESPONSE: ${response.statusCode} ${response.requestOptions.path}');
+            print(
+              '🟢 RESPONSE: ${response.statusCode} ${response.requestOptions.path}',
+            );
             print('Data: ${response.data}');
           }
           return handler.next(response);
         },
         onError: (error, handler) {
           if (kDebugMode) {
-            print('🔴 ERROR: ${error.response?.statusCode} ${error.requestOptions.path}');
+            print(
+              '🔴 ERROR: ${error.response?.statusCode} ${error.requestOptions.path}',
+            );
             print('Message: ${error.message}');
             print('Data: ${error.response?.data}');
           }
@@ -98,12 +98,12 @@ class ApiService {
   bool get isAuthenticated => _authToken != null;
 
   // GET request
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-      );
+      final response = await _dio.get(path, queryParameters: queryParameters);
       return _handleResponse(response);
     } on SocketException catch (_) {
       throw ApiException(
@@ -120,11 +120,7 @@ class ApiService {
   // POST request
   Future<dynamic> post(String path, {dynamic data, Options? options}) async {
     try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        options: options,
-      );
+      final response = await _dio.post(path, data: data, options: options);
       return _handleResponse(response);
     } on SocketException catch (_) {
       throw ApiException(
@@ -141,10 +137,7 @@ class ApiService {
   // PUT request
   Future<dynamic> put(String path, {dynamic data}) async {
     try {
-      final response = await _dio.put(
-        path,
-        data: data,
-      );
+      final response = await _dio.put(path, data: data);
       return _handleResponse(response);
     } on SocketException catch (_) {
       throw ApiException(
@@ -161,10 +154,7 @@ class ApiService {
   // PATCH request
   Future<dynamic> patch(String path, {dynamic data}) async {
     try {
-      final response = await _dio.patch(
-        path,
-        data: data,
-      );
+      final response = await _dio.patch(path, data: data);
       return _handleResponse(response);
     } on SocketException catch (_) {
       throw ApiException(
@@ -181,10 +171,7 @@ class ApiService {
   // DELETE request
   Future<dynamic> delete(String path, {dynamic data}) async {
     try {
-      final response = await _dio.delete(
-        path,
-        data: data,
-      );
+      final response = await _dio.delete(path, data: data);
       return _handleResponse(response);
     } on SocketException catch (_) {
       throw ApiException(
@@ -260,17 +247,18 @@ class ApiService {
         statusCode: null,
       );
     }
-    
+
     if (error.response != null) {
       return ApiException(
-        message: error.response?.data?['detail'] ?? 
-                 error.response?.data?['error'] ?? 
-                 'Error en la solicitud',
+        message:
+            error.response?.data?['detail'] ??
+            error.response?.data?['error'] ??
+            'Error en la solicitud',
         statusCode: error.response?.statusCode,
         data: error.response?.data,
       );
     }
-    
+
     return ApiException(
       message: 'Error de conexión: ${error.message}',
       statusCode: null,

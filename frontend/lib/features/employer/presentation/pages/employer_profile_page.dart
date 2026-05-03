@@ -73,7 +73,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const EmployerNotificationsDrawer(),
       body: SafeArea(
         child: Column(
@@ -108,7 +108,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pop(context),
-        backgroundColor: const Color(0xFF2563EB),
+        backgroundColor: const Color(0xFF1D4ED8),
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         label: const Text(
           'Volver',
@@ -123,26 +123,35 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       height: 52,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF4FA),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: TabBar(
         controller: _tabController,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+          ),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: const Color(0xFF0284C7).withValues(alpha: 0.24),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         dividerColor: Colors.transparent,
-        labelColor: const Color(0xFF111827),
+        labelColor: Colors.white,
         unselectedLabelColor: const Color(0xFF64748B),
         labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
         unselectedLabelStyle: const TextStyle(
@@ -184,7 +193,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                             ),
                           ),
                         ),
-                        TextButton(
+                        TextButton.icon(
                           onPressed: _saving
                               ? null
                               : () {
@@ -194,7 +203,11 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                                     setState(() => _isEditing = true);
                                   }
                                 },
-                          child: Text(_isEditing ? 'Guardar' : 'Editar'),
+                          icon: Icon(
+                            _isEditing ? Icons.check_rounded : Icons.edit,
+                            size: 17,
+                          ),
+                          label: Text(_isEditing ? 'Guardar' : 'Editar'),
                         ),
                       ],
                     ),
@@ -262,7 +275,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                   icon: const Icon(Icons.key, size: 18),
                   label: const Text('Actualizar contraseña'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF111827),
+                    backgroundColor: const Color(0xFF0F172A),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -294,8 +307,15 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE0F2FE)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: child,
     );
@@ -330,12 +350,12 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
               filled: true,
               fillColor: active
                   ? const Color(0xFFFFFFFF)
-                  : const Color(0xFFF1F5F9),
+                  : const Color(0xFFF8FAFC),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: active
-                    ? const BorderSide(color: Color(0xFFBFDBFE))
-                    : BorderSide.none,
+                    ? const BorderSide(color: Color(0xFF38BDF8), width: 1.2)
+                    : const BorderSide(color: Color(0xFFE2E8F0)),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -360,7 +380,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
           fillColor: const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
           suffixIcon: const Icon(Icons.visibility_off, size: 18),
         ),

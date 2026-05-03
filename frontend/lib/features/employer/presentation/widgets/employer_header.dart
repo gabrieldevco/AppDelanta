@@ -30,30 +30,48 @@ class _EmployerHeaderState extends State<EmployerHeader> {
         final companyName = user?.company?.name ?? 'Mi Empresa';
 
         return Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFFFFF), Color(0xFFE0F2FE)],
+            ),
+            border: const Border(
+              bottom: BorderSide(color: Color(0xFFBAE6FD), width: 1),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: const Color(0xFF0284C7).withValues(alpha: 0.13),
+                blurRadius: 22,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2563EB),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.28),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.attach_money,
                   color: Colors.white,
-                  size: 20,
+                  size: 22,
                 ),
               ),
               const SizedBox(width: 10),
@@ -62,18 +80,19 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'AppDelanta',
+                      'Appdelanta',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF0F172A),
                       ),
                     ),
                     Text(
                       companyName,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -84,11 +103,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                   return _buildNotificationIcon(context, notificationProvider);
                 },
               ),
-              IconButton(
+              _HeaderActionButton(
                 icon: const Icon(Icons.help_outline, size: 20),
-                color: const Color(0xFF6B7280),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -96,11 +112,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                   );
                 },
               ),
-              IconButton(
+              _HeaderActionButton(
                 icon: const Icon(Icons.person_outline, size: 20),
-                color: const Color(0xFF6B7280),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -110,11 +123,10 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                   );
                 },
               ),
-              IconButton(
+              _HeaderActionButton(
                 icon: const Icon(Icons.logout, size: 20),
                 color: const Color(0xFFDC2626),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                backgroundColor: const Color(0xFFFFE4E6),
                 onPressed: () => _showLogoutDialog(context),
               ),
             ],
@@ -132,11 +144,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
 
     return Stack(
       children: [
-        IconButton(
+        _HeaderActionButton(
           icon: const Icon(Icons.notifications_outlined, size: 20),
-          color: const Color(0xFF6B7280),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           onPressed: () {
             Scaffold.of(context).openEndDrawer();
             notificationProvider.loadNotifications();
@@ -209,7 +218,7 @@ class _EmployerHeaderState extends State<EmployerHeader> {
               const Text(
                 '¿Estás seguro?',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 16),
               Row(
@@ -219,7 +228,7 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                       onPressed: () => Navigator.pop(dialogContext),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF374151),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -279,6 +288,42 @@ class _EmployerHeaderState extends State<EmployerHeader> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  final Widget icon;
+  final VoidCallback onPressed;
+  final Color color;
+  final Color backgroundColor;
+
+  const _HeaderActionButton({
+    required this.icon,
+    required this.onPressed,
+    this.color = const Color(0xFF0F172A),
+    this.backgroundColor = const Color(0xFFEFF6FF),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 3),
+      child: IconButton(
+        icon: IconTheme(
+          data: IconThemeData(color: color),
+          child: icon,
+        ),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+        style: IconButton.styleFrom(
+          backgroundColor: backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed: onPressed,
       ),
     );
   }

@@ -13,51 +13,34 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingData> _pages = [
+  final List<OnboardingData> _pages = const [
     OnboardingData(
       icon: Icons.account_balance_wallet_outlined,
-      secondaryIcon: Icons.wallet,
-      title: '¡Bienvenido a AppDelanta!',
-      description: 'Obtén adelantos de tu nómina de forma rápida, segura y sin complicaciones.',
-      primaryColor: const Color(0xFF2563EB),
-      secondaryColor: const Color(0xFF1E40AF),
+      title: 'Appdelanta',
+      description:
+          'Solicita adelantos de nomina con una experiencia rapida, clara y segura.',
+      primaryColor: Color(0xFF2563EB),
+      secondaryColor: Color(0xFF0F766E),
     ),
     OnboardingData(
-      icon: Icons.access_time,
-      secondaryIcon: Icons.bolt,
-      title: 'Adelantos al Instante',
-      description: 'Solicita hasta el 50% de tu salario y recibe el dinero en horas. Desembolsos programados 2 veces al día.',
-      primaryColor: const Color(0xFF059669),
-      secondaryColor: const Color(0xFF047857),
+      icon: Icons.bolt_outlined,
+      title: 'Dinero cuando lo necesitas',
+      description:
+          'Consulta tu cupo disponible, elige el monto y sigue el estado de cada solicitud.',
+      primaryColor: Color(0xFF0F766E),
+      secondaryColor: Color(0xFF7C3AED),
     ),
     OnboardingData(
-      icon: Icons.check_circle_outline,
-      secondaryIcon: Icons.auto_awesome,
-      title: 'Simple y Seguro',
-      description: 'Proceso 100% digital. Tasas transparentes y descuento automático en tu próxima nómina.',
-      primaryColor: const Color(0xFF7C3AED),
-      secondaryColor: const Color(0xFF6D28D9),
+      icon: Icons.verified_user_outlined,
+      title: 'Control para cada rol',
+      description:
+          'Empleados, empleadores y administradores trabajan sobre un flujo simple y trazable.',
+      primaryColor: Color(0xFF7C3AED),
+      secondaryColor: Color(0xFF2563EB),
     ),
   ];
 
-  void _nextPage() async {
-    if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('hasSeenOnboarding', true);
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
-    }
-  }
-
-  void _skip() async {
+  Future<void> _finish() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', true);
     if (!mounted) return;
@@ -65,6 +48,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
     );
+  }
+
+  void _nextPage() {
+    if (_currentPage < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    } else {
+      _finish();
+    }
   }
 
   @override
@@ -75,91 +69,101 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final current = _pages[_currentPage];
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextButton(
-                  onPressed: _skip,
-                  child: const Text(
-                    'Saltar',
-                    style: TextStyle(
-                      color: Color(0xFF374151),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFEAF3FF), Color(0xFFF8FAFC), Colors.white],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: TextButton(
+                    onPressed: _finish,
+                    child: const Text(
+                      'Saltar',
+                      style: TextStyle(
+                        color: Color(0xFF475569),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) => setState(() {
                     _currentPage = index;
-                  });
-                },
-                itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
-                },
+                  }),
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) {
+                    return _buildPage(_pages[index]);
+                  },
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _pages.length,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentPage == index ? 24 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index
-                              ? _pages[_currentPage].primaryColor
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _pages.length,
+                        (index) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentPage == index ? 26 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? current.primaryColor
+                                : const Color(0xFFCBD5E1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _nextPage,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _pages[_currentPage].primaryColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: _nextPage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: current.primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        _currentPage == _pages.length - 1 ? 'Comenzar' : 'Siguiente',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        child: Text(
+                          _currentPage == _pages.length - 1
+                              ? 'Comenzar'
+                              : 'Siguiente',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -167,54 +171,60 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Widget _buildPage(OnboardingData data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 120,
-            height: 120,
+            width: 190,
+            height: 190,
             decoration: BoxDecoration(
-              color: data.primaryColor,
-              shape: BoxShape.circle,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(36),
+              border: Border.all(color: const Color(0xFFE6ECF3)),
               boxShadow: [
                 BoxShadow(
-                  color: data.primaryColor.withValues(alpha: 0.3),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
+                  color: data.primaryColor.withValues(alpha: 0.14),
+                  blurRadius: 36,
+                  offset: const Offset(0, 20),
                 ),
               ],
             ),
-            child: Icon(
-              data.icon,
-              size: 60,
-              color: Colors.white,
+            child: Center(
+              child: Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [data.primaryColor, data.secondaryColor],
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Icon(data.icon, size: 48, color: Colors.white),
+              ),
             ),
           ),
-          const SizedBox(height: 24),
-          Icon(
-            data.secondaryIcon,
-            size: 64,
-            color: data.primaryColor.withValues(alpha: 0.8),
-          ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 36),
           Text(
             data.title,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
             data.description,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,
-              color: Color(0xFF4B5563),
+              color: Color(0xFF64748B),
               height: 1.5,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -225,15 +235,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
 class OnboardingData {
   final IconData icon;
-  final IconData secondaryIcon;
   final String title;
   final String description;
   final Color primaryColor;
   final Color secondaryColor;
 
-  OnboardingData({
+  const OnboardingData({
     required this.icon,
-    required this.secondaryIcon,
     required this.title,
     required this.description,
     required this.primaryColor,

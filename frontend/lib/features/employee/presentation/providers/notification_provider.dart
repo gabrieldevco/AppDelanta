@@ -40,7 +40,8 @@ class NotificationData {
 
 // Provider global simple para notificaciones
 class NotificationProvider extends ChangeNotifier {
-  static final NotificationProvider _instance = NotificationProvider._internal();
+  static final NotificationProvider _instance =
+      NotificationProvider._internal();
   factory NotificationProvider() => _instance;
   NotificationProvider._internal();
 

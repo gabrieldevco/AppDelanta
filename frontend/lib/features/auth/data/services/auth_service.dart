@@ -17,10 +17,7 @@ class AuthService {
   }) async {
     final response = await _apiService.post(
       ApiConstants.authLogin,
-      data: {
-        'email': email,
-        'password': password,
-      },
+      data: {'email': email, 'password': password},
     );
 
     // Guardar token
@@ -60,7 +57,7 @@ class AuthService {
         'last_name': lastName,
         'role': role,
       };
-      
+
       // Agregar campos opcionales solo si no son null ni vacíos
       if (phone != null && phone.isNotEmpty) {
         formMap['phone'] = phone;
@@ -86,7 +83,7 @@ class AuthService {
       if (companyId != null) {
         formMap['company_id'] = companyId.toString();
       }
-      
+
       // Archivo PDF de cámara de comercio
       if (chamberOfCommerceFile != null) {
         formMap['chamber_of_commerce_document'] = await MultipartFile.fromFile(
@@ -94,17 +91,13 @@ class AuthService {
           filename: chamberOfCommerceFile.path.split('/').last,
         );
       }
-      
+
       final formData = FormData.fromMap(formMap);
 
       final response = await _apiService.dio.post(
         ApiConstants.authRegister,
         data: formData,
-        options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
       final data = response.data as Map<String, dynamic>;
@@ -184,10 +177,7 @@ class AuthService {
   }) async {
     await _apiService.post(
       ApiConstants.authPasswordChange,
-      data: {
-        'old_password': oldPassword,
-        'new_password': newPassword,
-      },
+      data: {'old_password': oldPassword, 'new_password': newPassword},
     );
   }
 

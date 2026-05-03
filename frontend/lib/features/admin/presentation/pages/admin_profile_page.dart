@@ -39,19 +39,15 @@ class _AdminProfilePageState extends State<AdminProfilePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: Column(
           children: [
-            // Header with padding
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: const AdminHeader(),
-            ),
+            const AdminHeader(),
             // Title and tabs section
             Container(
-              color: const Color(0xFFF8FAFC),
+              color: const Color(0xFFF6F8FB),
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,34 +63,45 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                   const SizedBox(height: 4),
                   const Text(
                     'Gestiona tu información personal',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6B7280),
-                    ),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 20),
                   // Tabs
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(25),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF7C3AED,
+                          ).withValues(alpha: 0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(25),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+                            color: const Color(
+                              0xFF7C3AED,
+                            ).withValues(alpha: 0.20),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
-                      labelColor: const Color(0xFF111827),
-                      unselectedLabelColor: const Color(0xFF6B7280),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: const Color(0xFF64748B),
                       labelStyle: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -116,10 +123,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildDatosPersonalesTab(),
-                  _buildSeguridadTab(),
-                ],
+                children: [_buildDatosPersonalesTab(), _buildSeguridadTab()],
               ),
             ),
           ],
@@ -129,14 +133,11 @@ class _AdminProfilePageState extends State<AdminProfilePage>
         onPressed: () {
           Navigator.pop(context);
         },
-        backgroundColor: const Color(0xFF2563EB),
+        backgroundColor: const Color(0xFF7C3AED),
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         label: const Text(
           'Volver',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -152,12 +153,13 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFDDD6FE)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
                 ),
               ],
             ),
@@ -185,7 +187,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                           'Actualiza tus datos de contacto',
                           style: TextStyle(
                             fontSize: 13,
-                            color: const Color(0xFF6B7280),
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -198,12 +200,16 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                           });
                         },
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF374151),
-                          side: const BorderSide(color: Color(0xFFE5E7EB)),
+                          foregroundColor: const Color(0xFF7C3AED),
+                          side: const BorderSide(color: Color(0xFFDDD6FE)),
+                          backgroundColor: const Color(0xFFF5F3FF),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                         ),
                         child: const Text(
                           'Editar',
@@ -240,8 +246,8 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                             });
                           },
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF6B7280),
-                            side: const BorderSide(color: Color(0xFFE5E7EB)),
+                            foregroundColor: const Color(0xFF64748B),
+                            side: const BorderSide(color: Color(0xFFE2E8F0)),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -281,9 +287,9 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           // Info importante card
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: const Color(0xFFF5F3FF),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFBFDBFE)),
+              border: Border.all(color: const Color(0xFFE9D5FF)),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -294,7 +300,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                     const Icon(
                       Icons.info_outline,
                       size: 18,
-                      color: Color(0xFF2563EB),
+                      color: Color(0xFF7C3AED),
                     ),
                     const SizedBox(width: 8),
                     const Text(
@@ -302,14 +308,18 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E40AF),
+                        color: Color(0xFF5B21B6),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildInfoBullet('Mantén tu información actualizada para recibir notificaciones importantes'),
-                _buildInfoBullet('Verifica que tu correo electrónico esté correcto'),
+                _buildInfoBullet(
+                  'Mantén tu información actualizada para recibir notificaciones importantes',
+                ),
+                _buildInfoBullet(
+                  'Verifica que tu correo electrónico esté correcto',
+                ),
               ],
             ),
           ),
@@ -328,12 +338,13 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE9D5FF)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
                 ),
               ],
             ),
@@ -352,10 +363,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                 const SizedBox(height: 2),
                 const Text(
                   'Actualiza tu contraseña de acceso',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
-                  ),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 24),
                 // Contraseña actual
@@ -413,7 +421,9 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                       ),
                       const SizedBox(height: 8),
                       _buildRequirementBullet('Mínimo 6 caracteres'),
-                      _buildRequirementBullet('Se recomienda usar letras, números y símbolos'),
+                      _buildRequirementBullet(
+                        'Se recomienda usar letras, números y símbolos',
+                      ),
                     ],
                   ),
                 ),
@@ -448,9 +458,9 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           // Seguridad de la cuenta card
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: const Color(0xFFF5F3FF),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFBFDBFE)),
+              border: Border.all(color: const Color(0xFFE9D5FF)),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -461,7 +471,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                     const Icon(
                       Icons.lock_outline,
                       size: 18,
-                      color: Color(0xFF2563EB),
+                      color: Color(0xFF7C3AED),
                     ),
                     const SizedBox(width: 8),
                     const Text(
@@ -469,7 +479,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E40AF),
+                        color: Color(0xFF5B21B6),
                       ),
                     ),
                   ],
@@ -477,7 +487,9 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                 const SizedBox(height: 12),
                 _buildInfoBullet('Cambia tu contraseña regularmente'),
                 _buildInfoBullet('No compartas tu contraseña con nadie'),
-                _buildInfoBullet('Usa una contraseña única para esta plataforma'),
+                _buildInfoBullet(
+                  'Usa una contraseña única para esta plataforma',
+                ),
               ],
             ),
           ),
@@ -497,11 +509,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
       children: [
         Row(
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: const Color(0xFF6B7280),
-            ),
+            Icon(icon, size: 20, color: const Color(0xFF64748B)),
             const SizedBox(width: 12),
             Text(
               label,
@@ -519,16 +527,21 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           enabled: enabled,
           decoration: InputDecoration(
             filled: true,
-            fillColor: enabled ? const Color(0xFFF9FAFB) : const Color(0xFFF3F4F6),
+            fillColor: enabled
+                ? const Color(0xFFFFFFFF)
+                : const Color(0xFFFAF7FF),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: Color(0xFFE9D5FF)),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
           ),
           style: TextStyle(
             fontSize: 15,
-            color: enabled ? const Color(0xFF111827) : const Color(0xFF6B7280),
+            color: enabled ? const Color(0xFF111827) : const Color(0xFF64748B),
           ),
         ),
       ],
@@ -560,21 +573,23 @@ class _AdminProfilePageState extends State<AdminProfilePage>
           obscureText: !isVisible,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(
-              fontSize: 15,
-              color: Color(0xFFD1D5DB),
-            ),
+            hintStyle: const TextStyle(fontSize: 15, color: Color(0xFFD1D5DB)),
             filled: true,
-            fillColor: const Color(0xFFF9FAFB),
+            fillColor: const Color(0xFFFAF7FF),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: Color(0xFFE9D5FF)),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             suffixIcon: showToggle
                 ? IconButton(
                     icon: Icon(
-                      isVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      isVisible
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       size: 20,
                       color: const Color(0xFF9CA3AF),
                     ),
@@ -582,10 +597,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
                   )
                 : null,
           ),
-          style: const TextStyle(
-            fontSize: 15,
-            color: Color(0xFF111827),
-          ),
+          style: const TextStyle(fontSize: 15, color: Color(0xFF111827)),
         ),
       ],
     );
@@ -599,18 +611,12 @@ class _AdminProfilePageState extends State<AdminProfilePage>
         children: [
           const Text(
             '• ',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF2563EB),
-            ),
+            style: TextStyle(fontSize: 14, color: Color(0xFF7C3AED)),
           ),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF1E40AF),
-              ),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF5B21B6)),
             ),
           ),
         ],
@@ -626,18 +632,12 @@ class _AdminProfilePageState extends State<AdminProfilePage>
         children: [
           const Text(
             '• ',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFA16207),
-            ),
+            style: TextStyle(fontSize: 14, color: Color(0xFFA16207)),
           ),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFFA16207),
-              ),
+              style: const TextStyle(fontSize: 13, color: Color(0xFFA16207)),
             ),
           ),
         ],
@@ -649,17 +649,11 @@ class _AdminProfilePageState extends State<AdminProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.check_circle,
-              color: Color(0xFF059669),
-              size: 64,
-            ),
+            const Icon(Icons.check_circle, color: Color(0xFF0D9488), size: 64),
             const SizedBox(height: 16),
             const Text(
               '¡Éxito!',
@@ -672,10 +666,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
             const SizedBox(height: 8),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -684,7 +675,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF059669),
+                  backgroundColor: const Color(0xFF0D9488),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 14),

@@ -27,14 +27,24 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
       builder: (context, provider, _) {
         return Container(
           width: MediaQuery.of(context).size.width * 0.88,
-          color: const Color(0xFFF8FAFC),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF5F3FF), Color(0xFFF8FAFC)],
+            ),
+          ),
           child: SafeArea(
             child: Column(
               children: [
                 _buildHeader(context, provider),
                 Expanded(
                   child: provider.isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF7C3AED),
+                          ),
+                        )
                       : provider.notifications.isEmpty
                       ? _buildMessage(
                           Icons.notifications_off_outlined,
@@ -64,37 +74,78 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
 
   Widget _buildHeader(BuildContext context, NotificationProvider provider) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 16, 10, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: const Border(bottom: BorderSide(color: Color(0xFFE9D5FF))),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          const Icon(
-            Icons.notifications_outlined,
-            color: Color(0xFF2563EB),
-            size: 24,
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text(
-              'Notificaciones',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Notificaciones',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                Text(
+                  provider.unreadCount > 0
+                      ? '${provider.unreadCount} sin leer'
+                      : 'Todo al dia',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
           if (provider.unreadCount > 0)
             TextButton.icon(
               onPressed: provider.markAllAsRead,
-              icon: const Icon(Icons.done_all, size: 18),
-              label: const Text('Marcar todo'),
+              icon: const Icon(Icons.done_all, size: 17),
+              label: const Text('Leidas'),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF2563EB),
+                foregroundColor: const Color(0xFF7C3AED),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           IconButton(
-            icon: const Icon(Icons.close, color: Color(0xFF6B7280)),
+            icon: const Icon(Icons.close, color: Color(0xFF64748B)),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -108,10 +159,10 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
   ) {
     final unread = !notification.isRead;
     final iconColor = switch (notification.type) {
-      'success' => const Color(0xFF059669),
+      'success' => const Color(0xFF0D9488),
       'warning' => const Color(0xFFF59E0B),
       'error' => const Color(0xFFDC2626),
-      _ => const Color(0xFF2563EB),
+      _ => const Color(0xFF7C3AED),
     };
     final iconData = switch (notification.type) {
       'success' => Icons.check_circle,
@@ -127,7 +178,7 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: const Color(0xFFFEE2E2),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -144,26 +195,51 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
                 notification.id,
               )
             : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: unread ? const Color(0xFFEEF5FF) : Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            gradient: unread
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFF5F3FF), Color(0xFFFFF1F2)],
+                  )
+                : null,
+            color: unread ? null : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
             border: Border.all(
-              color: unread ? const Color(0xFFBFDBFE) : const Color(0xFFE5E7EB),
+              color: unread ? const Color(0xFFE9D5FF) : const Color(0xFFE2E8F0),
             ),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (unread) ...[
+                Container(
+                  width: 4,
+                  height: 76,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF7C3AED),
+                    borderRadius: BorderRadius.all(Radius.circular(999)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(iconData, color: iconColor, size: 20),
               ),
@@ -191,7 +267,7 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
                             width: 8,
                             height: 8,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFDC2626),
+                              color: Color(0xFF7C3AED),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -202,7 +278,7 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
                       notification.message,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF64748B),
                         height: 1.35,
                       ),
                     ),
@@ -229,7 +305,15 @@ class _AdminNotificationsDrawerState extends State<AdminNotificationsDrawer> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 56, color: const Color(0xFFCBD5E1)),
+          Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F3FF),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Icon(icon, size: 38, color: const Color(0xFF7C3AED)),
+          ),
           const SizedBox(height: 12),
           Text(
             text,

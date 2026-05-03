@@ -8,41 +8,43 @@ import '../pages/admin_settings_page.dart';
 class AdminBottomNav extends StatelessWidget {
   final int currentIndex;
 
-  const AdminBottomNav({
-    super.key,
-    required this.currentIndex,
-  });
+  const AdminBottomNav({super.key, required this.currentIndex});
 
   final List<NavItemData> _navItems = const [
     NavItemData(
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
       label: 'Inicio',
-      color: Color(0xFF2563EB),
+      color: Color(0xFF6366F1),
+      endColor: Color(0xFF8B5CF6),
     ),
     NavItemData(
       icon: Icons.people_outlined,
       activeIcon: Icons.people,
       label: 'Usuarios',
-      color: Color(0xFF2563EB),
+      color: Color(0xFF8B5CF6),
+      endColor: Color(0xFFA78BFA),
     ),
     NavItemData(
       icon: Icons.account_balance_wallet_outlined,
       activeIcon: Icons.account_balance_wallet,
       label: 'Desembolsos',
-      color: Color(0xFF2563EB),
+      color: Color(0xFF0D9488),
+      endColor: Color(0xFF14B8A6),
     ),
     NavItemData(
       icon: Icons.bar_chart_outlined,
       activeIcon: Icons.bar_chart,
       label: 'Reportes',
-      color: Color(0xFF2563EB),
+      color: Color(0xFFF97316),
+      endColor: Color(0xFFFB923C),
     ),
     NavItemData(
       icon: Icons.settings_outlined,
       activeIcon: Icons.settings,
       label: 'Config',
-      color: Color(0xFF2563EB),
+      color: Color(0xFF64748B),
+      endColor: Color(0xFF94A3B8),
     ),
   ];
 
@@ -57,109 +59,140 @@ class AdminBottomNav extends StatelessWidget {
     final activeFontSize = isSmallScreen ? 12.0 : 13.0;
 
     return BottomAppBar(
-      elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
+      elevation: 0,
       height: navHeight,
-      color: Colors.white,
+      color: Colors.transparent,
       padding: EdgeInsets.zero,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(_navItems.length, (index) {
-          final isSelected = index == currentIndex;
-          final item = _navItems[index];
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFFFFFFF), Color(0xFFFAF7FF)],
+          ),
+          border: const Border(top: BorderSide(color: Color(0xFFE9D5FF))),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
+              blurRadius: 22,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(_navItems.length, (index) {
+            final isSelected = index == currentIndex;
+            final item = _navItems[index];
 
-          return Expanded(
-            child: InkWell(
-              onTap: () {
-                if (!isSelected) {
-                  if (index == 0) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminMainPage()),
-                    );
-                  } else if (index == 1) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminUserManagementPage()),
-                    );
-                  } else if (index == 2) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminDisbursementsPage()),
-                    );
-                  } else if (index == 3) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminReportsPage()),
-                    );
-                  } else if (index == 4) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminSettingsPage()),
-                    );
+            return Expanded(
+              child: InkWell(
+                onTap: () {
+                  if (!isSelected) {
+                    if (index == 0) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminMainPage(),
+                        ),
+                      );
+                    } else if (index == 1) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminUserManagementPage(),
+                        ),
+                      );
+                    } else if (index == 2) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminDisbursementsPage(),
+                        ),
+                      );
+                    } else if (index == 3) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminReportsPage(),
+                        ),
+                      );
+                    } else if (index == 4) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminSettingsPage(),
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-              child: Container(
-                height: navHeight,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: activeIconSize + 8,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                            width: isSelected ? activeIconSize + 12 : 0,
-                            height: isSelected ? activeIconSize + 8 : 0,
-                            decoration: BoxDecoration(
-                              color: isSelected ? item.color : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: item.color.withValues(alpha: 0.35),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                          AnimatedScale(
-                            scale: isSelected ? 1.0 : 0.85,
-                            duration: const Duration(milliseconds: 200),
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                              size: isSelected ? activeIconSize : iconSize,
-                            ),
-                          ),
-                        ],
+                },
+                child: Container(
+                  height: navHeight,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        width: isSelected ? activeIconSize + 18 : iconSize + 12,
+                        height: isSelected
+                            ? activeIconSize + 12
+                            : iconSize + 10,
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient(
+                                  colors: [item.color, item.endColor],
+                                )
+                              : null,
+                          color: isSelected ? null : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: item.color.withValues(alpha: 0.22),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 7),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Icon(
+                          isSelected ? item.activeIcon : item.icon,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF94A3B8),
+                          size: isSelected ? activeIconSize - 2 : iconSize - 3,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: TextStyle(
-                        color: isSelected ? item.color : const Color(0xFF94A3B8),
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        fontSize: isSelected ? activeFontSize : fontSize,
-                        letterSpacing: isSelected ? 0.2 : 0,
+                      const SizedBox(height: 3),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: TextStyle(
+                          color: isSelected
+                              ? item.color
+                              : const Color(0xFF94A3B8),
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                          fontSize: isSelected ? activeFontSize : fontSize,
+                          letterSpacing: 0,
+                        ),
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(item.label),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }
@@ -170,11 +203,13 @@ class NavItemData {
   final IconData activeIcon;
   final String label;
   final Color color;
+  final Color endColor;
 
   const NavItemData({
     required this.icon,
     required this.activeIcon,
     required this.label,
     required this.color,
+    required this.endColor,
   });
 }

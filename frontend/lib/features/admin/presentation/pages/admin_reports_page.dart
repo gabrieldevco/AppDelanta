@@ -78,7 +78,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Reporte $type generado con los filtros actuales'),
-        backgroundColor: const Color(0xFF059669),
+        backgroundColor: const Color(0xFF0D9488),
       ),
     );
   }
@@ -86,7 +86,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: Consumer<AdminProvider>(
@@ -127,7 +127,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                             'Analitica y estadisticas detalladas',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF6B7280),
+                              color: Color(0xFF64748B),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -226,7 +226,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           _exportButton(
             'Generar Reporte Excel',
             Icons.table_chart,
-            const Color(0xFF059669),
+            const Color(0xFF0D9488),
             () {
               _showExportMessage('Excel');
             },
@@ -249,8 +249,19 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF2563EB),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF312E81), Color(0xFF7C3AED), Color(0xFFEC4899)],
+        ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.22),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +315,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
         children: [
           const Row(
             children: [
-              Icon(Icons.trending_up, color: Color(0xFF2563EB), size: 20),
+              Icon(Icons.trending_up, color: Color(0xFF7C3AED), size: 20),
               SizedBox(width: 8),
               Text(
                 'Ganancias de la Plataforma',
@@ -321,7 +332,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           _earningsRow(
             'Fee por transacciones',
             _currency(summary['fees']),
-            const Color(0xFF2563EB),
+            const Color(0xFF4F46E5),
           ),
           _earningsRow(
             'Intereses',
@@ -353,8 +364,8 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
             child: _metricBox(
               'Total solicitudes',
               '$total',
-              const Color(0xFFEFF6FF),
-              const Color(0xFF2563EB),
+              const Color(0xFFF5F3FF),
+              const Color(0xFF4F46E5),
             ),
           ),
           const SizedBox(height: 12),
@@ -365,7 +376,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                   'Aprobadas',
                   '$approved\n$approvedPercent%',
                   const Color(0xFFECFDF5),
-                  const Color(0xFF059669),
+                  const Color(0xFF0D9488),
                 ),
               ),
               const SizedBox(width: 12),
@@ -391,7 +402,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
         children: [
           const Row(
             children: [
-              Icon(Icons.description, color: Color(0xFF2563EB), size: 20),
+              Icon(Icons.description, color: Color(0xFF7C3AED), size: 20),
               SizedBox(width: 8),
               Text(
                 'Desglose por Empleador',
@@ -403,7 +414,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           if (breakdown.isEmpty)
             const Text(
               'Sin datos para el periodo',
-              style: TextStyle(color: Color(0xFF6B7280)),
+              style: TextStyle(color: Color(0xFF64748B)),
             )
           else
             ...breakdown.map((item) => _employerCard(item as Map)),
@@ -420,7 +431,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
             Icons.business_center,
             '${_toInt(totals['active_employers'])}',
             'Empleadores activos',
-            const Color(0xFF2563EB),
+            const Color(0xFF7C3AED),
           ),
         ),
         const SizedBox(width: 12),
@@ -429,7 +440,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
             Icons.people,
             '${_toInt(totals['employees'])}',
             'Empleados registrados',
-            const Color(0xFF059669),
+            const Color(0xFF0D9488),
           ),
         ),
       ],
@@ -442,8 +453,15 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.07),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: child,
     );
@@ -482,7 +500,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       filled: true,
-      fillColor: const Color(0xFFF3F4F6),
+      fillColor: const Color(0xFFF8FAFC),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -583,7 +601,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 6),
           Text(
@@ -605,9 +623,9 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFFF6F8FB),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,7 +647,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                       '${_toInt(item['employees'])} empleados',
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -646,7 +664,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                   'Desembolsado',
                   _currency(item['disbursed']),
                   const Color(0xFFECFDF5),
-                  const Color(0xFF059669),
+                  const Color(0xFF0D9488),
                 ),
               ),
               const SizedBox(width: 8),
@@ -654,8 +672,8 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                 child: _miniStat(
                   'Recuperado',
                   _currency(item['recovered']),
-                  const Color(0xFFEFF6FF),
-                  const Color(0xFF2563EB),
+                  const Color(0xFFF5F3FF),
+                  const Color(0xFF4F46E5),
                 ),
               ),
               const SizedBox(width: 8),
@@ -686,7 +704,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 9, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 9, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 2),
           Text(
@@ -726,7 +744,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
           ),
         ],
       ),

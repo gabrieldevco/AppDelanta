@@ -48,7 +48,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const EmployerNotificationsDrawer(),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -107,17 +107,24 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                           'Gestiona tu equipo de trabajo',
                           style: TextStyle(
                             fontSize: 15,
-                            color: Color(0xFF6B7280),
+                            color: Color(0xFF64748B),
                           ),
                         ),
                         const SizedBox(height: 20),
+                        _buildTeamHero(
+                          employeeCount: allEmployees.length,
+                          payroll: payroll,
+                          monthTotal: monthTotal,
+                        ),
+                        const SizedBox(height: 16),
                         Row(
                           children: [
                             Expanded(
                               child: _buildMetricCard(
                                 title: 'Total empleados',
                                 value: allEmployees.length.toString(),
-                                bgColor: const Color(0xFF2563EB),
+                                bgColor: const Color(0xFF1D4ED8),
+                                icon: Icons.groups_rounded,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -125,7 +132,8 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                               child: _buildMetricCard(
                                 title: 'Nómina total',
                                 value: _money(payroll),
-                                bgColor: const Color(0xFF059669),
+                                bgColor: const Color(0xFF0891B2),
+                                icon: Icons.account_balance_wallet_rounded,
                               ),
                             ),
                           ],
@@ -191,18 +199,31 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
     required String title,
     required String value,
     required Color bgColor,
+    required IconData icon,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 84),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [bgColor, Color.lerp(bgColor, Colors.black, 0.14)!],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Icon(icon, color: Colors.white, size: 22),
           Text(
             title,
             style: const TextStyle(fontSize: 13, color: Colors.white),
@@ -222,6 +243,129 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
     );
   }
 
+  Widget _buildTeamHero({
+    required int employeeCount,
+    required double payroll,
+    required double monthTotal,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F172A), Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.22),
+            blurRadius: 26,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.16),
+                  ),
+                ),
+                child: const Icon(Icons.badge_outlined, color: Colors.white),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '$employeeCount activos',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'Equipo y nomina',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Controla cupos, salarios y adelantos mensuales con una vista clara.',
+            style: TextStyle(
+              color: Color(0xFFE0F2FE),
+              fontSize: 14,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _heroPill('Nomina', _money(payroll))),
+              const SizedBox(width: 10),
+              Expanded(child: _heroPill('Adelantado', _money(monthTotal))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroPill(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMonthlyProgress(double monthTotal, double maxAvailable) {
     final progress = maxAvailable <= 0
         ? 0.0
@@ -230,8 +374,15 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFBAE6FD)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -251,7 +402,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF0284C7),
                 ),
               ),
             ],
@@ -261,8 +412,8 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: const Color(0xFFE5E7EB),
-              valueColor: const AlwaysStoppedAnimation(Color(0xFF2563EB)),
+              backgroundColor: const Color(0xFFE2E8F0),
+              valueColor: const AlwaysStoppedAnimation(Color(0xFF0284C7)),
               minHeight: 8,
             ),
           ),
@@ -279,10 +430,10 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
         hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
         prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
         filled: true,
-        fillColor: const Color(0xFFF1F5F9),
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: Color(0xFFBAE6FD)),
         ),
       ),
     );
@@ -309,8 +460,15 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE0F2FE)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +479,11 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 width: 46,
                 height: 46,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF2563EB),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+                  ),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.person, color: Colors.white, size: 24),
@@ -358,7 +520,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 child: _infoBox(
                   'Salario',
                   _money(employee.salary),
-                  const Color(0xFFECFDF5),
+                  const Color(0xFFECFEFF),
                 ),
               ),
               const SizedBox(width: 10),
@@ -366,7 +528,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 child: _infoBox(
                   'Banco',
                   '${employee.bankName?.isNotEmpty == true ? employee.bankName : 'Sin banco'}\n$account',
-                  const Color(0xFFDBEAFE),
+                  const Color(0xFFE0F2FE),
                 ),
               ),
             ],
@@ -398,11 +560,11 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: const Color(0xFFE2E8F0),
               valueColor: AlwaysStoppedAnimation(
                 percentage > 0.8
                     ? const Color(0xFFDC2626)
-                    : const Color(0xFF2563EB),
+                    : const Color(0xFF0284C7),
               ),
               minHeight: 8,
             ),
@@ -425,7 +587,9 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF7ED),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFFBEB), Color(0xFFFFEDD5)],
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(

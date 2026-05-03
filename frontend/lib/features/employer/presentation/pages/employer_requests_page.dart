@@ -38,7 +38,7 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const EmployerNotificationsDrawer(),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -81,7 +81,7 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
                               'Aprueba o rechaza solicitudes',
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Color(0xFF6B7280),
+                                color: Color(0xFF64748B),
                               ),
                             ),
                             const SizedBox(height: 18),
@@ -125,26 +125,35 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
       height: 52,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF4FA),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: TabBar(
         controller: _tabController,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+          ),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: const Color(0xFF0284C7).withValues(alpha: 0.24),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         dividerColor: Colors.transparent,
-        labelColor: const Color(0xFF111827),
+        labelColor: Colors.white,
         unselectedLabelColor: const Color(0xFF64748B),
         labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
         unselectedLabelStyle: const TextStyle(
@@ -202,8 +211,15 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE0F2FE)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +286,7 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
                     icon: const Icon(Icons.check, size: 18),
                     label: const Text('Aprobar'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
+                      backgroundColor: const Color(0xFF1D4ED8),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -291,8 +307,13 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFF8FAFC), Color(0xFFE0F2FE)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Color(0xFFE0F2FE)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,8 +417,8 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
 
   Color _statusColor(String status) {
     return switch (status) {
-      'approved' => const Color(0xFF2563EB),
-      'disbursed' || 'recovered' => const Color(0xFF059669),
+      'approved' => const Color(0xFF1D4ED8),
+      'disbursed' || 'recovered' => const Color(0xFF0891B2),
       'rejected' || 'cancelled' => const Color(0xFFDC2626),
       _ => const Color(0xFFF59E0B),
     };

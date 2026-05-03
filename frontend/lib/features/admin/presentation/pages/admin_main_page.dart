@@ -36,7 +36,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
         : <String, dynamic>{};
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: RefreshIndicator(
@@ -48,28 +48,13 @@ class _AdminMainPageState extends State<AdminMainPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const AdminHeader(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Panel Administrador',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Monitorea la plataforma de adelantos',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
+                      _buildHeroAdminCard(advances, users),
                       const SizedBox(height: 20),
                       Row(
                         children: [
@@ -80,7 +65,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                                 advances['total_disbursed'],
                               ),
                               icon: Icons.attach_money,
-                              color: const Color(0xFF059669),
+                              color: const Color(0xFF0D9488),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -92,7 +77,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                               ),
                               subtitle: _recoveryPercentage(advances),
                               icon: Icons.trending_up,
-                              color: const Color(0xFF2563EB),
+                              color: const Color(0xFF7C3AED),
                             ),
                           ),
                         ],
@@ -114,7 +99,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                               title: 'Empleadores',
                               count: '${_toInt(users['employers'])}',
                               icon: Icons.business,
-                              color: const Color(0xFF2563EB),
+                              color: const Color(0xFF7C3AED),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -123,7 +108,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                               title: 'Empleados',
                               count: '${_toInt(users['employees'])}',
                               icon: Icons.people,
-                              color: const Color(0xFF059669),
+                              color: const Color(0xFF0D9488),
                             ),
                           ),
                         ],
@@ -143,6 +128,148 @@ class _AdminMainPageState extends State<AdminMainPage> {
     );
   }
 
+  Widget _buildHeroAdminCard(
+    Map<String, dynamic> advances,
+    Map<String, dynamic> users,
+  ) {
+    final totalUsers = _toInt(users['employees']) + _toInt(users['employers']);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF111827), Color(0xFF7C3AED)],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C3AED).withValues(alpha: 0.22),
+            blurRadius: 30,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.white,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '$totalUsers usuarios',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Panel Administrador',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Vista ejecutiva de operaciones, usuarios y rentabilidad.',
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: Color(0xFFEDE9FE),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: _buildHeroMetric(
+                  'Desembolsado',
+                  _formatCurrency(advances['total_disbursed']),
+                  Icons.payments_outlined,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildHeroMetric(
+                  'Recuperado',
+                  _formatCurrency(advances['total_recovered']),
+                  Icons.trending_up,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroMetric(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white, size: 19),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFFEDE9FE),
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatsCard({
     required String title,
     required String amount,
@@ -153,8 +280,19 @@ class _AdminMainPageState extends State<AdminMainPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [color, Color.lerp(color, Colors.black, 0.16)!],
+        ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +337,23 @@ class _AdminMainPageState extends State<AdminMainPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3E8FF),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFAF7FF),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6D28D9).withValues(alpha: 0.07),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.show_chart, color: Color(0xFF7C3AED), size: 20),
+              const Icon(Icons.show_chart, color: Color(0xFF6D28D9), size: 20),
               const SizedBox(width: 8),
               const Text(
                 'Ganancias de la Plataforma',
@@ -231,7 +377,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
               children: [
                 const Text(
                   'Total ganancias',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -239,7 +385,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF7C3AED),
+                    color: Color(0xFF6D28D9),
                   ),
                 ),
               ],
@@ -252,7 +398,9 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7C3AED),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -280,7 +428,9 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFA855F7),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF8B5CF6), Color(0xFFC084FC)],
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -325,8 +475,15 @@ class _AdminMainPageState extends State<AdminMainPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +499,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
           const SizedBox(height: 4),
           const Text(
             'Distribución últimos meses',
-            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -358,7 +515,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                         'Sin movimientos recientes',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF64748B),
                         ),
                       ),
                     ),
@@ -410,7 +567,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   style: const TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF059669),
+                    color: Color(0xFF0D9488),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -418,7 +575,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   width: 20,
                   height: 100 * height1,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF059669),
+                    color: const Color(0xFF0D9488),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -434,7 +591,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   style: const TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2563EB),
+                    color: Color(0xFF7C3AED),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -442,7 +599,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   width: 20,
                   height: 100 * height2,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
+                    color: const Color(0xFF7C3AED),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -453,7 +610,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
         ),
       ],
     );
@@ -517,8 +674,15 @@ class _AdminMainPageState extends State<AdminMainPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -536,7 +700,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
               ),
               Text(
                 count,
@@ -557,8 +721,9 @@ class _AdminMainPageState extends State<AdminMainPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFDBEAFE),
+        color: const Color(0xFFEEF2FF),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC7D2FE)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,12 +733,12 @@ class _AdminMainPageState extends State<AdminMainPage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.access_time,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF4F46E5),
                   size: 18,
                 ),
               ),
@@ -583,7 +748,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF4338CA),
                 ),
               ),
             ],
@@ -591,11 +756,11 @@ class _AdminMainPageState extends State<AdminMainPage> {
           const SizedBox(height: 8),
           const Text(
             '• 06:00 - 12:00 → Procesamiento a las 13:00',
-            style: TextStyle(fontSize: 13, color: Color(0xFF2563EB)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF4338CA)),
           ),
           const Text(
             '• 12:01 - 17:00 → Procesamiento a las 18:00',
-            style: TextStyle(fontSize: 13, color: Color(0xFF2563EB)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF4338CA)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -603,12 +768,12 @@ class _AdminMainPageState extends State<AdminMainPage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF059669).withValues(alpha: 0.1),
+                  color: const Color(0xFF0D9488).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.monetization_on,
-                  color: Color(0xFF059669),
+                  color: Color(0xFF0D9488),
                   size: 18,
                 ),
               ),
@@ -618,7 +783,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF4338CA),
                 ),
               ),
             ],
@@ -626,15 +791,15 @@ class _AdminMainPageState extends State<AdminMainPage> {
           const SizedBox(height: 8),
           const Text(
             '• Fee por transacción (principal ingreso)',
-            style: TextStyle(fontSize: 13, color: Color(0xFF2563EB)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF4338CA)),
           ),
           const Text(
             '• Interés 2.5% mensual proporcional',
-            style: TextStyle(fontSize: 13, color: Color(0xFF2563EB)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF4338CA)),
           ),
           const Text(
             '• 100% de ganancias para la plataforma',
-            style: TextStyle(fontSize: 13, color: Color(0xFF2563EB)),
+            style: TextStyle(fontSize: 13, color: Color(0xFF4338CA)),
           ),
         ],
       ),

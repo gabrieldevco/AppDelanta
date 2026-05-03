@@ -87,7 +87,8 @@ extension ResponsiveBuildContext on BuildContext {
   double get responsiveHPadding => ResponsiveUtils.getHorizontalPadding(this);
   double responsiveFont(double size) => ResponsiveUtils.getFontSize(this, size);
   double responsiveIcon(double size) => ResponsiveUtils.getIconSize(this, size);
-  double responsiveSpacing(double spacing) => ResponsiveUtils.getSpacing(this, spacing);
+  double responsiveSpacing(double spacing) =>
+      ResponsiveUtils.getSpacing(this, spacing);
   bool get isSmallScreen => ResponsiveUtils.isSmallScreen(this);
   bool get isMediumScreen => ResponsiveUtils.isMediumScreen(this);
   bool get isLargeScreen => ResponsiveUtils.isLargeScreen(this);

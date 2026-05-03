@@ -181,7 +181,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
               : 'Error al guardar configuracion',
         ),
         backgroundColor: success
-            ? const Color(0xFF059669)
+            ? const Color(0xFF0D9488)
             : const Color(0xFFDC2626),
       ),
     );
@@ -190,7 +190,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: Column(
@@ -214,23 +214,35 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
                   const SizedBox(height: 4),
                   const Text(
                     'Administra los parametros del sistema',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(25),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE9D5FF)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF7C3AED,
+                          ).withValues(alpha: 0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(25),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
-                      labelColor: const Color(0xFF111827),
-                      unselectedLabelColor: const Color(0xFF6B7280),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: const Color(0xFF64748B),
                       dividerColor: Colors.transparent,
                       tabs: const [
                         Tab(text: 'Fees e Intereses'),
@@ -404,8 +416,15 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.07),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: child,
     );
@@ -423,10 +442,12 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF5F3FF), Color(0xFFEDE9FE)],
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: const Color(0xFF2563EB)),
+          child: Icon(icon, color: const Color(0xFF7C3AED)),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -442,7 +463,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
               ),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
             ],
           ),
@@ -458,9 +479,9 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
 
   Widget _feeCard(int index, _FeeControllers item) {
     final colors = [
-      const Color(0xFFDBEAFE),
-      const Color(0xFFF3E8FF),
-      const Color(0xFFECFDF5),
+      const Color(0xFFF5F3FF),
+      const Color(0xFFFFF1F2),
+      const Color(0xFFECFEFF),
     ];
     final color = colors[index % colors.length];
     return Container(
@@ -512,9 +533,9 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFFFAF7FF),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: const Color(0xFFE9D5FF)),
       ),
       child: Column(
         children: [
@@ -565,14 +586,14 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
               : TextInputType.numberWithOptions(decimal: decimal),
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color(0xFFF3F4F6),
+            fillColor: const Color(0xFFF8FAFC),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: Color(0xFFE9D5FF)),
             ),
           ),
         ),

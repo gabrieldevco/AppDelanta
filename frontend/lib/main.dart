@@ -16,10 +16,10 @@ import 'core/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Inicializar servicio de API
   await apiService.initialize();
-  
+
   runApp(const MyApp());
 }
 
@@ -40,10 +40,86 @@ class MyApp extends StatelessWidget {
         title: 'AppDelanta',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2563EB)),
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: const Color(0xFF2563EB),
+                brightness: Brightness.light,
+              ).copyWith(
+                primary: const Color(0xFF2563EB),
+                secondary: const Color(0xFF0F766E),
+                tertiary: const Color(0xFF7C3AED),
+                surface: Colors.white,
+                surfaceContainerHighest: const Color(0xFFF1F5F9),
+                error: const Color(0xFFDC2626),
+              ),
+          scaffoldBackgroundColor: const Color(0xFFF6F8FB),
           useMaterial3: true,
-          textTheme: GoogleFonts.interTextTheme(),
+          textTheme: GoogleFonts.interTextTheme().apply(
+            bodyColor: const Color(0xFF111827),
+            displayColor: const Color(0xFF111827),
+          ),
           fontFamily: GoogleFonts.inter().fontFamily,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: Color(0xFF111827),
+            elevation: 0,
+            centerTitle: false,
+          ),
+          cardTheme: CardThemeData(
+            color: Colors.white,
+            elevation: 0,
+            margin: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2563EB),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              minimumSize: const Size(48, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF374151),
+              side: const BorderSide(color: Color(0xFFD8DEE9)),
+              minimumSize: const Size(48, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: const Color(0xFFF8FAFC),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFD8DEE9)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFD8DEE9)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: Color(0xFF2563EB),
+                width: 1.4,
+              ),
+            ),
+          ),
         ),
         home: const AppInitializer(),
       ),
@@ -68,10 +144,10 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<void> _initializeApp() async {
     // Guardar referencias antes de los awaits
     final authProvider = context.read<AuthProvider>();
-    
+
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-    
+
     if (!hasSeenOnboarding) {
       if (mounted) {
         Navigator.pushReplacement(

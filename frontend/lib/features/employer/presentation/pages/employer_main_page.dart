@@ -41,7 +41,7 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const EmployerNotificationsDrawer(),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -71,25 +71,13 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                         .fold<double>(0, (sum, a) => sum + a.amount);
 
                     return ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
                       children: [
-                        const Text(
-                          'Panel de Control',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF111827),
-                          ),
+                        _buildHeroHeader(
+                          employeeCount: employees.length,
+                          pendingDiscount: pendingDiscount,
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Gestiona los adelantos de tus empleados',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 18),
                         _buildMetricsCards(
                           employeeCount: employees.length,
                           totalAdvanced: totalAdvanced,
@@ -113,6 +101,118 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
     );
   }
 
+  Widget _buildHeroHeader({
+    required int employeeCount,
+    required double pendingDiscount,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F172A), Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0284C7).withValues(alpha: 0.24),
+            blurRadius: 28,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.business_center, color: Colors.white),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '$employeeCount empleados',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Panel de Control',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Gestiona solicitudes, desembolsos y descuentos con claridad.',
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: Color(0xFFE0F2FE),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.receipt_long, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Pendiente por descontar',
+                    style: TextStyle(
+                      color: Color(0xFFE0F2FE),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Text(
+                  _money(pendingDiscount),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMetricsCards({
     required int employeeCount,
     required double totalAdvanced,
@@ -128,7 +228,7 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                 title: 'Empleados',
                 value: employeeCount.toString(),
                 icon: Icons.people,
-                bgColor: const Color(0xFF2563EB),
+                bgColor: const Color(0xFF1D4ED8),
                 textColor: Colors.white,
               ),
             ),
@@ -138,7 +238,7 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                 title: 'Adelantado',
                 value: _money(totalAdvanced),
                 icon: Icons.attach_money,
-                bgColor: const Color(0xFF059669),
+                bgColor: const Color(0xFF0891B2),
                 textColor: Colors.white,
               ),
             ),
@@ -152,8 +252,8 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                 title: 'Pendiente descuento',
                 value: _money(pendingDiscount),
                 icon: Icons.trending_up,
-                bgColor: const Color(0xFFFFEDD5),
-                iconColor: const Color(0xFFEA580C),
+                bgColor: const Color(0xFFE0F2FE),
+                iconColor: const Color(0xFF0284C7),
               ),
             ),
             const SizedBox(width: 12),
@@ -162,8 +262,8 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                 title: 'Total solicitudes',
                 value: requestCount.toString(),
                 icon: Icons.receipt_long,
-                bgColor: const Color(0xFFF3E8FF),
-                iconColor: const Color(0xFF7C3AED),
+                bgColor: const Color(0xFFECFEFF),
+                iconColor: const Color(0xFF0891B2),
               ),
             ),
           ],
@@ -186,8 +286,22 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
       padding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 104),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(14),
+        gradient: textColor != null
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [bgColor, Color.lerp(bgColor, Colors.black, 0.16)!],
+              )
+            : null,
+        color: textColor == null ? bgColor : null,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withValues(alpha: textColor != null ? 0.18 : 0.1),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,8 +329,15 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,9 +382,9 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: const Color(0xFFF6F8FB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         children: [
@@ -284,7 +405,7 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                   _shortDate(advance.requestDate),
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -360,8 +481,8 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
 
   Color _statusColor(String status) {
     return switch (status) {
-      'approved' => const Color(0xFF2563EB),
-      'disbursed' || 'recovered' => const Color(0xFF059669),
+      'approved' => const Color(0xFF1D4ED8),
+      'disbursed' || 'recovered' => const Color(0xFF0891B2),
       'rejected' || 'cancelled' => const Color(0xFFDC2626),
       _ => const Color(0xFFF59E0B),
     };

@@ -6,132 +6,172 @@ import '../pages/employer_employees_page.dart';
 class EmployerBottomNav extends StatelessWidget {
   final int currentIndex;
 
-  const EmployerBottomNav({
-    super.key,
-    required this.currentIndex,
-  });
+  const EmployerBottomNav({super.key, required this.currentIndex});
 
   final List<NavItemData> _navItems = const [
     NavItemData(
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
       label: 'Inicio',
-      color: Color(0xFF2563EB),
+      color: Color(0xFF1D4ED8),
+      endColor: Color(0xFF06B6D4),
     ),
     NavItemData(
       icon: Icons.description_outlined,
       activeIcon: Icons.description,
       label: 'Solicitudes',
-      color: Color(0xFF7C3AED),
+      color: Color(0xFF0284C7),
+      endColor: Color(0xFF38BDF8),
     ),
     NavItemData(
       icon: Icons.people_outlined,
       activeIcon: Icons.people,
       label: 'Empleados',
-      color: Color(0xFF059669),
+      color: Color(0xFF0891B2),
+      endColor: Color(0xFF22D3EE),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      height: 80,
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(_navItems.length, (index) {
-          final isSelected = index == currentIndex;
-          final item = _navItems[index];
+      elevation: 0,
+      height: 84,
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFFFFFFF), Color(0xFFE0F2FE)],
+          ),
+          border: const Border(top: BorderSide(color: Color(0xFFBAE6FD))),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+              blurRadius: 22,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(_navItems.length, (index) {
+            final isSelected = index == currentIndex;
+            final item = _navItems[index];
 
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                if (!isSelected) {
-                  if (index == 0) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const EmployerMainPage()),
-                      (route) => false,
-                    );
-                  } else if (index == 1) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const EmployerRequestsPage()),
-                      (route) => false,
-                    );
-                  } else if (index == 2) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const EmployerEmployeesPage()),
-                      (route) => false,
-                    );
-                  }
-                }
-              },
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                height: double.infinity,
-                alignment: Alignment.center,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeOut,
-                            width: isSelected ? 32 : 28,
-                            height: isSelected ? 32 : 28,
-                            decoration: BoxDecoration(
-                              color: isSelected ? item.color : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: item.color.withValues(alpha: 0.4),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                          AnimatedScale(
-                            scale: isSelected ? 1.0 : 0.85,
-                            duration: const Duration(milliseconds: 200),
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                              size: isSelected ? 22 : 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          color: isSelected ? item.color : const Color(0xFF94A3B8),
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                          fontSize: isSelected ? 15 : 14,
-                          letterSpacing: isSelected ? 0.3 : 0,
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  if (!isSelected) {
+                    if (index == 0) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EmployerMainPage(),
                         ),
-                        child: Text(item.label),
-                      ),
-                    ],
+                        (route) => false,
+                      );
+                    } else if (index == 1) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EmployerRequestsPage(),
+                        ),
+                        (route) => false,
+                      );
+                    } else if (index == 2) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EmployerEmployeesPage(),
+                        ),
+                        (route) => false,
+                      );
+                    }
+                  }
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  height: double.infinity,
+                  alignment: Alignment.center,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOut,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 0,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                              width: isSelected ? 46 : 34,
+                              height: isSelected ? 38 : 32,
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: [item.color, item.endColor],
+                                      )
+                                    : null,
+                                color: isSelected
+                                    ? null
+                                    : const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: item.color.withValues(
+                                            alpha: 0.22,
+                                          ),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 7),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                            ),
+                            AnimatedScale(
+                              scale: isSelected ? 1.0 : 0.85,
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                isSelected ? item.activeIcon : item.icon,
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF94A3B8),
+                                size: isSelected ? 22 : 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 200),
+                          style: TextStyle(
+                            color: isSelected
+                                ? item.color
+                                : const Color(0xFF94A3B8),
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            fontSize: isSelected ? 13 : 12,
+                            letterSpacing: 0,
+                          ),
+                          child: Text(item.label),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }
@@ -142,11 +182,13 @@ class NavItemData {
   final IconData activeIcon;
   final String label;
   final Color color;
+  final Color endColor;
 
   const NavItemData({
     required this.icon,
     required this.activeIcon,
     required this.label,
     required this.color,
+    required this.endColor,
   });
 }

@@ -48,7 +48,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
             .fold<double>(0, (sum, advance) => sum + advance.fee);
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: const Color(0xFFF6F8FB),
           endDrawer: const EmployeeNotificationsDrawer(),
           body: SafeArea(
             child: Column(
@@ -72,7 +72,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'Consulta todas tus solicitudes',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF6B7280)),
+                    style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -84,7 +84,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
                         child: _buildTotalCard(
                           label: 'Total adelantado',
                           value: '\$ ${_formatCurrency(totalAdvanced)}',
-                          valueColor: const Color(0xFF2563EB),
+                          valueColor: const Color(0xFF00A86B),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -101,26 +101,39 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
                 const SizedBox(height: 24),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
-                    borderRadius: BorderRadius.circular(25),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00A86B).withValues(alpha: 0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: TabBar(
                     controller: _tabController,
                     indicator: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF00A86B), Color(0xFF22C55E)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          color: const Color(
+                            0xFF00A86B,
+                          ).withValues(alpha: 0.24),
+                          blurRadius: 12,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
-                    labelColor: const Color(0xFF111827),
-                    unselectedLabelColor: const Color(0xFF6B7280),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: const Color(0xFF64748B),
                     labelStyle: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -163,7 +176,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
   ) {
     if (advanceProvider.isLoading && advanceProvider.advances.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF7C3AED)),
+        child: CircularProgressIndicator(color: Color(0xFFF59E0B)),
       );
     }
 
@@ -195,13 +208,13 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
               Text(
                 advanceProvider.errorMessage ?? 'Error al cargar historial',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => advanceProvider.loadMyAdvances(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
+                  backgroundColor: const Color(0xFFF59E0B),
                   foregroundColor: Colors.white,
                 ),
                 child: const Text('Reintentar'),
@@ -218,7 +231,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
 
     return RefreshIndicator(
       onRefresh: () => context.read<AdvanceProvider>().loadMyAdvances(),
-      color: const Color(0xFF7C3AED),
+      color: const Color(0xFFF59E0B),
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: advances.length,
@@ -276,7 +289,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
                       _formatDate(advance.requestDate),
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -367,7 +380,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 8),
           Text(
@@ -419,15 +432,15 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
     if (advance.isApproved) {
       return const _AdvanceStatusStyle(
         icon: Icons.check_circle_outline,
-        color: Color(0xFF2563EB),
-        background: Color(0xFFDBEAFE),
+        color: Color(0xFF00A86B),
+        background: Color(0xFFE8FFF2),
       );
     }
     if (advance.isDisbursed || advance.isRecovered) {
       return const _AdvanceStatusStyle(
         icon: Icons.payments_outlined,
-        color: Color(0xFF059669),
-        background: Color(0xFFD1FAE5),
+        color: Color(0xFF10B981),
+        background: Color(0xFFBBF7D0),
       );
     }
     if (advance.isRejected || advance.isCancelled) {
@@ -439,8 +452,8 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
     }
     return const _AdvanceStatusStyle(
       icon: Icons.description_outlined,
-      color: Color(0xFF6B7280),
-      background: Color(0xFFF3F4F6),
+      color: Color(0xFF64748B),
+      background: Color(0xFFF8FAFC),
     );
   }
 

@@ -121,7 +121,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
         content: Text(message),
         backgroundColor: isError
             ? const Color(0xFFDC2626)
-            : const Color(0xFF059669),
+            : const Color(0xFF0D9488),
       ),
     );
   }
@@ -160,7 +160,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
       body: SafeArea(
         child: Column(
@@ -184,7 +184,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
-      decoration: const BoxDecoration(color: Color(0xFFF8FAFC)),
+      decoration: const BoxDecoration(color: Color(0xFFF6F8FB)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -194,13 +194,12 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.manage_accounts,
-                  color: Color(0xFF2563EB),
-                ),
+                child: const Icon(Icons.manage_accounts, color: Colors.white),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -218,7 +217,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
                     SizedBox(height: 2),
                     Text(
                       'Administra empleados y empleadores',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
@@ -235,26 +234,35 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             height: 52,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF4FA),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE9D5FF)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.10),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: TabBar(
               controller: _tabController,
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
                   BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.22),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
-              labelColor: const Color(0xFF111827),
+              labelColor: Colors.white,
               unselectedLabelColor: const Color(0xFF64748B),
               labelStyle: const TextStyle(
                 fontSize: 13,
@@ -287,14 +295,14 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+              color: const Color(0xFFF5F3FF),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               '$count',
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF2563EB),
+                color: Color(0xFF7C3AED),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -376,7 +384,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
 
   Widget _buildLoading() {
     return const Center(
-      child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+      child: CircularProgressIndicator(color: Color(0xFF7C3AED)),
     );
   }
 
@@ -395,10 +403,10 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
+                color: const Color(0xFFF5F3FF),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(icon, size: 36, color: const Color(0xFF2563EB)),
+              child: Icon(icon, size: 36, color: const Color(0xFF7C3AED)),
             ),
             const SizedBox(height: 18),
             Text(
@@ -414,7 +422,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
             ),
           ],
         ),
@@ -430,7 +438,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   }) {
     final displayName = name.trim().isEmpty ? 'Sin nombre' : name.trim();
     return _userCard(
-      accentColor: const Color(0xFF059669),
+      accentColor: const Color(0xFF0D9488),
       icon: Icons.person,
       title: displayName,
       subtitle: email,
@@ -462,14 +470,14 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
       decoration: _cardDecoration(
         borderColor: isVerified
             ? const Color(0xFF86EFAC)
-            : const Color(0xFFE5E7EB),
+            : const Color(0xFFE2E8F0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              _avatar(const Color(0xFF2563EB), Icons.business),
+              _avatar(const Color(0xFF7C3AED), Icons.business),
               const SizedBox(width: 12),
               Expanded(child: _identity(displayName, email, document)),
               _statusBadge(isVerified),
@@ -499,7 +507,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
                   label: isVerified ? 'Quitar verificacion' : 'Verificar',
                   color: isVerified
                       ? const Color(0xFFF59E0B)
-                      : const Color(0xFF059669),
+                      : const Color(0xFF0D9488),
                   onPressed: () => _verifyCompany(companyId, !isVerified),
                 ),
               _softAction(
@@ -552,16 +560,16 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     );
   }
 
-  BoxDecoration _cardDecoration({Color borderColor = const Color(0xFFE5E7EB)}) {
+  BoxDecoration _cardDecoration({Color borderColor = const Color(0xFFE2E8F0)}) {
     return BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(18),
       border: Border.all(color: borderColor),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x08000000),
-          blurRadius: 10,
-          offset: Offset(0, 3),
+          color: Color(0x12000000),
+          blurRadius: 18,
+          offset: Offset(0, 9),
         ),
       ],
     );
@@ -573,7 +581,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
       height: 46,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(icon, color: color, size: 23),
     );
@@ -630,7 +638,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
 
   Widget _statusBadge(bool isVerified) {
     final color = isVerified
-        ? const Color(0xFF059669)
+        ? const Color(0xFF0D9488)
         : const Color(0xFFF59E0B);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
