@@ -26,9 +26,9 @@ class _AdminHeaderState extends State<AdminHeader> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.user;
-    final displayName = user == null
-        ? 'Administrador'
-        : (user.fullName.isNotEmpty ? user.fullName : user.username);
+    final displayName = user?.username.isNotEmpty == true
+        ? user!.username
+        : 'Administrador';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -63,7 +63,7 @@ class _AdminHeaderState extends State<AdminHeader> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AppDelanta',
+                  'Appdelanta',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
