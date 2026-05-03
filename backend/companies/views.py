@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
@@ -32,6 +32,18 @@ class CompanyViewSet(viewsets.ModelViewSet):
         if not (self.request.user.is_admin or self.request.user.is_employer):
             raise PermissionDenied("No tienes permiso para crear empresas")
         serializer.save()
+
+    @action(detail=True, methods=['patch'])
+    def verify(self, request, pk=None):
+        """Verificar o remover verificación de una empresa."""
+        if not request.user.is_admin:
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+
+        company = self.get_object()
+        company.is_verified = request.data.get('is_verified', True)
+        company.save(update_fields=['is_verified', 'updated_at'])
+        serializer = self.get_serializer(company)
+        return Response(serializer.data)
 
 
 class CompanySettingsViewSet(viewsets.ModelViewSet):

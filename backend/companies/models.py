@@ -170,3 +170,85 @@ class CompanySettings(models.Model):
     
     def __str__(self):
         return f"Configuración: {self.company.name}"
+
+
+class PlatformSettings(models.Model):
+    interest_rate_monthly = models.DecimalField(max_digits=5, decimal_places=2, default=2.50)
+    max_salary_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=50.00)
+    min_days = models.PositiveSmallIntegerField(default=1)
+    max_days = models.PositiveSmallIntegerField(default=30)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'ConfiguraciÃ³n Global'
+        verbose_name_plural = 'ConfiguraciÃ³n Global'
+
+    @classmethod
+    def get_solo(cls):
+        settings, _ = cls.objects.get_or_create(pk=1)
+        return settings
+
+    def __str__(self):
+        return 'ConfiguraciÃ³n global de plataforma'
+
+
+class FeeRange(models.Model):
+    min_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    max_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    fee = models.DecimalField(max_digits=12, decimal_places=2)
+    order = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ['order', 'min_amount']
+
+    @classmethod
+    def defaults(cls):
+        return [
+            {'min_amount': 50000, 'max_amount': 150000, 'fee': 5000, 'order': 1},
+            {'min_amount': 150001, 'max_amount': 400000, 'fee': 10000, 'order': 2},
+            {'min_amount': 400001, 'max_amount': 1000000, 'fee': 15000, 'order': 3},
+        ]
+
+    @classmethod
+    def ensure_defaults(cls):
+        if not cls.objects.exists():
+            for item in cls.defaults():
+                cls.objects.create(**item)
+
+    @classmethod
+    def fee_for_amount(cls, amount):
+        cls.ensure_defaults()
+        fee_range = cls.objects.filter(min_amount__lte=amount, max_amount__gte=amount).first()
+        if fee_range:
+            return fee_range.fee
+        return cls.objects.order_by('-max_amount').first().fee
+
+    def __str__(self):
+        return f"${self.min_amount} - ${self.max_amount}: ${self.fee}"
+
+
+class DisbursementWindow(models.Model):
+    name = models.CharField(max_length=50)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    processing_time = models.TimeField()
+    order = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ['order', 'start_time']
+
+    @classmethod
+    def defaults(cls):
+        return [
+            {'name': 'Franja 1', 'start_time': '06:00', 'end_time': '12:00', 'processing_time': '13:00', 'order': 1},
+            {'name': 'Franja 2', 'start_time': '12:01', 'end_time': '17:00', 'processing_time': '18:00', 'order': 2},
+        ]
+
+    @classmethod
+    def ensure_defaults(cls):
+        if not cls.objects.exists():
+            for item in cls.defaults():
+                cls.objects.create(**item)
+
+    def __str__(self):
+        return f"{self.name}: {self.start_time} - {self.end_time}"

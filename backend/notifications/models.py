@@ -76,8 +76,10 @@ class Notification(models.Model):
     def mark_as_read(self):
         """Marcar notificación como leída"""
         if not self.is_read:
+            from django.utils import timezone
+
             self.is_read = True
-            self.read_at = models.DateTimeField(auto_now=True)
+            self.read_at = timezone.now()
             self.save(update_fields=['is_read', 'read_at'])
     
     @property

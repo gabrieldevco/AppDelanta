@@ -45,6 +45,10 @@ class Advance(models.Model):
         decimal_places=2,
         verbose_name='Monto total'
     )
+    loan_days = models.PositiveSmallIntegerField(
+        default=30,
+        verbose_name='DÃ­as del adelanto'
+    )
     
     # Estado
     status = models.CharField(
@@ -111,13 +115,18 @@ class Advance(models.Model):
     
     def save(self, *args, **kwargs):
         # Calcular comisión automáticamente
-        if not self.fee and self.company:
-            percentage = self.company.advance_fee_percentage / 100
-            self.fee = self.amount * percentage
+        if not self.fee:
+            from companies.models import FeeRange
+            self.fee = FeeRange.fee_for_amount(self.amount)
         
         # Calcular total
         if not self.total_amount:
-            self.total_amount = self.amount + self.fee
+            from decimal import Decimal
+            from companies.models import PlatformSettings
+            platform_settings = PlatformSettings.get_solo()
+            monthly_rate = platform_settings.interest_rate_monthly / Decimal('100')
+            interest = self.amount * monthly_rate * (Decimal(self.loan_days) / Decimal('30'))
+            self.total_amount = self.amount + self.fee + interest
         
         super().save(*args, **kwargs)
     

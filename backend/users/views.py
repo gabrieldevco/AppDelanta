@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -42,6 +42,45 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         elif user.is_employer:
             return EmployeeProfile.objects.filter(company=user.company)
         return EmployeeProfile.objects.filter(user=user)
+
+    @action(detail=False, methods=['post'], url_path='join-company')
+    def join_company(self, request):
+        """Permitir que un empleado seleccione su empresa desde el perfil."""
+        if not request.user.is_employee:
+            return Response(
+                {'error': 'Solo los empleados pueden seleccionar empresa'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        company_id = request.data.get('company_id')
+        if not company_id:
+            return Response(
+                {'company_id': 'Debes seleccionar una empresa'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        from companies.models import Company
+
+        try:
+            company = Company.objects.get(id=company_id, is_active=True)
+        except Company.DoesNotExist:
+            return Response(
+                {'company_id': 'Empresa no encontrada'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        profile = request.user.employee_profile
+        profile.company = company
+
+        bank_name = request.data.get('bank_name')
+        bank_account = request.data.get('bank_account')
+        if bank_name is not None:
+            profile.bank_name = bank_name
+        if bank_account is not None:
+            profile.bank_account = bank_account
+
+        profile.save(update_fields=['company', 'bank_name', 'bank_account'])
+        return Response(self.get_serializer(profile).data)
 
 
 class AdminProfileViewSet(viewsets.ModelViewSet):

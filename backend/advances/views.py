@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.utils import timezone
 from django.db import models
+from decimal import Decimal
 
 from .models import Advance, AdvanceHistory
 from .serializers import (
@@ -12,6 +13,26 @@ from .serializers import (
     AdvanceStatusUpdateSerializer, AdvanceListSerializer
 )
 from notifications.models import Notification
+
+
+def notify_admins_advance_ready(advance):
+    """Avisar a administradores que un adelanto aprobado está listo."""
+    from users.models import User
+
+    employee_name = advance.employee.user.get_full_name() or advance.employee.user.username
+    for admin_user in User.objects.filter(role='admin', is_active=True):
+        Notification.objects.get_or_create(
+            user=admin_user,
+            related_advance=advance,
+            title='Adelanto listo para desembolso',
+            defaults={
+                'type': 'info',
+                'message': (
+                    f'{employee_name} tiene un adelanto aprobado por '
+                    f'${advance.amount:,.0f}'
+                ),
+            },
+        )
 
 
 class AdvanceViewSet(viewsets.ModelViewSet):
@@ -22,10 +43,13 @@ class AdvanceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_admin:
-            return Advance.objects.all()
+            queryset = Advance.objects.all()
         elif user.is_employer:
-            return Advance.objects.filter(company__admin=user)
-        return Advance.objects.filter(employee__user=user)
+            queryset = Advance.objects.filter(company__admin=user)
+        else:
+            queryset = Advance.objects.filter(employee__user=user)
+
+        return queryset.order_by('-request_date', '-id')
     
     def get_serializer_class(self):
         if self.action == 'create':
@@ -35,6 +59,18 @@ class AdvanceViewSet(viewsets.ModelViewSet):
         elif self.action == 'list':
             return AdvanceListSerializer
         return AdvanceSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        advance = serializer.instance
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            AdvanceSerializer(advance, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
     
     def perform_create(self, serializer):
         user = self.request.user
@@ -118,6 +154,7 @@ class AdvanceViewSet(viewsets.ModelViewSet):
                 message=f'Tu solicitud de adelanto de ${advance.amount:,.0f} ha sido aprobada por {user.get_full_name() or user.username}',
                 related_advance=advance
             )
+            notify_admins_advance_ready(advance)
         elif new_status == 'rejected':
             Notification.objects.create(
                 user=advance.employee.user,
@@ -171,6 +208,41 @@ def advance_stats(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def calculate_advance(request):
+    """Calcular fee, interes y total con la configuracion global vigente."""
+    from companies.models import FeeRange, PlatformSettings
+
+    if not request.user.is_employee:
+        return Response({'error': 'Solo disponible para empleados'}, status=status.HTTP_403_FORBIDDEN)
+
+    amount = Decimal(str(request.data.get('amount', 0)))
+    days = int(request.data.get('days', 30))
+    settings = PlatformSettings.get_solo()
+    FeeRange.ensure_defaults()
+
+    if days < settings.min_days or days > settings.max_days:
+        return Response({'error': f'El plazo debe estar entre {settings.min_days} y {settings.max_days} dias'}, status=400)
+
+    fee = FeeRange.fee_for_amount(amount)
+    interest = amount * (settings.interest_rate_monthly / Decimal('100')) * (Decimal(days) / Decimal('30'))
+    total = amount + fee + interest
+
+    return Response({
+        'amount': str(amount),
+        'fee': str(fee),
+        'interest': str(interest),
+        'total': str(total),
+        'days': days,
+        'interest_rate_monthly': str(settings.interest_rate_monthly),
+        'min_days': settings.min_days,
+        'max_days': settings.max_days,
+        'min_amount': str(FeeRange.objects.order_by('min_amount').first().min_amount),
+        'max_amount': str(FeeRange.objects.order_by('-max_amount').first().max_amount),
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def approve_advance(request, pk):
     """Aprobar un adelanto"""
     try:
@@ -208,6 +280,8 @@ def approve_advance(request, pk):
         message=f'Tu solicitud de adelanto de ${advance.amount:,.0f} ha sido aprobada por {user.get_full_name() or user.username}',
         related_advance=advance
     )
+
+    notify_admins_advance_ready(advance)
     
     return Response(AdvanceSerializer(advance).data)
 
@@ -305,5 +379,51 @@ def disburse_advance(request, pk):
         changed_by=user,
         notes=request.data.get('notes', 'Adelanto desembolsado')
     )
+
+    Notification.objects.create(
+        user=advance.employee.user,
+        type='success',
+        title='Desembolso realizado',
+        message=f'El dinero de tu adelanto de ${advance.amount:,.0f} ha sido transferido a tu cuenta bancaria',
+        related_advance=advance
+    )
     
+    return Response(AdvanceSerializer(advance).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def undisburse_advance(request, pk):
+    """Revertir un desembolso marcado por error."""
+    try:
+        advance = Advance.objects.get(pk=pk)
+    except Advance.DoesNotExist:
+        return Response({'error': 'Adelanto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if not user.is_admin:
+        return Response({'error': 'Solo los administradores pueden revertir desembolsos'},
+                       status=status.HTTP_403_FORBIDDEN)
+
+    if advance.status != 'disbursed':
+        return Response({'error': 'Solo se pueden marcar como incompletos desembolsos completados'},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    old_status = advance.status
+    advance.status = 'approved'
+    advance.disbursed_at = None
+    advance.disbursement_reference = ''
+    advance.save()
+
+    advance.employee.available_advance_limit += advance.amount
+    advance.employee.save()
+
+    AdvanceHistory.objects.create(
+        advance=advance,
+        status_from=old_status,
+        status_to='approved',
+        changed_by=user,
+        notes=request.data.get('notes', 'Desembolso marcado como incompleto')
+    )
+
     return Response(AdvanceSerializer(advance).data)
