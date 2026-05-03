@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../auth/presentation/pages/login_page.dart';
+import '../../../../shared/widgets/logout_confirmation_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../pages/admin_help_page.dart';
@@ -183,104 +183,7 @@ class _AdminHeaderState extends State<AdminHeader> {
   }
 
   void _showLogoutConfirmation(BuildContext context) {
-    final pageContext = context;
-    showDialog(
-      context: pageContext,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEE2E2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.logout,
-                color: Color(0xFFDC2626),
-                size: 28,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Cerrar Sesión',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '¿Estás seguro?',
-              style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
-            ),
-          ],
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                  ),
-                  child: const Text(
-                    'Cancelar',
-                    style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final navigator = Navigator.of(
-                      pageContext,
-                      rootNavigator: true,
-                    );
-                    final authProvider = pageContext.read<AuthProvider>();
-                    Navigator.pop(dialogContext);
-                    await authProvider.logout();
-                    if (navigator.mounted) {
-                      navigator.pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDC2626),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Sí, salir',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-        actionsPadding: const EdgeInsets.all(20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-    );
+    showLogoutConfirmationDialog(context);
   }
 }
 

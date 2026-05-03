@@ -443,6 +443,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
       title: displayName,
       subtitle: email,
       meta: document.isEmpty ? null : 'CC: $document',
+      badgeLabel: 'Empleado',
       trailing: _deleteButton(
         tooltip: 'Eliminar empleado',
         onPressed: () => _showDeleteConfirmation(
@@ -466,7 +467,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   }) {
     final displayName = name.trim().isEmpty ? 'Sin nombre' : name.trim();
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: _cardDecoration(
         borderColor: isVerified
             ? const Color(0xFF86EFAC)
@@ -479,15 +480,30 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             children: [
               _avatar(const Color(0xFF7C3AED), Icons.business),
               const SizedBox(width: 12),
-              Expanded(child: _identity(displayName, email, document)),
+              Expanded(child: _identity(displayName, email, '')),
               _statusBadge(isVerified),
             ],
           ),
-          if (companyName != null) ...[
-            const SizedBox(height: 14),
-            _companyPill(companyName),
-          ],
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _metaChip(
+                icon: Icons.work_outline,
+                label: 'Empleador',
+                color: const Color(0xFF7C3AED),
+              ),
+              if (document.isNotEmpty)
+                _metaChip(
+                  icon: Icons.badge_outlined,
+                  label: 'CC: $document',
+                  color: const Color(0xFF64748B),
+                ),
+              if (companyName != null) _companyPill(companyName),
+            ],
+          ),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -544,17 +560,44 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     required String title,
     required String subtitle,
     String? meta,
+    String? badgeLabel,
     Widget? trailing,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: _cardDecoration(),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _avatar(accentColor, icon),
-          const SizedBox(width: 12),
-          Expanded(child: _identity(title, subtitle, meta ?? '')),
-          ?trailing,
+          Row(
+            children: [
+              _avatar(accentColor, icon),
+              const SizedBox(width: 12),
+              Expanded(child: _identity(title, subtitle, '')),
+              if (trailing != null) ...[const SizedBox(width: 8), trailing],
+            ],
+          ),
+          if (badgeLabel != null || (meta != null && meta.isNotEmpty)) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (badgeLabel != null)
+                  _metaChip(
+                    icon: Icons.group_outlined,
+                    label: badgeLabel,
+                    color: accentColor,
+                  ),
+                if (meta != null && meta.isNotEmpty)
+                  _metaChip(
+                    icon: Icons.badge_outlined,
+                    label: meta,
+                    color: const Color(0xFF64748B),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -563,13 +606,13 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
   BoxDecoration _cardDecoration({Color borderColor = const Color(0xFFE2E8F0)}) {
     return BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(8),
       border: Border.all(color: borderColor),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x12000000),
-          blurRadius: 18,
-          offset: Offset(0, 9),
+          color: Color(0x0F0F172A),
+          blurRadius: 14,
+          offset: Offset(0, 7),
         ),
       ],
     );
@@ -577,11 +620,11 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
 
   Widget _avatar(Color color, IconData icon) {
     return Container(
-      width: 46,
-      height: 46,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, color: color, size: 23),
     );
@@ -625,14 +668,19 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     required VoidCallback onPressed,
     required String tooltip,
   }) {
-    return IconButton(
-      onPressed: onPressed,
-      tooltip: tooltip,
-      style: IconButton.styleFrom(
-        backgroundColor: const Color(0xFFFEE2E2),
-        foregroundColor: const Color(0xFFDC2626),
+    return SizedBox(
+      width: 42,
+      height: 42,
+      child: IconButton(
+        onPressed: onPressed,
+        tooltip: tooltip,
+        style: IconButton.styleFrom(
+          backgroundColor: const Color(0xFFFEE2E2),
+          foregroundColor: const Color(0xFFDC2626),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        icon: const Icon(Icons.delete_outline),
       ),
-      icon: const Icon(Icons.delete_outline),
     );
   }
 
@@ -668,24 +716,61 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     );
   }
 
-  Widget _companyPill(String companyName) {
+  Widget _metaChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      constraints: const BoxConstraints(maxWidth: 190),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.storefront, size: 16, color: Color(0xFF64748B)),
-          const SizedBox(width: 8),
-          Expanded(
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _companyPill(String companyName) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 220),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.storefront, size: 14, color: Color(0xFF64748B)),
+          const SizedBox(width: 6),
+          Flexible(
             child: Text(
               companyName,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 color: Color(0xFF334155),
                 fontWeight: FontWeight.w700,
               ),
@@ -711,7 +796,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
         side: BorderSide(color: color.withValues(alpha: 0.35)),
         backgroundColor: color.withValues(alpha: 0.06),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
       ),
     );

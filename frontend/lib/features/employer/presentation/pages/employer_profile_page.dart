@@ -24,8 +24,6 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   final _emailController = TextEditingController();
   final _nitController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _bankController = TextEditingController();
-  final _accountController = TextEditingController();
 
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -49,8 +47,6 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       _emailController.text = company.email ?? '';
       _nitController.text = company.taxId ?? '';
       _phoneController.text = company.phone ?? '';
-      _bankController.text = company.bankName ?? '';
-      _accountController.text = company.bankAccount ?? '';
     });
   }
 
@@ -62,8 +58,6 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
     _emailController.dispose();
     _nitController.dispose();
     _phoneController.dispose();
-    _bankController.dispose();
-    _accountController.dispose();
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -225,8 +219,6 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                       keyboardType: TextInputType.phone,
                     ),
                     _field('NIT', _nitController, enabled: false),
-                    _field('Banco', _bankController),
-                    _field('Cuenta bancaria', _accountController),
                   ],
                 ),
               ),
@@ -235,7 +227,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                 icon: Icons.info,
                 title: 'Información importante:',
                 text:
-                    'Mantén los datos bancarios y de contacto actualizados para operar adelantos y recibir notificaciones.',
+                    'Mantén los datos de contacto actualizados para operar adelantos y recibir notificaciones. El NIT es obligatorio y solo puede modificarlo soporte.',
               ),
             ],
           ),
@@ -445,8 +437,6 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       legalName: _razonSocialController.text.trim(),
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
-      bankName: _bankController.text.trim(),
-      bankAccount: _accountController.text.trim(),
     );
     if (!mounted) return;
     setState(() {

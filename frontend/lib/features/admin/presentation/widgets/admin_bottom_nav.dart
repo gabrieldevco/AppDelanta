@@ -51,12 +51,14 @@ class AdminBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700;
-    final navHeight = isSmallScreen ? 68.0 : 76.0;
-    final iconSize = isSmallScreen ? 22.0 : 24.0;
-    final activeIconSize = isSmallScreen ? 24.0 : 26.0;
-    final fontSize = isSmallScreen ? 11.0 : 12.0;
-    final activeFontSize = isSmallScreen ? 12.0 : 13.0;
+    final isNarrow = screenWidth < 380;
+    final navHeight = isSmallScreen ? 72.0 : 80.0;
+    final iconSize = isSmallScreen ? 20.0 : 21.0;
+    final activeIconSize = isSmallScreen ? 21.0 : 22.0;
+    final fontSize = isNarrow ? 10.0 : 11.0;
+    final activeFontSize = isNarrow ? 10.5 : 11.5;
 
     return BottomAppBar(
       elevation: 0,
@@ -64,29 +66,27 @@ class AdminBottomNav extends StatelessWidget {
       color: Colors.transparent,
       padding: EdgeInsets.zero,
       child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFFAF7FF)],
-          ),
-          border: const Border(top: BorderSide(color: Color(0xFFE9D5FF))),
+          color: Colors.white,
+          border: const Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
-              blurRadius: 22,
-              offset: const Offset(0, -8),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.10),
+              blurRadius: 24,
+              offset: const Offset(0, -10),
             ),
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(_navItems.length, (index) {
             final isSelected = index == currentIndex;
             final item = _navItems[index];
 
             return Expanded(
               child: InkWell(
+                borderRadius: BorderRadius.circular(18),
                 onTap: () {
                   if (!isSelected) {
                     if (index == 0) {
@@ -127,20 +127,36 @@ class AdminBottomNav extends StatelessWidget {
                     }
                   }
                 },
-                child: Container(
-                  height: navHeight,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  height: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected && !isNarrow ? 8 : 4,
+                    vertical: 2,
+                  ),
                   alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? item.color.withValues(alpha: 0.10)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: isSelected
+                          ? item.color.withValues(alpha: 0.18)
+                          : Colors.transparent,
+                    ),
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
+                        duration: const Duration(milliseconds: 220),
                         curve: Curves.easeOut,
-                        width: isSelected ? activeIconSize + 18 : iconSize + 12,
-                        height: isSelected
-                            ? activeIconSize + 12
-                            : iconSize + 10,
+                        width: isSelected ? 34 : 30,
+                        height: isSelected ? 34 : 30,
                         decoration: BoxDecoration(
                           gradient: isSelected
                               ? LinearGradient(
@@ -148,13 +164,13 @@ class AdminBottomNav extends StatelessWidget {
                                 )
                               : null,
                           color: isSelected ? null : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(12),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: item.color.withValues(alpha: 0.22),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 7),
+                                    color: item.color.withValues(alpha: 0.20),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 5),
                                   ),
                                 ]
                               : null,
@@ -167,7 +183,7 @@ class AdminBottomNav extends StatelessWidget {
                           size: isSelected ? activeIconSize - 2 : iconSize - 3,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 200),
                         style: TextStyle(
@@ -178,6 +194,7 @@ class AdminBottomNav extends StatelessWidget {
                               ? FontWeight.w800
                               : FontWeight.w600,
                           fontSize: isSelected ? activeFontSize : fontSize,
+                          height: 1,
                           letterSpacing: 0,
                         ),
                         child: Text(

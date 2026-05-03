@@ -114,7 +114,7 @@ class _EmployeeHelpPageState extends State<EmployeeHelpPage> {
       questionCount: 3,
       faqs: [
         FaqItem(
-          question: '¿Es seguro usar AppDelanta?',
+          question: '¿Es seguro usar Appdelanta?',
           answer:
               'Sí, usamos encriptación de nivel bancario para proteger tu información y todas las transacciones son seguras.',
         ),
@@ -463,7 +463,7 @@ class _EmployeeHelpPageState extends State<EmployeeHelpPage> {
                       ),
                     ),
                     Text(
-                      'soporte@appdelanta.com',
+                      'soporte@Appdelanta.com',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,

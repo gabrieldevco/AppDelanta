@@ -34,34 +34,43 @@ class EmployerBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700;
+    final isNarrow = screenWidth < 380;
+    final navHeight = isSmallScreen ? 72.0 : 80.0;
+    final iconSize = isSmallScreen ? 20.0 : 21.0;
+    final activeIconSize = isSmallScreen ? 21.0 : 22.0;
+    final fontSize = isNarrow ? 10.0 : 11.0;
+    final activeFontSize = isNarrow ? 10.5 : 11.5;
+
     return BottomAppBar(
       elevation: 0,
-      height: 84,
+      height: navHeight,
       color: Colors.transparent,
+      padding: EdgeInsets.zero,
       child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFE0F2FE)],
-          ),
+          color: Colors.white,
           border: const Border(top: BorderSide(color: Color(0xFFBAE6FD))),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0284C7).withValues(alpha: 0.08),
-              blurRadius: 22,
-              offset: const Offset(0, -8),
+              color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+              blurRadius: 24,
+              offset: const Offset(0, -10),
             ),
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(_navItems.length, (index) {
             final isSelected = index == currentIndex;
             final item = _navItems[index];
 
             return Expanded(
-              child: GestureDetector(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18),
                 onTap: () {
                   if (!isSelected) {
                     if (index == 0) {
@@ -91,81 +100,83 @@ class EmployerBottomNav extends StatelessWidget {
                     }
                   }
                 },
-                behavior: HitTestBehavior.opaque,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
                   height: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected && !isNarrow ? 8 : 4,
+                    vertical: 2,
+                  ),
                   alignment: Alignment.center,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOut,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 0,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? item.color.withValues(alpha: 0.10)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: isSelected
+                          ? item.color.withValues(alpha: 0.18)
+                          : Colors.transparent,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOut,
-                              width: isSelected ? 46 : 34,
-                              height: isSelected ? 38 : 32,
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(
-                                        colors: [item.color, item.endColor],
-                                      )
-                                    : null,
-                                color: isSelected
-                                    ? null
-                                    : const Color(0xFFF8FAFC),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: item.color.withValues(
-                                            alpha: 0.22,
-                                          ),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 7),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                            ),
-                            AnimatedScale(
-                              scale: isSelected ? 1.0 : 0.85,
-                              duration: const Duration(milliseconds: 200),
-                              child: Icon(
-                                isSelected ? item.activeIcon : item.icon,
-                                color: isSelected
-                                    ? Colors.white
-                                    : const Color(0xFF94A3B8),
-                                size: isSelected ? 22 : 20,
-                              ),
-                            ),
-                          ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOut,
+                        width: isSelected ? 34 : 30,
+                        height: isSelected ? 34 : 30,
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient(
+                                  colors: [item.color, item.endColor],
+                                )
+                              : null,
+                          color: isSelected ? null : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: item.color.withValues(alpha: 0.20),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ]
+                              : null,
                         ),
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: TextStyle(
-                            color: isSelected
-                                ? item.color
-                                : const Color(0xFF94A3B8),
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            fontSize: isSelected ? 13 : 12,
-                            letterSpacing: 0,
-                          ),
-                          child: Text(item.label),
+                        child: Icon(
+                          isSelected ? item.activeIcon : item.icon,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF94A3B8),
+                          size: isSelected ? activeIconSize - 2 : iconSize - 3,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 4),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: TextStyle(
+                          color: isSelected
+                              ? item.color
+                              : const Color(0xFF94A3B8),
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                          fontSize: isSelected ? activeFontSize : fontSize,
+                          height: 1,
+                          letterSpacing: 0,
+                        ),
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

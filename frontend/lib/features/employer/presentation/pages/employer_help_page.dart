@@ -67,7 +67,7 @@ class _EmployerHelpPageState extends State<EmployerHelpPage> {
         FaqItem(
           question: '¿Cómo solicitan un adelanto mis empleados?',
           answer:
-              'Los empleados descargan la app de NominYa, se registran con su documento y el código de tu empresa, y solicitan el adelanto desde la app.',
+              'Los empleados descargan la app de Appdelanta, se registran con su documento y el código de tu empresa, y solicitan el adelanto desde la app.',
         ),
         FaqItem(
           question: '¿Qué pasa si rechazo una solicitud?',
@@ -107,7 +107,7 @@ class _EmployerHelpPageState extends State<EmployerHelpPage> {
       questionCount: 3,
       faqs: [
         FaqItem(
-          question: '¿Es seguro usar NominYa?',
+          question: '¿Es seguro usar Appdelanta?',
           answer:
               'Sí, utilizamos encriptación de nivel bancario (256-bit SSL) y cumplimos con todas las normativas de protección de datos.',
         ),
@@ -119,7 +119,7 @@ class _EmployerHelpPageState extends State<EmployerHelpPage> {
         FaqItem(
           question: '¿Qué hago si veo actividad sospechosa?',
           answer:
-              'Contacta inmediatamente a nuestro equipo de soporte al +57 (1) 234-5678 o soporte@nominaya.com y bloquearemos temporalmente la cuenta.',
+              'Contacta inmediatamente a nuestro equipo de soporte al +57 (1) 234-5678 o soporte@Appdelanta.com y bloquearemos temporalmente la cuenta.',
         ),
       ],
     ),
@@ -416,7 +416,7 @@ class _EmployerHelpPageState extends State<EmployerHelpPage> {
           _buildContactItem(
             icon: Icons.email_outlined,
             title: 'Email',
-            value: 'soporte@appdelanta.com',
+            value: 'soporte@Appdelanta.com',
           ),
           const SizedBox(height: 12),
           _buildContactItem(

@@ -119,7 +119,7 @@ class _AdminHelpPageState extends State<AdminHelpPage> {
         FaqItem(
           question: '¿Qué hago si veo actividad sospechosa?',
           answer:
-              'Contacta inmediatamente a soporte al +57 (1) 234-5678 o soporte@nominaya.com y bloquearemos temporalmente la cuenta.',
+              'Contacta inmediatamente a soporte al +57 (1) 234-5678 o soporte@Appdelanta.com y bloquearemos temporalmente la cuenta.',
         ),
       ],
     ),
@@ -412,7 +412,7 @@ class _AdminHelpPageState extends State<AdminHelpPage> {
           _buildContactItem(
             icon: Icons.email_outlined,
             title: 'Email',
-            value: 'soporte@nominaya.com',
+            value: 'soporte@Appdelanta.com',
           ),
           const SizedBox(height: 12),
           _buildContactItem(
