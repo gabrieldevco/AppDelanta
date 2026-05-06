@@ -262,6 +262,43 @@ def change_password(request):
     return Response({'message': 'Contraseña cambiada exitosamente'})
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset(request):
+    """Reset de contraseña por email"""
+    email = request.data.get('email')
+    
+    if not email:
+        return Response(
+            {'error': 'Se requiere el email'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user = User.objects.get(email=email)
+        # Generar nueva contraseña temporal
+        import random
+        import string
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        
+        # Actualizar contraseña
+        user.set_password(temp_password)
+        user.save()
+        
+        # Aquí debería enviar email con la nueva contraseña
+        # Por ahora solo devolvemos la contraseña en desarrollo
+        return Response({
+            'message': 'Contraseña reseteada exitosamente',
+            'temp_password': temp_password  # Solo para desarrollo
+        })
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'No existe un usuario con ese email'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_management(request):
