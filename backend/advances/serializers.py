@@ -58,6 +58,11 @@ class AdvanceCreateSerializer(serializers.ModelSerializer):
         if not company:
             raise serializers.ValidationError("No estas asociado a ninguna empresa")
 
+        if getattr(employee, 'approval_status', 'approved') != 'approved':
+            raise serializers.ValidationError(
+                "Tu empleador debe aprobar tu vinculacion antes de solicitar adelantos"
+            )
+
         from companies.models import FeeRange
 
         FeeRange.ensure_defaults()

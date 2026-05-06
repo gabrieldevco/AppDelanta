@@ -24,8 +24,14 @@ class RegisterStep2Data {
   // Empleador
   String businessName = '';
   String employerCompanyName = '';
+  File? rutDocument;
+  String rutFileName = '';
   File? chamberOfCommerceFile;
   String chamberFileName = '';
+  File? legalRepresentativeIdDocument;
+  String legalRepresentativeIdFileName = '';
+  File? bankStatementsDocument;
+  String bankStatementsDocumentName = '';
 }
 
 class RegisterStep3Data {
@@ -540,7 +546,7 @@ class _RegisterPageState extends State<RegisterPage> {
               validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
             ),
             const SizedBox(height: 16),
-            _buildFileUploadField(),
+            _buildEmployerDocumentsSection(),
           ],
           const SizedBox(height: 24),
 
@@ -616,6 +622,17 @@ class _RegisterPageState extends State<RegisterPage> {
   // Registro para empleadores (sin paso 3)
   Future<void> _registerEmployer() async {
     if (!_formKey2.currentState!.validate()) return;
+    if (!_hasAllEmployerDocuments()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Debes subir RUT, camara de comercio, cedula y extractos bancarios',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -633,7 +650,10 @@ class _RegisterPageState extends State<RegisterPage> {
       businessName: step2.businessName,
       companyName: step2.employerCompanyName,
       companyId: null,
+      rutDocument: step2.rutDocument,
       chamberOfCommerceFile: step2.chamberOfCommerceFile,
+      legalRepresentativeIdDocument: step2.legalRepresentativeIdDocument,
+      bankStatementsDocument: step2.bankStatementsDocument,
       bankAccount: null,
       bankName: null,
     );
@@ -682,7 +702,10 @@ class _RegisterPageState extends State<RegisterPage> {
       businessName: null,
       companyName: null,
       companyId: null,
+      rutDocument: null,
       chamberOfCommerceFile: null,
+      legalRepresentativeIdDocument: null,
+      bankStatementsDocument: null,
       bankAccount: null,
       bankName: null,
     );
@@ -932,7 +955,10 @@ class _RegisterPageState extends State<RegisterPage> {
       businessName: step2.businessName,
       companyName: step2.employerCompanyName,
       companyId: step2.companyId,
+      rutDocument: step2.rutDocument,
       chamberOfCommerceFile: step2.chamberOfCommerceFile,
+      legalRepresentativeIdDocument: step2.legalRepresentativeIdDocument,
+      bankStatementsDocument: step2.bankStatementsDocument,
       bankAccount: step3.accountNumber,
       bankName: step3.bankName,
     );
@@ -1181,7 +1207,157 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _buildFileUploadField() {
+  Widget _buildEmployerDocumentsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFileUploadTile(
+          label: 'RUT',
+          fileName: step2.rutFileName,
+          onTap: () => _pickDocument(
+            onSelected: (file, name) {
+              step2.rutDocument = file;
+              step2.rutFileName = name;
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildFileUploadTile(
+          label: 'Camara de Comercio',
+          fileName: step2.chamberFileName,
+          onTap: () => _pickDocument(
+            onSelected: (file, name) {
+              step2.chamberOfCommerceFile = file;
+              step2.chamberFileName = name;
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildFileUploadTile(
+          label: 'Copia de cedula del representante legal',
+          fileName: step2.legalRepresentativeIdFileName,
+          onTap: () => _pickDocument(
+            onSelected: (file, name) {
+              step2.legalRepresentativeIdDocument = file;
+              step2.legalRepresentativeIdFileName = name;
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildFileUploadTile(
+          label: 'Extractos bancarios de los ultimos 3 meses',
+          fileName: step2.bankStatementsDocumentName,
+          onTap: () => _pickDocument(
+            onSelected: (file, name) {
+              step2.bankStatementsDocument = file;
+              step2.bankStatementsDocumentName = name;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _hasAllEmployerDocuments() {
+    return step2.rutDocument != null &&
+        step2.chamberOfCommerceFile != null &&
+        step2.legalRepresentativeIdDocument != null &&
+        step2.bankStatementsDocument != null;
+  }
+
+  Widget _buildFileUploadTile({
+    required String label,
+    required String fileName,
+    required VoidCallback onTap,
+  }) {
+    final hasFile = fileName.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
+                ),
+              ),
+            ),
+            const Text(' *', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFBF7),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: hasFile
+                    ? const Color(0xFFF97316)
+                    : const Color(0xFFF1E4D6),
+                width: hasFile ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  hasFile ? Icons.description : Icons.cloud_upload_outlined,
+                  size: 24,
+                  color: const Color(0xFF667085),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    hasFile ? fileName : 'Subir PDF, PNG o JPEG',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF667085),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickDocument({
+    required void Function(File file, String name) onSelected,
+  }) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        if (file.path != null) {
+          setState(() => onSelected(File(file.path!), file.name));
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al seleccionar archivo: $e')),
+      );
+    }
+  }
+
+  Widget buildFileUploadField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1200,7 +1376,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         const SizedBox(height: 8),
         InkWell(
-          onTap: _pickPDF,
+          onTap: pickPDF,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -1243,7 +1419,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Future<void> _pickPDF() async {
+  Future<void> pickPDF() async {
     try {
       final result = await FilePicker.pickFiles(
         type: FileType.custom,

@@ -42,12 +42,33 @@ class Company(models.Model):
     )
     
     # Cámara de comercio (PDF)
+    rut_document = models.FileField(
+        upload_to='employer_documents/rut/',
+        blank=True,
+        null=True,
+        verbose_name='RUT',
+        help_text='Documento RUT en PDF, PNG o JPEG'
+    )
     chamber_of_commerce_document = models.FileField(
-        upload_to='chamber_of_commerce/',
+        upload_to='employer_documents/chamber_of_commerce/',
         blank=True,
         null=True,
         verbose_name='Cámara de Comercio (PDF)',
         help_text='Documento PDF de cámara de comercio'
+    )
+    legal_representative_id_document = models.FileField(
+        upload_to='employer_documents/legal_representative_id/',
+        blank=True,
+        null=True,
+        verbose_name='Copia de cedula del representante legal',
+        help_text='Copia de cedula del representante legal en PDF, PNG o JPEG'
+    )
+    bank_statements_document = models.FileField(
+        upload_to='employer_documents/bank_statements/',
+        blank=True,
+        null=True,
+        verbose_name='Extractos bancarios de los ultimos 3 meses',
+        help_text='Extracto bancario reciente en PDF, PNG o JPEG'
     )
     
     # Datos bancarios del empleador

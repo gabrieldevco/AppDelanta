@@ -42,7 +42,10 @@ class AuthService {
     String? businessName,
     String? companyName,
     int? companyId,
+    File? rutDocument,
     File? chamberOfCommerceFile,
+    File? legalRepresentativeIdDocument,
+    File? bankStatementsDocument,
     String? bankAccount,
     String? bankName,
   }) async {
@@ -85,12 +88,22 @@ class AuthService {
       }
 
       // Archivo PDF de cámara de comercio
-      if (chamberOfCommerceFile != null) {
-        formMap['chamber_of_commerce_document'] = await MultipartFile.fromFile(
-          chamberOfCommerceFile.path,
-          filename: chamberOfCommerceFile.path.split('/').last,
-        );
-      }
+      await _addFile(formMap, 'rut_document', rutDocument);
+      await _addFile(
+        formMap,
+        'chamber_of_commerce_document',
+        chamberOfCommerceFile,
+      );
+      await _addFile(
+        formMap,
+        'legal_representative_id_document',
+        legalRepresentativeIdDocument,
+      );
+      await _addFile(
+        formMap,
+        'bank_statements_document',
+        bankStatementsDocument,
+      );
 
       final formData = FormData.fromMap(formMap);
 
@@ -111,6 +124,18 @@ class AuthService {
     } catch (e) {
       throw Exception('Error en registro: $e');
     }
+  }
+
+  Future<void> _addFile(
+    Map<String, dynamic> formMap,
+    String field,
+    File? file,
+  ) async {
+    if (file == null) return;
+    formMap[field] = await MultipartFile.fromFile(
+      file.path,
+      filename: file.path.split(Platform.pathSeparator).last,
+    );
   }
 
   // Logout

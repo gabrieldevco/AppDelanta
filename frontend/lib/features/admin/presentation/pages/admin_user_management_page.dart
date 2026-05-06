@@ -4,6 +4,7 @@ import 'package:frontend/core/services/api_service.dart';
 import 'package:frontend/features/admin/presentation/widgets/admin_bottom_nav.dart';
 import 'package:frontend/features/admin/presentation/widgets/admin_header.dart';
 import 'package:frontend/features/admin/presentation/widgets/admin_notifications_drawer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminUserManagementPage extends StatefulWidget {
   const AdminUserManagementPage({super.key});
@@ -90,8 +91,90 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     }
   }
 
-  Future<void> _viewPdf(String pdfUrl) async {
-    _showSnack('Funcion PDF en desarrollo');
+  Future<void> _openDocument(String? url) async {
+    if (url == null || url.isEmpty) return;
+
+    try {
+      final uri = _documentUri(url);
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!opened) {
+        _showSnack('No se pudo abrir el documento', isError: true);
+      }
+    } catch (e) {
+      _showSnack('Error al abrir documento: $e', isError: true);
+    }
+  }
+
+  Uri _documentUri(String url) {
+    final parsed = Uri.parse(url);
+    final base = Uri.parse(ApiConstants.baseUrl);
+
+    if (!parsed.hasScheme) {
+      return base.resolve(url);
+    }
+
+    if (parsed.host == 'localhost' || parsed.host == '127.0.0.1') {
+      return parsed.replace(
+        scheme: base.scheme,
+        host: base.host,
+        port: base.hasPort ? base.port : null,
+      );
+    }
+
+    return parsed;
+  }
+
+  Future<void> _showDocumentation(Map<String, dynamic>? company) async {
+    if (company == null) return;
+    Map<String, dynamic> companyData = company;
+    final companyId = company['id'];
+
+    if (companyId != null) {
+      try {
+        final response = await apiService.get('/api/companies/$companyId/');
+        if (response is Map<String, dynamic>) {
+          companyData = response;
+        }
+      } catch (_) {
+        _showSnack('No se pudo actualizar la documentacion', isError: true);
+      }
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _EmployerDocumentationPage(
+          companyName: companyData['name'] ?? 'Empresa',
+          documents: [
+            _EmployerDocument(
+              title: 'RUT',
+              url:
+                  companyData['rut_document_url'] ??
+                  companyData['rut_document'],
+            ),
+            _EmployerDocument(
+              title: 'Camara de Comercio',
+              url:
+                  companyData['chamber_of_commerce_document_url'] ??
+                  companyData['chamber_of_commerce_document'],
+            ),
+            _EmployerDocument(
+              title: 'Copia cedula representante legal',
+              url:
+                  companyData['legal_representative_id_document_url'] ??
+                  companyData['legal_representative_id_document'],
+            ),
+            _EmployerDocument(
+              title: 'Extractos bancarios ultimos 3 meses',
+              url:
+                  companyData['bank_statements_document_url'] ??
+                  companyData['bank_statements_document'],
+            ),
+          ],
+          onOpen: _openDocument,
+        ),
+      ),
+    );
   }
 
   Future<void> _deleteCompany(int companyId) async {
@@ -362,10 +445,6 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
           final employer = _employers[index];
           final company = employer['company'];
           final isVerified = company?['is_verified'] ?? false;
-          final pdfUrl =
-              company?['chamber_of_commerce_document_url'] ??
-              company?['chamber_of_commerce_document'];
-
           return _buildEmployerCard(
             name:
                 '${employer['first_name'] ?? ''} ${employer['last_name'] ?? ''}',
@@ -375,7 +454,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             companyId: company?['id'],
             userId: employer['id'],
             isVerified: isVerified,
-            pdfUrl: pdfUrl,
+            company: company,
           );
         },
       ),
@@ -463,7 +542,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
     int? companyId,
     required int userId,
     required bool isVerified,
-    String? pdfUrl,
+    Map<String, dynamic>? company,
   }) {
     final displayName = name.trim().isEmpty ? 'Sin nombre' : name.trim();
     return Container(
@@ -508,12 +587,12 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
             spacing: 8,
             runSpacing: 8,
             children: [
-              if (pdfUrl != null)
+              if (company != null)
                 _softAction(
-                  icon: Icons.picture_as_pdf,
-                  label: 'Ver PDF',
-                  color: const Color(0xFFDC2626),
-                  onPressed: () => _viewPdf(pdfUrl),
+                  icon: Icons.folder_open_outlined,
+                  label: 'Ver documentacion',
+                  color: const Color(0xFF7C3AED),
+                  onPressed: () => _showDocumentation(company),
                 ),
               if (companyId != null)
                 _softAction(
@@ -798,6 +877,273 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+class _EmployerDocument {
+  final String title;
+  final String? url;
+
+  const _EmployerDocument({required this.title, this.url});
+
+  bool get hasFile => url != null && url!.isNotEmpty;
+}
+
+class _EmployerDocumentationPage extends StatelessWidget {
+  final String companyName;
+  final List<_EmployerDocument> documents;
+  final Future<void> Function(String? url) onOpen;
+
+  const _EmployerDocumentationPage({
+    required this.companyName,
+    required this.documents,
+    required this.onOpen,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final availableCount = documents.where((doc) => doc.hasFile).length;
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FB),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7C3AED).withValues(alpha: 0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                        color: const Color(0xFF111827),
+                        tooltip: 'Volver',
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          companyName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF8B5CF6,
+                          ).withValues(alpha: 0.22),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.folder_copy_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Documentacion del empleador',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '$availableCount de ${documents.length} documentos disponibles',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.82),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: documents.length,
+                separatorBuilder: (_, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final document = documents[index];
+                  final accent = document.hasFile
+                      ? const Color(0xFF7C3AED)
+                      : const Color(0xFF94A3B8);
+                  return Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: document.hasFile
+                            ? const Color(0xFFE9D5FF)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF0F172A,
+                          ).withValues(alpha: 0.06),
+                          blurRadius: 14,
+                          offset: const Offset(0, 7),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: accent.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.14),
+                            ),
+                          ),
+                          child: Icon(
+                            document.hasFile
+                                ? Icons.description_outlined
+                                : Icons.insert_drive_file_outlined,
+                            color: accent,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                document.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: document.hasFile
+                                      ? const Color(0xFFDCFCE7)
+                                      : const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  document.hasFile ? 'Disponible' : 'Pendiente',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: document.hasFile
+                                        ? const Color(0xFF0D9488)
+                                        : const Color(0xFF64748B),
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          height: 42,
+                          child: OutlinedButton.icon(
+                            onPressed: document.hasFile
+                                ? () => onOpen(document.url)
+                                : null,
+                            icon: const Icon(Icons.open_in_new, size: 16),
+                            label: const Text('Ver'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF7C3AED),
+                              disabledForegroundColor: const Color(0xFFCBD5E1),
+                              backgroundColor: document.hasFile
+                                  ? const Color(0xFFF5F3FF)
+                                  : const Color(0xFFF8FAFC),
+                              side: BorderSide(
+                                color: document.hasFile
+                                    ? const Color(0xFFD8B4FE)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

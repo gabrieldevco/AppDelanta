@@ -93,7 +93,10 @@ class AuthProvider extends ChangeNotifier {
     String? businessName,
     String? companyName,
     int? companyId,
+    File? rutDocument,
     File? chamberOfCommerceFile,
+    File? legalRepresentativeIdDocument,
+    File? bankStatementsDocument,
     String? bankAccount,
     String? bankName,
   }) async {
@@ -115,7 +118,10 @@ class AuthProvider extends ChangeNotifier {
         businessName: businessName,
         companyName: companyName,
         companyId: companyId,
+        rutDocument: rutDocument,
         chamberOfCommerceFile: chamberOfCommerceFile,
+        legalRepresentativeIdDocument: legalRepresentativeIdDocument,
+        bankStatementsDocument: bankStatementsDocument,
         bankAccount: bankAccount,
         bankName: bankName,
       );

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import models
+from django.utils import timezone
 
 from .models import User, EmployeeProfile, AdminProfile
 from .serializers import (
@@ -71,6 +72,8 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
 
         profile = request.user.employee_profile
         profile.company = company
+        profile.approval_status = 'pending'
+        profile.approved_at = None
 
         bank_name = request.data.get('bank_name')
         bank_account = request.data.get('bank_account')
@@ -79,8 +82,56 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         if bank_account is not None:
             profile.bank_account = bank_account
 
-        profile.save(update_fields=['company', 'bank_name', 'bank_account'])
+        profile.save(update_fields=['company', 'bank_name', 'bank_account', 'approval_status', 'approved_at'])
+        from notifications.models import Notification
+        Notification.objects.create(
+            user=company.admin,
+            type='warning',
+            title='Empleado pendiente de aprobacion',
+            message=(
+                f"{request.user.get_full_name()} solicito vincularse a "
+                f"{company.name}. Aprueba o deniega su solicitud."
+            ),
+            link='/employee-approvals'
+        )
         return Response(self.get_serializer(profile).data)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """Aprobar la vinculacion de un empleado a la empresa del empleador."""
+        profile = self.get_object()
+        user = request.user
+        if not (user.is_admin or (user.is_employer and profile.company == user.company)):
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+
+        profile.approval_status = 'approved'
+        profile.approved_at = timezone.now()
+        profile.save(update_fields=['approval_status', 'approved_at'])
+        self._notify_employee(profile, 'Vinculacion aprobada', 'Tu empleador aprobo tu vinculacion.')
+        return Response(self.get_serializer(profile).data)
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Denegar la vinculacion de un empleado a la empresa del empleador."""
+        profile = self.get_object()
+        user = request.user
+        if not (user.is_admin or (user.is_employer and profile.company == user.company)):
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+
+        profile.approval_status = 'rejected'
+        profile.approved_at = None
+        profile.save(update_fields=['approval_status', 'approved_at'])
+        self._notify_employee(profile, 'Vinculacion denegada', 'Tu empleador denego tu vinculacion.')
+        return Response(self.get_serializer(profile).data)
+
+    def _notify_employee(self, profile, title, message):
+        from notifications.models import Notification
+        Notification.objects.create(
+            user=profile.user,
+            type='info',
+            title=title,
+            message=message,
+        )
 
 
 class AdminProfileViewSet(viewsets.ModelViewSet):

@@ -50,6 +50,11 @@ class User(AbstractUser):
 
 class EmployeeProfile(models.Model):
     """Perfil de empleado"""
+    STATUS_CHOICES = [
+        ('pending', 'Pendiente'),
+        ('approved', 'Aprobado'),
+        ('rejected', 'Rechazado'),
+    ]
     
     user = models.OneToOneField(
         User,
@@ -91,6 +96,17 @@ class EmployeeProfile(models.Model):
         max_length=100,
         blank=True,
         verbose_name='Banco'
+    )
+    approval_status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Estado de aprobacion'
+    )
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha de aprobacion'
     )
     
     class Meta:
