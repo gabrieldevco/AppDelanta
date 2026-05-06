@@ -44,7 +44,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AdminHeader(),
+            const AdminHeader(currentIndex: 2),
             Expanded(
               child: Consumer<AdvanceProvider>(
                 builder: (context, provider, _) {
@@ -127,34 +127,46 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
           ),
         ],
       ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF7C3AED).withValues(alpha: 0.20),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
+      child: AnimatedBuilder(
+        animation: _tabController,
+        builder: (context, child) {
+          return TabBar(
+            controller: _tabController,
+            indicator: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _tabController.index == 0
+                    ? [const Color(0xFFF59E0B), const Color(0xFFFBBF24)]
+                    : [const Color(0xFF10B981), const Color(0xFF34D399)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: _tabController.index == 0
+                      ? const Color(0xFFF59E0B).withValues(alpha: 0.3)
+                      : const Color(0xFF10B981).withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        labelColor: Colors.white,
-        unselectedLabelColor: const Color(0xFF64748B),
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-        dividerColor: Colors.transparent,
-        tabs: [
-          Tab(text: 'Pendientes $pending'),
-          Tab(text: 'Completados $completed'),
-        ],
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelColor: Colors.white,
+            unselectedLabelColor: const Color(0xFF64748B),
+            labelStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+            dividerColor: Colors.transparent,
+            tabs: [
+              Tab(text: 'Pendientes $pending'),
+              Tab(text: 'Completados $completed'),
+            ],
+          );
+        },
       ),
     );
   }

@@ -17,14 +17,20 @@ class EmployerEmployeesPage extends StatefulWidget {
 }
 
 class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
+  static const int _employeesPerPage = 3;
+
   final _searchController = TextEditingController();
   String _query = '';
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(() {
-      setState(() => _query = _searchController.text.trim().toLowerCase());
+      setState(() {
+        _query = _searchController.text.trim().toLowerCase();
+        _currentPage = 0;
+      });
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
@@ -54,7 +60,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const EmployerHeader(),
+            const EmployerHeader(currentIndex: 2),
             Expanded(
               child: Consumer2<CompanyProvider, AdvanceProvider>(
                 builder: (context, companyProvider, advanceProvider, _) {
@@ -66,6 +72,26 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                         ) ||
                         e.email.toLowerCase().contains(_query);
                   }).toList();
+                  final totalPages = (employees.length / _employeesPerPage)
+                      .ceil()
+                      .clamp(1, 999);
+                  if (_currentPage >= totalPages) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() => _currentPage = totalPages - 1);
+                      }
+                    });
+                  }
+                  final safePage = _currentPage.clamp(0, totalPages - 1);
+                  final pageStart = safePage * _employeesPerPage;
+                  final pageEnd = (pageStart + _employeesPerPage).clamp(
+                    0,
+                    employees.length,
+                  );
+                  final visibleEmployees = employees.sublist(
+                    pageStart,
+                    pageEnd,
+                  );
 
                   final allEmployees = companyProvider.activeEmployees;
                   final payroll = allEmployees.fold<double>(
@@ -123,7 +149,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                               child: _buildMetricCard(
                                 title: 'Total empleados',
                                 value: allEmployees.length.toString(),
-                                bgColor: const Color(0xFF1D4ED8),
+                                bgColor: const Color(0xFF047857),
                                 icon: Icons.groups_rounded,
                               ),
                             ),
@@ -132,7 +158,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                               child: _buildMetricCard(
                                 title: 'Nómina total',
                                 value: _money(payroll),
-                                bgColor: const Color(0xFF0891B2),
+                                bgColor: const Color(0xFF0F766E),
                                 icon: Icons.account_balance_wallet_rounded,
                               ),
                             ),
@@ -145,14 +171,21 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                         const SizedBox(height: 16),
                         if (employees.isEmpty)
                           _buildEmpty()
-                        else
-                          ...employees.map(
+                        else ...[
+                          ...visibleEmployees.map(
                             (employee) => _buildEmployeeCard(
                               employee,
                               _employeeActiveAdvance(employee, advanceProvider),
                               _employeeMonthTotal(employee, advanceProvider),
                             ),
                           ),
+                          if (employees.length > _employeesPerPage)
+                            _buildPagination(
+                              currentPage: safePage,
+                              totalPages: totalPages,
+                              totalItems: employees.length,
+                            ),
+                        ],
                       ],
                     ),
                   );
@@ -254,12 +287,12 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0F172A), Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+          colors: [Color(0xFF064E3B), Color(0xFF059669), Color(0xFF14B8A6)],
         ),
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0284C7).withValues(alpha: 0.22),
+            color: const Color(0xFF059669).withValues(alpha: 0.24),
             blurRadius: 26,
             offset: const Offset(0, 15),
           ),
@@ -316,7 +349,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
           const Text(
             'Controla cupos, salarios y adelantos mensuales con una vista clara.',
             style: TextStyle(
-              color: Color(0xFFE0F2FE),
+              color: Color(0xFFD1FAE5),
               fontSize: 14,
               height: 1.35,
               fontWeight: FontWeight.w600,
@@ -348,7 +381,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 12, color: Color(0xFFBAE6FD)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFFA7F3D0)),
           ),
           const SizedBox(height: 4),
           Text(
@@ -375,10 +408,10 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFBAE6FD)),
+        border: Border.all(color: const Color(0xFFA7F3D0)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+            color: const Color(0xFF059669).withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -402,7 +435,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0284C7),
+                  color: Color(0xFF047857),
                 ),
               ),
             ],
@@ -413,7 +446,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation(Color(0xFF0284C7)),
+              valueColor: const AlwaysStoppedAnimation(Color(0xFF10B981)),
               minHeight: 8,
             ),
           ),
@@ -433,7 +466,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFBAE6FD)),
+          borderSide: const BorderSide(color: Color(0xFFA7F3D0)),
         ),
       ),
     );
@@ -461,7 +494,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE0F2FE)),
+        border: Border.all(color: const Color(0xFFD1FAE5)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.05),
@@ -482,7 +515,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+                    colors: [Color(0xFF047857), Color(0xFF14B8A6)],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -520,7 +553,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 child: _infoBox(
                   'Salario',
                   _money(employee.salary),
-                  const Color(0xFFECFEFF),
+                  const Color(0xFFECFDF5),
                 ),
               ),
               const SizedBox(width: 10),
@@ -528,7 +561,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                 child: _infoBox(
                   'Banco',
                   '${employee.bankName?.isNotEmpty == true ? employee.bankName : 'Sin banco'}\n$account',
-                  const Color(0xFFE0F2FE),
+                  const Color(0xFFF0FDFA),
                 ),
               ),
             ],
@@ -564,7 +597,7 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
               valueColor: AlwaysStoppedAnimation(
                 percentage > 0.8
                     ? const Color(0xFFDC2626)
-                    : const Color(0xFF0284C7),
+                    : const Color(0xFF10B981),
               ),
               minHeight: 8,
             ),
@@ -621,6 +654,91 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPagination({
+    required int currentPage,
+    required int totalPages,
+    required int totalItems,
+  }) {
+    final canGoBack = currentPage > 0;
+    final canGoNext = currentPage < totalPages - 1;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 2, bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD1FAE5)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF059669).withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _paginationButton(
+            icon: Icons.chevron_left,
+            enabled: canGoBack,
+            onPressed: () => setState(() => _currentPage--),
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  'Pagina ${currentPage + 1} de $totalPages',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF047857),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$totalItems empleados',
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _paginationButton(
+            icon: Icons.chevron_right,
+            enabled: canGoNext,
+            onPressed: () => setState(() => _currentPage++),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _paginationButton({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      onPressed: enabled ? onPressed : null,
+      icon: Icon(icon, size: 22),
+      color: const Color(0xFF047857),
+      disabledColor: const Color(0xFFCBD5E1),
+      style: IconButton.styleFrom(
+        backgroundColor: enabled
+            ? const Color(0xFFECFDF5)
+            : const Color(0xFFF8FAFC),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        minimumSize: const Size(42, 42),
       ),
     );
   }

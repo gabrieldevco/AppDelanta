@@ -17,7 +17,7 @@ class AuthService {
   }) async {
     final response = await _apiService.post(
       ApiConstants.authLogin,
-      data: {'email': email, 'password': password},
+      data: {'email': email.trim().toLowerCase(), 'password': password},
     );
 
     // Guardar token
@@ -52,8 +52,8 @@ class AuthService {
     try {
       // Crear FormData para soporte de archivos - de forma segura
       final Map<String, dynamic> formMap = {
-        'username': username,
-        'email': email,
+        'username': username.trim().toLowerCase(),
+        'email': email.trim().toLowerCase(),
         'password': password,
         'password_confirm': password,
         'first_name': firstName,

@@ -139,7 +139,7 @@ class _AdminHelpPageState extends State<AdminHelpPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const AdminHeader(),
+            const AdminHeader(currentIndex: 0),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),

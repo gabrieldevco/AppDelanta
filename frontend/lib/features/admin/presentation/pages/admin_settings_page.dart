@@ -196,7 +196,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AdminHeader(),
+            const AdminHeader(currentIndex: 4),
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -232,22 +232,48 @@ class _AdminSettingsPageState extends State<AdminSettingsPage>
                         ),
                       ],
                     ),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicator: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
-                        ),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: const Color(0xFF64748B),
-                      dividerColor: Colors.transparent,
-                      tabs: const [
-                        Tab(text: 'Fees e Intereses'),
-                        Tab(text: 'Operacion'),
-                      ],
+                    child: AnimatedBuilder(
+                      animation: _tabController,
+                      builder: (context, child) {
+                        return TabBar(
+                          controller: _tabController,
+                          indicator: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: _tabController.index == 0
+                                  ? [
+                                      const Color(0xFF2563EB),
+                                      const Color(0xFF3B82F6),
+                                    ]
+                                  : [
+                                      const Color(0xFF059669),
+                                      const Color(0xFF10B981),
+                                    ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _tabController.index == 0
+                                    ? const Color(
+                                        0xFF2563EB,
+                                      ).withValues(alpha: 0.3)
+                                    : const Color(
+                                        0xFF059669,
+                                      ).withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          labelColor: Colors.white,
+                          unselectedLabelColor: const Color(0xFF64748B),
+                          dividerColor: Colors.transparent,
+                          tabs: const [
+                            Tab(text: 'Fees e Intereses'),
+                            Tab(text: 'Operacion'),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 12),

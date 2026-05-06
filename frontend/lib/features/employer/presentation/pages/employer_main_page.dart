@@ -47,7 +47,7 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const EmployerHeader(),
+            const EmployerHeader(currentIndex: 0),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _loadData,

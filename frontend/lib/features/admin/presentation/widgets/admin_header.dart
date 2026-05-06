@@ -7,7 +7,9 @@ import '../pages/admin_help_page.dart';
 import '../pages/admin_profile_page.dart';
 
 class AdminHeader extends StatefulWidget {
-  const AdminHeader({super.key});
+  final int currentIndex;
+
+  const AdminHeader({super.key, this.currentIndex = 0});
 
   @override
   State<AdminHeader> createState() => _AdminHeaderState();
@@ -22,6 +24,35 @@ class _AdminHeaderState extends State<AdminHeader> {
     });
   }
 
+  static const List<List<Color>> _headerGradientColors = [
+    [Color(0xFF8B5CF6), Color(0xFFA78BFA)], // Inicio - Morado
+    [Color(0xFFEC4899), Color(0xFFF472B6)], // Usuarios - Fucsia/Rosa
+    [Color(0xFF10B981), Color(0xFF34D399)], // Desembolsos - Verde
+    [Color(0xFFF97316), Color(0xFFFB923C)], // Reportes - Naranja
+    [Color(0xFF64748B), Color(0xFF94A3B8)], // Config - Gris
+  ];
+
+  static const List<Color> _headerShadowColors = [
+    Color(0xFF8B5CF6), // Inicio - Morado
+    Color(0xFFEC4899), // Usuarios - Fucsia
+    Color(0xFF10B981), // Desembolsos - Verde
+    Color(0xFFF97316), // Reportes - Naranja
+    Color(0xFF64748B), // Config - Gris
+  ];
+
+  List<Color> _getGradientColors() {
+    final index = widget.currentIndex.clamp(
+      0,
+      _headerGradientColors.length - 1,
+    );
+    return _headerGradientColors[index];
+  }
+
+  Color _getShadowColor() {
+    final index = widget.currentIndex.clamp(0, _headerShadowColors.length - 1);
+    return _headerShadowColors[index];
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
@@ -32,6 +63,9 @@ class _AdminHeaderState extends State<AdminHeader> {
         : (user?.username.isNotEmpty == true
               ? user!.username
               : 'Administrador');
+
+    final gradientColors = _getGradientColors();
+    final shadowColor = _getShadowColor();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -46,7 +80,7 @@ class _AdminHeaderState extends State<AdminHeader> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+            color: shadowColor.withValues(alpha: 0.12),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -58,15 +92,15 @@ class _AdminHeaderState extends State<AdminHeader> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                colors: gradientColors,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(14)),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.28),
+                  color: shadowColor.withValues(alpha: 0.28),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),

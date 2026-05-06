@@ -20,15 +20,15 @@ class EmployerBottomNav extends StatelessWidget {
       icon: Icons.description_outlined,
       activeIcon: Icons.description,
       label: 'Solicitudes',
-      color: Color(0xFF0284C7),
-      endColor: Color(0xFF38BDF8),
+      color: Color(0xFFF97316),
+      endColor: Color(0xFFF59E0B),
     ),
     NavItemData(
       icon: Icons.people_outlined,
       activeIcon: Icons.people,
       label: 'Empleados',
-      color: Color(0xFF0891B2),
-      endColor: Color(0xFF22D3EE),
+      color: Color(0xFF059669),
+      endColor: Color(0xFF14B8A6),
     ),
   ];
 
@@ -43,6 +43,7 @@ class EmployerBottomNav extends StatelessWidget {
     final activeIconSize = isSmallScreen ? 21.0 : 22.0;
     final fontSize = isNarrow ? 10.0 : 11.0;
     final activeFontSize = isNarrow ? 10.5 : 11.5;
+    final activeItem = _navItems[currentIndex.clamp(0, _navItems.length - 1)];
 
     return BottomAppBar(
       elevation: 0,
@@ -53,11 +54,13 @@ class EmployerBottomNav extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: const Border(top: BorderSide(color: Color(0xFFBAE6FD))),
+          border: Border(
+            top: BorderSide(color: activeItem.color.withValues(alpha: 0.24)),
+          ),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+              color: activeItem.color.withValues(alpha: 0.12),
               blurRadius: 24,
               offset: const Offset(0, -10),
             ),

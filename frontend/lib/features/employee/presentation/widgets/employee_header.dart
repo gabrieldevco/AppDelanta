@@ -8,14 +8,42 @@ import '../pages/employee_profile_page.dart';
 
 class EmployeeHeader extends StatefulWidget {
   final VoidCallback? onNotificationTap;
+  final int currentIndex;
 
-  const EmployeeHeader({super.key, this.onNotificationTap});
+  const EmployeeHeader({
+    super.key,
+    this.onNotificationTap,
+    this.currentIndex = 0,
+  });
 
   @override
   State<EmployeeHeader> createState() => _EmployeeHeaderState();
 }
 
 class _EmployeeHeaderState extends State<EmployeeHeader> {
+  // Colores para cada pestaña: Inicio (rojo), Solicitar (verde), Historial (amarillo)
+  static const List<List<Color>> _iconGradientColors = [
+    [Color(0xFFDC2626), Color(0xFFEF4444)], // Inicio - Rojo
+    [Color(0xFF059669), Color(0xFF10B981)], // Solicitar - Verde
+    [Color(0xFFF59E0B), Color(0xFFFBBF24)], // Historial - Amarillo
+  ];
+
+  static const List<Color> _iconShadowColors = [
+    Color(0xFFDC2626), // Inicio - Rojo
+    Color(0xFF059669), // Solicitar - Verde
+    Color(0xFFF59E0B), // Historial - Amarillo
+  ];
+
+  List<Color> _getGradientColors() {
+    final index = widget.currentIndex.clamp(0, _iconGradientColors.length - 1);
+    return _iconGradientColors[index];
+  }
+
+  Color _getShadowColor() {
+    final index = widget.currentIndex.clamp(0, _iconShadowColors.length - 1);
+    return _iconShadowColors[index];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -35,20 +63,23 @@ class _EmployeeHeaderState extends State<EmployeeHeader> {
             ? '${user?.firstName} ${user?.lastName}'
             : user?.firstName ?? user?.username ?? 'Usuario';
 
+        final gradientColors = _getGradientColors();
+        final shadowColor = _getShadowColor();
+
         return Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFFFFFFF), Color(0xFFE8FFF2)],
+              colors: [Color(0xFFFFFFFF), Color(0xFFF6F8FB)],
             ),
             border: const Border(
-              bottom: BorderSide(color: Color(0xFFBBF7D0), width: 1),
+              bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00A86B).withValues(alpha: 0.14),
+                color: shadowColor.withValues(alpha: 0.1),
                 blurRadius: 22,
                 offset: const Offset(0, 10),
               ),
@@ -60,15 +91,15 @@ class _EmployeeHeaderState extends State<EmployeeHeader> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF00A86B), Color(0xFF22C55E)],
+                    colors: gradientColors,
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00A86B).withValues(alpha: 0.25),
+                      color: shadowColor.withValues(alpha: 0.25),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),

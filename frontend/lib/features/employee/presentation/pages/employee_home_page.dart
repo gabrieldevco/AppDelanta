@@ -48,7 +48,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
           body: SafeArea(
             child: Column(
               children: [
-                const EmployeeHeader(),
+                const EmployeeHeader(currentIndex: 0),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
@@ -107,7 +107,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Hola, $firstName',
+          'Hola, $firstName 👋',
           style: const TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w900,

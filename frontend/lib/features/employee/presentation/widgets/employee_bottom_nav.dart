@@ -13,8 +13,8 @@ class EmployeeBottomNav extends StatelessWidget {
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
       label: 'Inicio',
-      color: Color(0xFF00A86B),
-      endColor: Color(0xFF22C55E),
+      color: Color(0xFFDC2626),
+      endColor: Color(0xFFEF4444),
     ),
     NavItemData(
       icon: Icons.attach_money,
@@ -27,8 +27,8 @@ class EmployeeBottomNav extends StatelessWidget {
       icon: Icons.description_outlined,
       activeIcon: Icons.description,
       label: 'Historial',
-      color: Color(0xFF047857),
-      endColor: Color(0xFF00A86B),
+      color: Color(0xFFF59E0B),
+      endColor: Color(0xFFFBBF24),
     ),
   ];
 

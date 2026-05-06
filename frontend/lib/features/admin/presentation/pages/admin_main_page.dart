@@ -47,7 +47,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AdminHeader(),
+                const AdminHeader(currentIndex: 0),
                 const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -65,7 +65,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                                 advances['total_disbursed'],
                               ),
                               icon: Icons.attach_money,
-                              color: const Color(0xFF0D9488),
+                              color: const Color(0xFFDC2626),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -77,7 +77,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                               ),
                               subtitle: _recoveryPercentage(advances),
                               icon: Icons.trending_up,
-                              color: const Color(0xFF7C3AED),
+                              color: const Color(0xFF10B981),
                             ),
                           ),
                         ],
@@ -337,12 +337,12 @@ class _AdminMainPageState extends State<AdminMainPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAF7FF),
+        color: const Color(0xFFF0F9FF),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE9D5FF)),
+        border: Border.all(color: const Color(0xFFBAE6FD)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6D28D9).withValues(alpha: 0.07),
+            color: const Color(0xFF0284C7).withValues(alpha: 0.07),
             blurRadius: 22,
             offset: const Offset(0, 12),
           ),
@@ -353,7 +353,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.show_chart, color: Color(0xFF6D28D9), size: 20),
+              const Icon(Icons.show_chart, color: Color(0xFF0EA5E9), size: 20),
               const SizedBox(width: 8),
               const Text(
                 'Ganancias de la Plataforma',
@@ -385,7 +385,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF6D28D9),
+                    color: Color(0xFF0EA5E9),
                   ),
                 ),
               ],
@@ -399,7 +399,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+                      colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -429,7 +429,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF8B5CF6), Color(0xFFC084FC)],
+                      colors: [Color(0xFFF97316), Color(0xFFFB923C)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),

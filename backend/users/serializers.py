@@ -62,6 +62,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             })
 
     def validate(self, data):
+        if data.get('email'):
+            data['email'] = data['email'].strip().lower()
+        if data.get('username'):
+            data['username'] = data['username'].strip().lower()
+
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError({'password': 'Las contrasenas no coinciden'})
 
@@ -136,7 +141,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             except Company.DoesNotExist:
                 pass
 
-        EmployeeProfile.objects.create(
+        profile = EmployeeProfile.objects.create(
             user=user,
             salary=salary_decimal,
             available_advance_limit=advance_limit,
@@ -146,9 +151,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             approval_status='pending',
         )
         if company:
-            self._notify_employer_about_employee(user, company)
+            self._notify_employer_about_employee(user, company, profile)
+        self._notify_admins_about_employee(user, company, profile)
 
-    def _notify_employer_about_employee(self, user, company):
+    def _notify_employer_about_employee(self, user, company, profile):
         from notifications.models import Notification
 
         Notification.objects.create(
@@ -157,10 +163,30 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             title='Empleado pendiente de aprobacion',
             message=(
                 f'{user.get_full_name()} se registro como empleado de '
-                f'{company.name}. Aprueba o deniega su vinculacion.'
+                f'{company.name}. Salario: ${profile.salary}. '
+                'Aprueba o deniega su vinculacion.'
             ),
-            link='/employee-approvals',
+            link=f'/employee-approvals/{profile.id}',
         )
+
+    def _notify_admins_about_employee(self, user, company, profile):
+        """Notificar a todos los admins sobre nuevo empleado registrado"""
+        from notifications.models import Notification
+        from .models import User
+
+        admins = User.objects.filter(role='admin', is_active=True)
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                type='info',
+                title='Nuevo empleado registrado',
+                message=(
+                    f'{user.get_full_name()} se registro como empleado de '
+                    f'{company.name if company else "una empresa"}. '
+                    f'Empresa: {company.name if company else "N/A"}.'
+                ),
+                link=f'/admin/users',
+            )
 
     def _create_employer_company(self, user, business_name, company_name, employer_documents):
         """Crear empresa para empleador"""
@@ -175,6 +201,25 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             **{key: value for key, value in employer_documents.items() if value},
         )
         CompanySettings.objects.create(company=company)
+        self._notify_admins_about_employer(user, company)
+
+    def _notify_admins_about_employer(self, user, company):
+        """Notificar a todos los admins sobre nuevo empleador registrado"""
+        from notifications.models import Notification
+        from .models import User
+
+        admins = User.objects.filter(role='admin', is_active=True)
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                type='info',
+                title='Nuevo empleador registrado',
+                message=(
+                    f'{user.get_full_name()} se registro como empleador. '
+                    f'Empresa: {company.name}.'
+                ),
+                link=f'/admin/users',
+            )
 
     def _create_admin_profile(self, user):
         """Crear perfil de administrador"""
@@ -213,9 +258,11 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         from django.contrib.auth import authenticate
+        
+        data['email'] = data['email'].strip().lower()
 
         try:
-            user = User.objects.get(email=data['email'])
+            user = User.objects.get(email__iexact=data['email'])
         except User.DoesNotExist:
             raise serializers.ValidationError({'email': 'Credenciales invalidas'})
 

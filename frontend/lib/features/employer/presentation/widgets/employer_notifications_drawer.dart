@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/services/api_service.dart';
+import 'package:frontend/core/widgets/app_popup.dart';
 import 'package:provider/provider.dart';
 
 import '../../../notifications/data/models/notification_model.dart';
@@ -167,9 +169,10 @@ class _EmployerNotificationsDrawerState
     final iconData = switch (notification.type) {
       'success' => Icons.check_circle,
       'warning' => Icons.warning,
-      'error' => Icons.error,
+      'error' => Icons.cancel,
       _ => Icons.info,
     };
+    final employeeProfileId = _employeeApprovalProfileId(notification);
 
     return InkWell(
       onTap: unread
@@ -263,6 +266,59 @@ class _EmployerNotificationsDrawerState
                       height: 1.35,
                     ),
                   ),
+                  if (employeeProfileId != null) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _handleEmployeeApproval(
+                              context,
+                              notification.id,
+                              employeeProfileId,
+                              approve: false,
+                            ),
+                            icon: const Icon(Icons.close, size: 16),
+                            label: const Text('Denegar'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFFDC2626),
+                              side: const BorderSide(color: Color(0xFFFCA5A5)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () => _handleEmployeeApproval(
+                              context,
+                              notification.id,
+                              employeeProfileId,
+                              approve: true,
+                            ),
+                            icon: const Icon(Icons.check, size: 16),
+                            label: const Text('Aprobar'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: const Color(0xFF0D9488),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Text(
                     notification.timeAgo,
@@ -277,6 +333,73 @@ class _EmployerNotificationsDrawerState
           ],
         ),
       ),
+    );
+  }
+
+  int? _employeeApprovalProfileId(NotificationModel notification) {
+    final link = notification.link;
+    if (link == null) return null;
+    final match = RegExp(r'^/employee-approvals/(\d+)$').firstMatch(link);
+    if (match == null) return null;
+    return int.tryParse(match.group(1) ?? '');
+  }
+
+  Future<void> _handleEmployeeApproval(
+    BuildContext context,
+    int notificationId,
+    int profileId, {
+    required bool approve,
+  }) async {
+    final confirmed = await AppPopup.confirm(
+      context,
+      title: approve ? 'Aprobar empleado' : 'Denegar empleado',
+      message: approve
+          ? 'Deseas aprobar la vinculacion de este empleado a tu empresa?'
+          : 'Deseas denegar la vinculacion de este empleado a tu empresa?',
+      type: approve ? AppPopupType.success : AppPopupType.error,
+      primaryLabel: approve ? 'Aprobar' : 'Denegar',
+    );
+    if (!confirmed || !context.mounted) return;
+
+    try {
+      final action = approve ? 'approve' : 'reject';
+      await apiService.post('/api/employee-profiles/$profileId/$action/');
+      if (!context.mounted) return;
+      context.read<NotificationProvider>().markEmployeeApprovalHandled(
+        notificationId,
+        approve: approve,
+      );
+      await _showResultDialog(
+        context,
+        title: approve ? 'Empleado aprobado' : 'Empleado denegado',
+        message: approve
+            ? 'El empleado fue aprobado correctamente.'
+            : 'La vinculacion del empleado fue denegada.',
+      );
+      if (!context.mounted) return;
+      await context.read<NotificationProvider>().loadNotifications();
+    } catch (e) {
+      if (!context.mounted) return;
+      await _showResultDialog(
+        context,
+        title: 'No se pudo completar',
+        message: e.toString(),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> _showResultDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    bool isError = false,
+  }) {
+    return AppPopup.show(
+      context,
+      title: title,
+      message: message,
+      type: isError ? AppPopupType.error : AppPopupType.success,
     );
   }
 

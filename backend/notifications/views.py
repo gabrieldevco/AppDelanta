@@ -17,6 +17,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        sync_employee_approval_notifications(self.request.user)
         queryset = Notification.objects.filter(user=self.request.user)
         is_read = self.request.query_params.get('is_read')
         if is_read is not None:
@@ -96,6 +97,7 @@ class SystemNotificationViewSet(viewsets.ReadOnlyModelViewSet):
 @permission_classes([IsAuthenticated])
 def my_notifications(request):
     """Obtener notificaciones del usuario actual (versión simple)"""
+    sync_employee_approval_notifications(request.user)
     notifications = Notification.objects.filter(user=request.user)
     unread = notifications.filter(is_read=False)
     
@@ -132,5 +134,85 @@ def mark_all_read(request):
 @permission_classes([IsAuthenticated])
 def unread_count(request):
     """Obtener conteo de notificaciones no leídas"""
+    sync_employee_approval_notifications(request.user)
     count = Notification.objects.filter(user=request.user, is_read=False).count()
     return Response({'unread_count': count})
+
+
+def sync_employee_approval_notifications(user):
+    """Repair old employee approval notifications that already have a final status."""
+    if not (getattr(user, 'is_employer', False) or getattr(user, 'is_admin', False)):
+        return
+
+    stale_notifications = Notification.objects.filter(
+        user=user,
+        title='Empleado pendiente de aprobacion',
+        type='warning',
+    )
+
+    from users.models import EmployeeProfile
+
+    profiles = EmployeeProfile.objects.filter(
+        approval_status__in=['approved', 'rejected']
+    ).select_related('user', 'company')
+    if getattr(user, 'is_employer', False):
+        profiles = profiles.filter(company=getattr(user, 'company', None))
+
+    now = timezone.now()
+    def final_message(profile, approved):
+        full_name = profile.user.get_full_name().strip() or profile.user.email
+        company_name = profile.company.name if profile.company else 'la empresa'
+        action_text = 'aprobado' if approved else 'denegado'
+        return (
+            f"{full_name} fue {action_text} para vincularse a "
+            f"{company_name}. Salario: ${profile.salary}."
+        )
+
+    for notification in stale_notifications:
+        message = notification.message.lower()
+        for profile in profiles:
+            full_name = profile.user.get_full_name().strip()
+            if not full_name or full_name.lower() not in message:
+                continue
+
+            approved = profile.approval_status == 'approved'
+            Notification.objects.filter(pk=notification.pk).update(
+                type='success' if approved else 'error',
+                title='Empleado aprobado' if approved else 'Empleado denegado',
+                message=final_message(profile, approved),
+                link='',
+                is_read=True,
+                read_at=now,
+            )
+            break
+
+    generic_notifications = Notification.objects.filter(
+        user=user,
+        title__in=['Empleado aprobado', 'Empleado denegado'],
+        message__startswith='La vinculacion del empleado fue ',
+    )
+    for notification in generic_notifications:
+        approved = notification.title == 'Empleado aprobado'
+        status = 'approved' if approved else 'rejected'
+        candidates = list(profiles.filter(approval_status=status))
+        if not candidates:
+            continue
+
+        selected_profile = candidates[0]
+        if approved and len(candidates) > 1:
+            reference_date = notification.read_at or notification.created_at
+            candidates_with_date = [
+                profile for profile in candidates if profile.approved_at is not None
+            ]
+            if candidates_with_date:
+                selected_profile = min(
+                    candidates_with_date,
+                    key=lambda profile: abs(profile.approved_at - reference_date),
+                )
+        elif not approved and len(candidates) > 1:
+            continue
+
+        Notification.objects.filter(pk=notification.pk).update(
+            message=final_message(selected_profile, approved),
+            read_at=notification.read_at or now,
+        )

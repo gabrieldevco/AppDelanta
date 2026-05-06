@@ -44,7 +44,7 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
       body: SafeArea(
         child: Column(
           children: [
-            const EmployerHeader(),
+            const EmployerHeader(currentIndex: 1),
             Expanded(
               child: Consumer<AdvanceProvider>(
                 builder: (context, provider, _) {
@@ -121,52 +121,118 @@ class _EmployerRequestsPageState extends State<EmployerRequestsPage>
   }
 
   Widget _buildTabs(int pending, int approved, int rejected) {
-    return Container(
-      height: 52,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0284C7).withValues(alpha: 0.10),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+    return AnimatedBuilder(
+      animation: _tabController,
+      builder: (context, _) {
+        return Container(
+          height: 52,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: _requestTabColor(
+                  _tabController.index,
+                ).withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicator: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+          child: Row(
+            children: [
+              _buildStatusTab(
+                index: 0,
+                label: 'Pendientes',
+                count: pending,
+                color: const Color(0xFFF59E0B),
+                endColor: const Color(0xFFFBBF24),
+              ),
+              _buildStatusTab(
+                index: 1,
+                label: 'Aprobadas',
+                count: approved,
+                color: const Color(0xFF059669),
+                endColor: const Color(0xFF10B981),
+              ),
+              _buildStatusTab(
+                index: 2,
+                label: 'Rechazadas',
+                count: rejected,
+                color: const Color(0xFFDC2626),
+                endColor: const Color(0xFFEF4444),
+              ),
+            ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusTab({
+    required int index,
+    required String label,
+    required int count,
+    required Color color,
+    required Color endColor,
+  }) {
+    final selected = _tabController.index == index;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0284C7).withValues(alpha: 0.24),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
+          onTap: () {
+            if (_tabController.index != index) {
+              _tabController.animateTo(index, duration: Duration.zero);
+            }
+          },
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: selected
+                  ? LinearGradient(colors: [color, endColor])
+                  : null,
+              color: selected ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: selected ? Colors.transparent : const Color(0xFFE2E8F0),
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.22),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ]
+                  : null,
             ),
-          ],
+            child: Text(
+              '$label $count',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: selected ? Colors.white : const Color(0xFF64748B),
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
         ),
-        dividerColor: Colors.transparent,
-        labelColor: Colors.white,
-        unselectedLabelColor: const Color(0xFF64748B),
-        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-        tabs: [
-          Tab(text: 'Pendientes $pending'),
-          Tab(text: 'Aprobadas $approved'),
-          Tab(text: 'Rechazadas $rejected'),
-        ],
       ),
     );
+  }
+
+  Color _requestTabColor(int index) {
+    return switch (index) {
+      1 => const Color(0xFF059669),
+      2 => const Color(0xFFDC2626),
+      _ => const Color(0xFFF59E0B),
+    };
   }
 
   Widget _buildList(List<AdvanceModel> advances, IconData emptyIcon) {

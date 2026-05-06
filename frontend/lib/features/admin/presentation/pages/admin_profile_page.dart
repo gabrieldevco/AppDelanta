@@ -44,7 +44,7 @@ class _AdminProfilePageState extends State<AdminProfilePage>
       body: SafeArea(
         child: Column(
           children: [
-            const AdminHeader(),
+            const AdminHeader(currentIndex: 4),
             // Title and tabs section
             Container(
               color: const Color(0xFFF6F8FB),

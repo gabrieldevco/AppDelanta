@@ -7,7 +7,9 @@ import '../pages/employer_help_page.dart';
 import '../pages/employer_profile_page.dart';
 
 class EmployerHeader extends StatefulWidget {
-  const EmployerHeader({super.key});
+  final int currentIndex;
+
+  const EmployerHeader({super.key, this.currentIndex = 0});
 
   @override
   State<EmployerHeader> createState() => _EmployerHeaderState();
@@ -28,6 +30,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
       builder: (context, authProvider, child) {
         final user = authProvider.user;
         final companyName = user?.company?.name ?? 'Mi Empresa';
+        final iconColors = _tabIconColors(widget.currentIndex);
+        final iconShadowColor = iconColors.first;
 
         return Container(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -54,15 +58,15 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+                    colors: iconColors,
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0284C7).withValues(alpha: 0.28),
+                      color: iconShadowColor.withValues(alpha: 0.28),
                       blurRadius: 14,
                       offset: const Offset(0, 6),
                     ),
@@ -134,6 +138,14 @@ class _EmployerHeaderState extends State<EmployerHeader> {
         );
       },
     );
+  }
+
+  List<Color> _tabIconColors(int index) {
+    return switch (index) {
+      1 => const [Color(0xFFF97316), Color(0xFFF59E0B)],
+      2 => const [Color(0xFF059669), Color(0xFF14B8A6)],
+      _ => const [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+    };
   }
 
   Widget _buildNotificationIcon(

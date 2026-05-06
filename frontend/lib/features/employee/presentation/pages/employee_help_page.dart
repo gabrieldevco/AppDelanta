@@ -165,7 +165,7 @@ class _EmployeeHelpPageState extends State<EmployeeHelpPage> {
         child: Column(
           children: [
             // Header
-            const EmployeeHeader(),
+            const EmployeeHeader(currentIndex: 0),
             // Contenido scrollable
             Expanded(
               child: SingleChildScrollView(

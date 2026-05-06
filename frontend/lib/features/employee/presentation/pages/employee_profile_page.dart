@@ -148,7 +148,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage>
             child: Column(
               children: [
                 // Header
-                const EmployeeHeader(),
+                const EmployeeHeader(currentIndex: 0),
 
                 // TabBar
                 _buildTabBar(),

@@ -140,6 +140,12 @@ class AuthProvider extends ChangeNotifier {
       if (errorMsg.startsWith('ApiException: ')) {
         errorMsg = errorMsg.substring('ApiException: '.length);
       }
+      if (errorMsg.startsWith('Exception: ')) {
+        errorMsg = errorMsg.substring('Exception: '.length);
+      }
+      if (errorMsg.startsWith('Error en registro: ')) {
+        errorMsg = errorMsg.substring('Error en registro: '.length);
+      }
       // Extraer solo el mensaje antes de "(Status:"
       if (errorMsg.contains(' (Status:')) {
         errorMsg = errorMsg.split(' (Status:')[0];

@@ -305,7 +305,7 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
           body: SafeArea(
             child: Column(
               children: [
-                const EmployeeHeader(),
+                const EmployeeHeader(currentIndex: 1),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16),

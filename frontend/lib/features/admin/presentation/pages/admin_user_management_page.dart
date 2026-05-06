@@ -248,7 +248,7 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage>
       body: SafeArea(
         child: Column(
           children: [
-            const AdminHeader(),
+            const AdminHeader(currentIndex: 1),
             _buildUserManagementHeader(),
             Expanded(
               child: TabBarView(

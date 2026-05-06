@@ -531,7 +531,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AdminHeader(),
+                    const AdminHeader(currentIndex: 3),
                     const SizedBox(height: 24),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),

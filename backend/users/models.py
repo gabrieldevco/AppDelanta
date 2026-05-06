@@ -34,6 +34,13 @@ class User(AbstractUser):
     
     def __str__(self):
         return f"{self.get_full_name()} ({self.get_role_display()})"
+
+    def save(self, *args, **kwargs):
+        if self.email:
+            self.email = self.email.strip().lower()
+        if self.username:
+            self.username = self.username.strip()
+        super().save(*args, **kwargs)
     
     @property
     def is_employee(self):

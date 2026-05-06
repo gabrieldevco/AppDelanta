@@ -54,7 +54,7 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const EmployeeHeader(),
+                const EmployeeHeader(currentIndex: 2),
                 const SizedBox(height: 20),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -114,40 +114,74 @@ class _EmployeeHistoryPageState extends State<EmployeeHistoryPage>
                       ),
                     ],
                   ),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicator: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF00A86B), Color(0xFF22C55E)],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF00A86B,
-                          ).withValues(alpha: 0.24),
-                          blurRadius: 12,
-                          offset: const Offset(0, 5),
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      List<Color> gradientColors;
+                      Color shadowColor;
+
+                      switch (_tabController.index) {
+                        case 0: // Todas - Negro/Gris oscuro
+                          gradientColors = [
+                            const Color(0xFF374151),
+                            const Color(0xFF4B5563),
+                          ];
+                          shadowColor = const Color(0xFF374151);
+                          break;
+                        case 1: // Activas - Azul
+                          gradientColors = [
+                            const Color(0xFF2563EB),
+                            const Color(0xFF3B82F6),
+                          ];
+                          shadowColor = const Color(0xFF2563EB);
+                          break;
+                        case 2: // Completadas - Verde
+                          gradientColors = [
+                            const Color(0xFF00A86B),
+                            const Color(0xFF22C55E),
+                          ];
+                          shadowColor = const Color(0xFF00A86B);
+                          break;
+                        default:
+                          gradientColors = [
+                            const Color(0xFFEC4899),
+                            const Color(0xFFF59E0B),
+                          ];
+                          shadowColor = const Color(0xFFEC4899);
+                      }
+
+                      return TabBar(
+                        controller: _tabController,
+                        indicator: BoxDecoration(
+                          gradient: LinearGradient(colors: gradientColors),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: shadowColor.withValues(alpha: 0.24),
+                              blurRadius: 12,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: const Color(0xFF64748B),
-                    labelStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    ),
-                    dividerColor: Colors.transparent,
-                    tabs: const [
-                      Tab(text: 'Todas'),
-                      Tab(text: 'Activas'),
-                      Tab(text: 'Completadas'),
-                    ],
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        labelColor: Colors.white,
+                        unselectedLabelColor: const Color(0xFF64748B),
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                        dividerColor: Colors.transparent,
+                        tabs: const [
+                          Tab(text: 'Todas'),
+                          Tab(text: 'Activas'),
+                          Tab(text: 'Completadas'),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -90,9 +90,10 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
             title='Empleado pendiente de aprobacion',
             message=(
                 f"{request.user.get_full_name()} solicito vincularse a "
-                f"{company.name}. Aprueba o deniega su solicitud."
+                f"{company.name}. Salario: ${profile.salary}. "
+                "Aprueba o deniega su solicitud."
             ),
-            link='/employee-approvals'
+            link=f'/employee-approvals/{profile.id}'
         )
         return Response(self.get_serializer(profile).data)
 
@@ -107,7 +108,13 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         profile.approval_status = 'approved'
         profile.approved_at = timezone.now()
         profile.save(update_fields=['approval_status', 'approved_at'])
-        self._notify_employee(profile, 'Vinculacion aprobada', 'Tu empleador aprobo tu vinculacion.')
+        self._close_employer_approval_notifications(user, profile, approved=True)
+        self._notify_employee(
+            profile,
+            'Vinculacion aprobada',
+            'Tu empleador aprobo tu vinculacion.',
+            notification_type='success',
+        )
         return Response(self.get_serializer(profile).data)
 
     @action(detail=True, methods=['post'])
@@ -121,14 +128,43 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         profile.approval_status = 'rejected'
         profile.approved_at = None
         profile.save(update_fields=['approval_status', 'approved_at'])
-        self._notify_employee(profile, 'Vinculacion denegada', 'Tu empleador denego tu vinculacion.')
+        self._close_employer_approval_notifications(user, profile, approved=False)
+        self._notify_employee(
+            profile,
+            'Vinculacion denegada',
+            'Tu empleador denego tu vinculacion.',
+            notification_type='error',
+        )
         return Response(self.get_serializer(profile).data)
 
-    def _notify_employee(self, profile, title, message):
+    def _close_employer_approval_notifications(self, user, profile, approved):
+        from notifications.models import Notification
+
+        employee_name = profile.user.get_full_name() or profile.user.email
+        company_name = profile.company.name if profile.company else 'la empresa'
+        action_text = 'aprobado' if approved else 'denegado'
+        message = (
+            f"{employee_name} fue {action_text} para vincularse a "
+            f"{company_name}. Salario: ${profile.salary}."
+        )
+
+        Notification.objects.filter(
+            user=user,
+            link=f'/employee-approvals/{profile.id}',
+        ).update(
+            type='success' if approved else 'error',
+            title='Empleado aprobado' if approved else 'Empleado denegado',
+            message=message,
+            link='',
+            is_read=True,
+            read_at=timezone.now(),
+        )
+
+    def _notify_employee(self, profile, title, message, notification_type='info'):
         from notifications.models import Notification
         Notification.objects.create(
             user=profile.user,
-            type='info',
+            type=notification_type,
             title=title,
             message=message,
         )

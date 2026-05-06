@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:frontend/core/widgets/app_popup.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/api_service.dart';
 import '../providers/auth_provider.dart';
@@ -64,6 +65,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // Lista de empresas disponibles
   List<Map<String, dynamic>> _availableCompanies = [];
   bool _loadingCompanies = false;
+  String? _companiesError;
 
   @override
   void initState() {
@@ -77,9 +79,13 @@ class _RegisterPageState extends State<RegisterPage> {
       final response = await apiService.get('/api/companies/available/');
       setState(() {
         _availableCompanies = List<Map<String, dynamic>>.from(response);
+        _companiesError = null;
       });
     } catch (e) {
-      // Error silencioso, el usuario puede continuar sin seleccionar empresa
+      setState(() {
+        _availableCompanies = [];
+        _companiesError = 'No se pudieron cargar las empresas registradas';
+      });
     } finally {
       setState(() => _loadingCompanies = false);
     }
@@ -150,111 +156,86 @@ class _RegisterPageState extends State<RegisterPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 400;
-        final barMargin = isSmallScreen ? 4.0 : 8.0;
+        final barMargin = isSmallScreen ? 6.0 : 10.0;
         final isEmployer = step1.role == 'employer';
         final isAdmin = step1.role == 'admin';
         final totalSteps = (isEmployer || isAdmin) ? 2 : 3;
 
-        return Column(
+        return Row(
+          mainAxisSize: MainAxisSize.max,
           children: [
-            // Barra de progreso
-            Row(
-              children: [
-                _buildStepIndicator(1, 'Paso 1', totalSteps: totalSteps),
-                Flexible(
-                  child: Container(
-                    height: 4,
-                    margin: EdgeInsets.symmetric(horizontal: barMargin),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFEDD5),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Row(
-                          children: [
-                            Container(
-                              width: _currentStep >= 2
-                                  ? constraints.maxWidth
-                                  : (_currentStep == 1 ? null : 0),
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF97316),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                _buildStepIndicator(2, 'Paso 2', totalSteps: totalSteps),
-                // Solo mostrar paso 3 para empleados
-                if (!isEmployer && !isAdmin) ...[
-                  Flexible(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Container(
-                          height: 4,
-                          margin: EdgeInsets.symmetric(horizontal: barMargin),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFEDD5),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: _currentStep >= 3
-                                    ? constraints.maxWidth
-                                    : 0,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF97316),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  _buildStepIndicator(3, 'Paso 3', totalSteps: totalSteps),
-                ],
-              ],
+            _buildStepIndicator(1, totalSteps: totalSteps),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: barMargin),
+                child: _buildProgressLine(isFilled: _currentStep >= 2),
+              ),
             ),
+            _buildStepIndicator(2, totalSteps: totalSteps),
+            if (!isEmployer && !isAdmin) ...[
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: barMargin),
+                  child: _buildProgressLine(isFilled: _currentStep >= 3),
+                ),
+              ),
+              _buildStepIndicator(3, totalSteps: totalSteps),
+            ],
           ],
         );
       },
     );
   }
 
-  Widget _buildStepIndicator(int step, String label, {int totalSteps = 3}) {
+  Widget _buildProgressLine({required bool isFilled}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: SizedBox(
+        height: 4,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ColoredBox(color: Color(0xFFFFEDD5)),
+            FractionallySizedBox(
+              widthFactor: isFilled ? 1 : 0,
+              alignment: Alignment.centerLeft,
+              child: const ColoredBox(color: Color(0xFFF97316)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepIndicator(int step, {int totalSteps = 3}) {
     final isActive = _currentStep >= step;
     final isCurrent = _currentStep == step;
 
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFFF97316) : const Color(0xFFFFEDD5),
-        shape: BoxShape.circle,
-        border: isCurrent
-            ? Border.all(color: const Color(0xFFF97316), width: 2)
-            : null,
-      ),
-      child: Center(
-        child: isActive && !isCurrent
-            ? const Icon(Icons.check, color: Colors.white, size: 16)
-            : Text(
-                '$step',
-                style: TextStyle(
-                  color: isActive ? Colors.white : const Color(0xFF9A3412),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
+    return Semantics(
+      label: 'Paso $step de $totalSteps',
+      child: SizedBox.square(
+        dimension: 32,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFFF97316) : const Color(0xFFFFEDD5),
+            shape: BoxShape.circle,
+            border: isCurrent
+                ? Border.all(color: const Color(0xFFF97316), width: 2)
+                : null,
+          ),
+          child: Center(
+            child: isActive && !isCurrent
+                ? const Icon(Icons.check, color: Colors.white, size: 16)
+                : Text(
+                    '$step',
+                    style: TextStyle(
+                      color: isActive ? Colors.white : const Color(0xFF9A3412),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+          ),
+        ),
       ),
     );
   }
@@ -623,13 +604,11 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _registerEmployer() async {
     if (!_formKey2.currentState!.validate()) return;
     if (!_hasAllEmployerDocuments()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Debes subir RUT, camara de comercio, cedula y extractos bancarios',
-          ),
-          backgroundColor: Colors.red,
-        ),
+      await _showRegisterDialog(
+        title: 'Documentos incompletos',
+        message:
+            'Debes subir RUT, camara de comercio, cedula y extractos bancarios.',
+        isError: true,
       );
       return;
     }
@@ -661,23 +640,21 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registro exitoso. Por favor inicia sesión.'),
-          backgroundColor: Colors.green,
-        ),
+      await _showRegisterDialog(
+        title: 'Registro exitoso',
+        message: 'Tu cuenta fue creada correctamente. Por favor inicia sesion.',
       );
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (route) => false,
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Error al registrar'),
-          backgroundColor: Colors.red,
-        ),
+      await _showRegisterDialog(
+        title: 'No se pudo registrar',
+        message: authProvider.errorMessage ?? 'Error al registrar',
+        isError: true,
       );
     }
   }
@@ -713,23 +690,21 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registro exitoso. Por favor inicia sesión.'),
-          backgroundColor: Colors.green,
-        ),
+      await _showRegisterDialog(
+        title: 'Registro exitoso',
+        message: 'Tu cuenta fue creada correctamente. Por favor inicia sesion.',
       );
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (route) => false,
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Error al registrar'),
-          backgroundColor: Colors.red,
-        ),
+      await _showRegisterDialog(
+        title: 'No se pudo registrar',
+        message: authProvider.errorMessage ?? 'Error al registrar',
+        isError: true,
       );
     }
   }
@@ -931,10 +906,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _register() async {
     if (!_formKey3.currentState!.validate()) return;
     if (!step3.termsAccepted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debes aceptar los términos y condiciones'),
-        ),
+      await _showRegisterDialog(
+        title: 'Terminos pendientes',
+        message: 'Debes aceptar los terminos y condiciones.',
+        isError: true,
       );
       return;
     }
@@ -966,12 +941,11 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registro exitoso. Por favor inicia sesión.'),
-          backgroundColor: Colors.green,
-        ),
+      await _showRegisterDialog(
+        title: 'Registro exitoso',
+        message: 'Tu cuenta fue creada correctamente. Por favor inicia sesion.',
       );
+      if (!mounted) return;
 
       // Navegar al login en lugar de mainpage
       Navigator.pushAndRemoveUntil(
@@ -980,13 +954,26 @@ class _RegisterPageState extends State<RegisterPage> {
         (route) => false,
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.errorMessage ?? 'Error al registrar'),
-          backgroundColor: Colors.red,
-        ),
+      await _showRegisterDialog(
+        title: 'No se pudo registrar',
+        message: authProvider.errorMessage ?? 'Error al registrar',
+        isError: true,
       );
     }
+  }
+
+  Future<void> _showRegisterDialog({
+    required String title,
+    required String message,
+    bool isError = false,
+  }) async {
+    if (!mounted) return;
+    await AppPopup.show(
+      context,
+      title: title,
+      message: message,
+      type: isError ? AppPopupType.error : AppPopupType.success,
+    );
   }
 
   // Dropdown de empresas para empleados
@@ -1001,31 +988,16 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (_availableCompanies.isEmpty) {
-      return _buildTextField(
-        label: 'Empresa',
-        hint: 'Nombre de tu empresa',
-        onChanged: (v) => step2.companyName = v,
-        validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
-      );
+      return _buildCompanyEmptySelector();
     }
 
-    final items = _availableCompanies.map((company) {
-      return DropdownMenuItem<int>(
-        value: company['id'] as int,
-        child: Text(company['name'] as String),
-      );
-    }).toList();
-
-    // Agregar item por defecto
-    items.insert(
-      0,
-      const DropdownMenuItem<int>(
-        value: null,
-        child: Text(
-          'Selecciona una empresa...',
-          style: TextStyle(color: Color(0xFFA8B3C2)),
-        ),
-      ),
+    final items = _companyDropdownItems(
+      _availableCompanies.map((company) {
+        return DropdownMenuItem<int>(
+          value: company['id'] as int,
+          child: Text(company['name'] as String),
+        );
+      }).toList(),
     );
 
     return _buildDropdown(
@@ -1035,6 +1007,64 @@ class _RegisterPageState extends State<RegisterPage> {
       value: step2.companyId,
       items: items,
       onChanged: (value) => setState(() => step2.companyId = value as int?),
+    );
+  }
+
+  List<DropdownMenuItem<dynamic>> _companyDropdownItems(
+    List<DropdownMenuItem<int>> companies,
+  ) {
+    return [
+      const DropdownMenuItem<int>(
+        value: null,
+        child: Text(
+          'Selecciona una empresa...',
+          style: TextStyle(color: Color(0xFFA8B3C2)),
+        ),
+      ),
+      ...companies,
+    ];
+  }
+
+  Widget _buildCompanyEmptySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDropdown(
+          label: 'Empresa',
+          hint: _companiesError ?? 'No hay empresas registradas',
+          icon: Icons.business,
+          value: null,
+          items: _companyDropdownItems(const []),
+          onChanged: (_) {},
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _companiesError ?? 'No hay empresas disponibles para registro.',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFFDC2626),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: _loadAvailableCompanies,
+              icon: const Icon(Icons.refresh, size: 16),
+              label: const Text('Recargar'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFF97316),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1351,8 +1381,10 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al seleccionar archivo: $e')),
+      await _showRegisterDialog(
+        title: 'No se pudo seleccionar',
+        message: 'Error al seleccionar archivo: $e',
+        isError: true,
       );
     }
   }
@@ -1438,8 +1470,10 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al seleccionar archivo: $e')),
+      await _showRegisterDialog(
+        title: 'No se pudo seleccionar',
+        message: 'Error al seleccionar archivo: $e',
+        isError: true,
       );
     }
   }

@@ -7,8 +7,7 @@ class ApiConstants {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8000', // Android emulator
-    // defaultValue: 'http://localhost:8000', // Web / iOS / Desktop
+    defaultValue: 'http://2.24.78.224:8000',
   );
 
   // Endpoints API

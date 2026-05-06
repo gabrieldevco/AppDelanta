@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/widgets/app_popup.dart';
 import 'package:provider/provider.dart';
 import '../../../admin/presentation/pages/admin_main_page.dart';
 import '../../../employee/presentation/pages/employee_main_page.dart';
@@ -67,13 +68,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showMessage(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    AppPopup.show(
+      context,
+      title: color == const Color(0xFFDC2626)
+          ? 'No se pudo ingresar'
+          : 'Campos pendientes',
+      message: message,
+      type: color == const Color(0xFFDC2626)
+          ? AppPopupType.error
+          : AppPopupType.warning,
     );
   }
 
@@ -161,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
         _buildBrandMark(),
         const SizedBox(height: 18),
         const Text(
-          'Appdelanta',
+          'AppDelanta',
           style: TextStyle(
             fontSize: 35,
             fontWeight: FontWeight.w900,

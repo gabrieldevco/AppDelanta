@@ -88,6 +88,36 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
+  // Ocultar acciones de aprobación de empleado ya respondidas
+  void markEmployeeApprovalHandled(
+    int notificationId, {
+    required bool approve,
+  }) {
+    final index = _notifications.indexWhere((n) => n.id == notificationId);
+    if (index == -1) return;
+
+    final wasUnread = !_notifications[index].isRead;
+    final originalMessage = _notifications[index].message;
+    final finalMessage = originalMessage
+        .replaceAll('Aprueba o deniega su solicitud.', '')
+        .trim();
+    final statusMessage = approve
+        ? 'Aprobado correctamente.'
+        : 'Vinculacion denegada.';
+    _notifications[index] = _notifications[index].copyWith(
+      type: approve ? 'success' : 'error',
+      title: approve ? 'Empleado aprobado' : 'Empleado denegado',
+      message: finalMessage.isEmpty
+          ? statusMessage
+          : '$finalMessage $statusMessage',
+      link: '',
+      isRead: true,
+      readAt: DateTime.now(),
+    );
+    if (wasUnread && _unreadCount > 0) _unreadCount--;
+    notifyListeners();
+  }
+
   // Marcar todas como leídas
   Future<bool> markAllAsRead() async {
     _status = NotificationStatus.submitting;

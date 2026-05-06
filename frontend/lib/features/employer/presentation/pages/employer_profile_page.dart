@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/widgets/app_popup.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../companies/presentation/providers/company_provider.dart';
 import '../widgets/employer_header.dart';
@@ -18,6 +19,11 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   late TabController _tabController;
   bool _isEditing = false;
   bool _saving = false;
+
+  static const _ink = Color(0xFF172033);
+  static const _muted = Color(0xFF718096);
+  static const _warmLine = Color(0xFFE8EDF5);
+  static const _softSurface = Color(0xFFFFFCF8);
 
   final _razonSocialController = TextEditingController();
   final _nombreComercialController = TextEditingController();
@@ -67,7 +73,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
+      backgroundColor: const Color(0xFFF7F8FB),
       endDrawer: const EmployerNotificationsDrawer(),
       body: SafeArea(
         child: Column(
@@ -82,8 +88,9 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                     'Mi Perfil',
                     style: TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      fontWeight: FontWeight.w900,
+                      color: _ink,
+                      letterSpacing: 0,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -117,14 +124,14 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       height: 52,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _softSurface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: _warmLine),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0284C7).withValues(alpha: 0.10),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: const Color(0xFF172033).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -146,10 +153,10 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
         ),
         dividerColor: Colors.transparent,
         labelColor: Colors.white,
-        unselectedLabelColor: const Color(0xFF64748B),
-        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+        unselectedLabelColor: _muted,
+        labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
         unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontSize: 13,
         ),
         tabs: const [
@@ -182,8 +189,9 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                             'Información',
                             style: TextStyle(
                               fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
+                              fontWeight: FontWeight.w900,
+                              color: _ink,
+                              letterSpacing: 0,
                             ),
                           ),
                         ),
@@ -248,8 +256,9 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                 'Cambiar contraseña',
                 style: TextStyle(
                   fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF111827),
+                  fontWeight: FontWeight.w900,
+                  color: _ink,
+                  letterSpacing: 0,
                 ),
               ),
               const SizedBox(height: 14),
@@ -267,13 +276,17 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                   icon: const Icon(Icons.key, size: 18),
                   label: const Text('Actualizar contraseña'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F172A),
+                    backgroundColor: const Color(0xFF06172E),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -298,14 +311,14 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE0F2FE)),
+        color: _softSurface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: _warmLine),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0284C7).withValues(alpha: 0.08),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
+            color: const Color(0xFF172033).withValues(alpha: 0.07),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
           ),
         ],
       ),
@@ -329,29 +342,52 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
             label,
             style: const TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF475569),
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF4A5568),
+              letterSpacing: 0,
             ),
           ),
           const SizedBox(height: 5),
-          TextField(
-            controller: controller,
-            enabled: active,
-            keyboardType: keyboardType,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: active
-                  ? const Color(0xFFFFFFFF)
-                  : const Color(0xFFF8FAFC),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: active
-                    ? const BorderSide(color: Color(0xFF38BDF8), width: 1.2)
-                    : const BorderSide(color: Color(0xFFE2E8F0)),
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 180),
+            opacity: active ? 1 : 0.56,
+            child: TextField(
+              controller: controller,
+              enabled: active,
+              keyboardType: keyboardType,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: active
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFFF3F6FA),
+                hintStyle: const TextStyle(color: Color(0xFFA0AEC0)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: _warmLine),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFFDDE6F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF38BDF8),
+                    width: 1.3,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 13,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
+              style: const TextStyle(
+                color: _ink,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -361,23 +397,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
   }
 
   Widget _passwordField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: TextField(
-        controller: controller,
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: const Color(0xFFF8FAFC),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-          suffixIcon: const Icon(Icons.visibility_off, size: 18),
-        ),
-      ),
-    );
+    return _ProfilePasswordField(label: label, controller: controller);
   }
 
   Widget _infoBox({
@@ -393,7 +413,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor),
       ),
       child: Row(
@@ -410,7 +430,7 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
                   style: TextStyle(
                     fontSize: 13,
                     color: textColor,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -443,11 +463,15 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       _saving = false;
       if (ok) _isEditing = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? 'Perfil actualizado' : 'No se pudo actualizar'),
-      ),
+    await AppPopup.show(
+      context,
+      title: ok ? 'Perfil actualizado' : 'No se pudo actualizar',
+      message: ok
+          ? 'Los datos de tu empresa quedaron guardados correctamente.'
+          : 'Revisa la informacion e intenta nuevamente.',
+      type: ok ? AppPopupType.success : AppPopupType.error,
     );
+    if (!mounted) return;
     if (ok) await context.read<AuthProvider>().refreshProfile();
   }
 
@@ -455,8 +479,12 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
     final newPassword = _newPasswordController.text;
     if (newPassword.length < 6 ||
         newPassword != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verifica la nueva contraseña')),
+      await AppPopup.show(
+        context,
+        title: 'Verifica la contrasena',
+        message:
+            'La nueva contrasena debe tener al menos 6 caracteres y coincidir con la confirmacion.',
+        type: AppPopupType.warning,
       );
       return;
     }
@@ -472,9 +500,95 @@ class _EmployerProfilePageState extends State<EmployerProfilePage>
       _newPasswordController.clear();
       _confirmPasswordController.clear();
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? 'Contraseña actualizada' : 'No se pudo actualizar'),
+    await AppPopup.show(
+      context,
+      title: ok ? 'Contrasena actualizada' : 'No se pudo actualizar',
+      message: ok
+          ? 'Tu contrasena fue cambiada correctamente.'
+          : 'La contrasena actual no coincide o hubo un problema al actualizar.',
+      type: ok ? AppPopupType.success : AppPopupType.error,
+    );
+  }
+}
+
+class _ProfilePasswordField extends StatefulWidget {
+  final String label;
+  final TextEditingController controller;
+
+  const _ProfilePasswordField({required this.label, required this.controller});
+
+  @override
+  State<_ProfilePasswordField> createState() => _ProfilePasswordFieldState();
+}
+
+class _ProfilePasswordFieldState extends State<_ProfilePasswordField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode()..addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showPasswordHint =
+        _focusNode.hasFocus && widget.controller.text.isEmpty;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        focusNode: _focusNode,
+        controller: widget.controller,
+        obscureText: true,
+        obscuringCharacter: '*',
+        onChanged: (_) => setState(() {}),
+        style: const TextStyle(
+          color: _EmployerProfilePageState._ink,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+        ),
+        decoration: InputDecoration(
+          hintText: showPasswordHint ? '********' : widget.label,
+          hintStyle: TextStyle(
+            color: showPasswordHint
+                ? const Color(0xFFA0AEC0)
+                : _EmployerProfilePageState._muted,
+            fontWeight: FontWeight.w700,
+            letterSpacing: showPasswordHint ? 1.4 : 0,
+          ),
+          filled: true,
+          fillColor: const Color(0xFFF7F9FC),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(
+              color: _EmployerProfilePageState._warmLine,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.3),
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 15,
+          ),
+          suffixIcon: const Icon(Icons.visibility_off, size: 18),
+        ),
       ),
     );
   }
