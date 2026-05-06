@@ -158,8 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
         final isSmallScreen = constraints.maxWidth < 400;
         final barMargin = isSmallScreen ? 6.0 : 10.0;
         final isEmployer = step1.role == 'employer';
-        final isAdmin = step1.role == 'admin';
-        final totalSteps = (isEmployer || isAdmin) ? 2 : 3;
+        final totalSteps = isEmployer ? 2 : 3;
 
         return Row(
           mainAxisSize: MainAxisSize.max,
@@ -172,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             _buildStepIndicator(2, totalSteps: totalSteps),
-            if (!isEmployer && !isAdmin) ...[
+            if (!isEmployer) ...[
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: barMargin),
@@ -312,13 +311,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 value: 'employer',
                 child: _buildRoleItem('Empleador', Icons.business),
               ),
-              DropdownMenuItem(
-                value: 'admin',
-                child: _buildRoleItem(
-                  'Administrador',
-                  Icons.admin_panel_settings,
-                ),
-              ),
             ],
             onChanged: (v) => setState(() => step1.role = v!),
           ),
@@ -427,7 +419,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildStep2() {
     final isEmployee = step1.role == 'employee';
     final isEmployer = step1.role == 'employer';
-    final isAdmin = step1.role == 'admin';
 
     return Form(
       key: _formKey2,
@@ -536,9 +527,7 @@ class _RegisterPageState extends State<RegisterPage> {
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: isEmployer
-                  ? _registerEmployer
-                  : (isAdmin ? _registerAdmin : _goToStep3),
+              onPressed: isEmployer ? _registerEmployer : _goToStep3,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF97316),
                 foregroundColor: Colors.white,
@@ -551,7 +540,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    isEmployer || isAdmin ? 'Crear Cuenta' : 'Siguiente →',
+                    isEmployer ? 'Crear Cuenta' : 'Siguiente →',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -633,56 +622,6 @@ class _RegisterPageState extends State<RegisterPage> {
       chamberOfCommerceFile: step2.chamberOfCommerceFile,
       legalRepresentativeIdDocument: step2.legalRepresentativeIdDocument,
       bankStatementsDocument: step2.bankStatementsDocument,
-      bankAccount: null,
-      bankName: null,
-    );
-
-    setState(() => _isLoading = false);
-
-    if (success && mounted) {
-      await _showRegisterDialog(
-        title: 'Registro exitoso',
-        message: 'Tu cuenta fue creada correctamente. Por favor inicia sesion.',
-      );
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false,
-      );
-    } else if (mounted) {
-      await _showRegisterDialog(
-        title: 'No se pudo registrar',
-        message: authProvider.errorMessage ?? 'Error al registrar',
-        isError: true,
-      );
-    }
-  }
-
-  // Registro para administradores (sin paso 3)
-  Future<void> _registerAdmin() async {
-    if (!_formKey2.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.register(
-      username: step1.email.split('@').first,
-      email: step1.email,
-      password: step2.password,
-      firstName: step1.fullName.split(' ').first,
-      lastName: step1.fullName.split(' ').skip(1).join(' '),
-      role: step1.role,
-      phone: null,
-      documentNumber: step1.documentNumber,
-      salary: null,
-      businessName: null,
-      companyName: null,
-      companyId: null,
-      rutDocument: null,
-      chamberOfCommerceFile: null,
-      legalRepresentativeIdDocument: null,
-      bankStatementsDocument: null,
       bankAccount: null,
       bankName: null,
     );

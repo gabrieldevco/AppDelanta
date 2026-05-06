@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 
@@ -26,7 +27,13 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.is_admin:
             return User.objects.all()
         elif user.is_employer:
-            return User.objects.filter(employee_profile__company=user.company)
+            try:
+                company = user.company
+            except ObjectDoesNotExist:
+                return User.objects.filter(id=user.id)
+            return User.objects.filter(
+                models.Q(id=user.id) | models.Q(employee_profile__company=company)
+            )
         return User.objects.filter(id=user.id)
 
 

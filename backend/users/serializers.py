@@ -72,6 +72,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         role = data.get('role', 'employee')
 
+        if role == 'admin':
+            raise serializers.ValidationError({
+                'role': 'El registro publico no permite crear administradores'
+            })
+
         if role == 'employee':
             if not data.get('salary'):
                 raise serializers.ValidationError({'salary': 'El salario es requerido para empleados'})

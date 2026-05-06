@@ -113,6 +113,16 @@ class AuthService {
         options: Options(headers: {'Content-Type': 'multipart/form-data'}),
       );
 
+      if (response.statusCode == null ||
+          response.statusCode! < 200 ||
+          response.statusCode! >= 300) {
+        throw ApiException(
+          message: _extractErrorMessage(response.data, response.statusCode),
+          statusCode: response.statusCode,
+          data: response.data,
+        );
+      }
+
       final data = response.data as Map<String, dynamic>;
 
       // Guardar token si viene en el registro
@@ -121,9 +131,39 @@ class AuthService {
       }
 
       return data;
+    } on ApiException {
+      rethrow;
+    } on DioException catch (e) {
+      throw ApiException(
+        message: _extractErrorMessage(e.response?.data, e.response?.statusCode),
+        statusCode: e.response?.statusCode,
+        data: e.response?.data,
+      );
     } catch (e) {
       throw Exception('Error en registro: $e');
     }
+  }
+
+  String _extractErrorMessage(dynamic data, int? statusCode) {
+    if (data is Map) {
+      final detail = data['detail'] ?? data['error'];
+      if (detail != null) return detail.toString();
+
+      final errors = <String>[];
+      data.forEach((key, value) {
+        if (value is List) {
+          errors.add('$key: ${value.join(', ')}');
+        } else {
+          errors.add('$key: $value');
+        }
+      });
+      if (errors.isNotEmpty) return errors.join('\n');
+    }
+
+    if (statusCode != null && statusCode >= 500) {
+      return 'Error del servidor. Intenta nuevamente o contacta soporte.';
+    }
+    return 'No se pudo completar el registro.';
   }
 
   Future<void> _addFile(
