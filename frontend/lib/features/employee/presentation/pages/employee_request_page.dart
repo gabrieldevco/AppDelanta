@@ -96,6 +96,8 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
 
   Future<void> _openAuthorizationPage(BuildContext context) async {
     final authProvider = context.read<AuthProvider>();
+    await authProvider.refreshProfile();
+    if (!context.mounted) return;
     final employeeProfile = authProvider.user?.employeeProfile;
 
     if (employeeProfile?.isPendingApproval ?? false) {

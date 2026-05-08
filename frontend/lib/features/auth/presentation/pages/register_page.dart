@@ -25,6 +25,8 @@ class RegisterStep2Data {
   // Empleador
   String businessName = '';
   String employerCompanyName = '';
+  String companyTaxId = '';
+  String companyAddress = '';
   File? rutDocument;
   String rutFileName = '';
   File? chamberOfCommerceFile;
@@ -491,6 +493,22 @@ class _RegisterPageState extends State<RegisterPage> {
               validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
             ),
             const SizedBox(height: 16),
+            _buildTextField(
+              label: 'NIT',
+              hint: '900123456-7',
+              onChanged: (v) => step2.companyTaxId = v,
+              keyboardType: TextInputType.text,
+              validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              label: 'Direccion',
+              hint: 'Calle 123 # 45-67',
+              onChanged: (v) => step2.companyAddress = v,
+              keyboardType: TextInputType.streetAddress,
+              validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
+            ),
+            const SizedBox(height: 16),
             _buildEmployerDocumentsSection(),
           ],
           const SizedBox(height: 24),
@@ -590,6 +608,8 @@ class _RegisterPageState extends State<RegisterPage> {
       salary: null,
       businessName: step2.businessName,
       companyName: step2.employerCompanyName,
+      companyTaxId: step2.companyTaxId,
+      companyAddress: step2.companyAddress,
       companyId: null,
       rutDocument: step2.rutDocument,
       chamberOfCommerceFile: step2.chamberOfCommerceFile,
@@ -841,6 +861,8 @@ class _RegisterPageState extends State<RegisterPage> {
       salary: step2.salary.isNotEmpty ? double.tryParse(step2.salary) : null,
       businessName: step2.businessName,
       companyName: step2.employerCompanyName,
+      companyTaxId: step2.companyTaxId,
+      companyAddress: step2.companyAddress,
       companyId: step2.companyId,
       rutDocument: step2.rutDocument,
       chamberOfCommerceFile: step2.chamberOfCommerceFile,

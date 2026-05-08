@@ -23,6 +23,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     salary = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, allow_null=True)
     business_name = serializers.CharField(required=False, allow_blank=True)
     company_name = serializers.CharField(required=False, allow_blank=True)
+    company_tax_id = serializers.CharField(required=False, allow_blank=True)
+    company_address = serializers.CharField(required=False, allow_blank=True)
     bank_account = serializers.CharField(required=False, allow_blank=True)
     bank_name = serializers.CharField(required=False, allow_blank=True)
     company_id = serializers.IntegerField(required=False, allow_null=True)
@@ -44,8 +46,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = [
             'username', 'email', 'password', 'password_confirm',
             'first_name', 'last_name', 'role', 'phone', 'document_number',
-            'salary', 'business_name', 'company_name', 'bank_account',
-            'bank_name', 'company_id', 'rut_document',
+            'salary', 'business_name', 'company_name', 'company_tax_id',
+            'company_address', 'bank_account', 'bank_name', 'company_id',
+            'rut_document',
             'chamber_of_commerce_document',
             'legal_representative_id_document', 'bank_statements_document',
         ]
@@ -87,6 +90,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'business_name': 'La razon social es requerida para empleadores'})
             if not data.get('company_name'):
                 raise serializers.ValidationError({'company_name': 'El nombre de la empresa es requerido para empleadores'})
+            if not data.get('company_tax_id'):
+                raise serializers.ValidationError({'company_tax_id': 'El NIT es requerido para empleadores'})
+            if not data.get('company_address'):
+                raise serializers.ValidationError({'company_address': 'La direccion es requerida para empleadores'})
             for field_name in self.employer_document_fields:
                 if not data.get(field_name):
                     raise serializers.ValidationError({
@@ -100,6 +107,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         salary = validated_data.pop('salary', None)
         business_name = validated_data.pop('business_name', '')
         company_name = validated_data.pop('company_name', '')
+        company_tax_id = validated_data.pop('company_tax_id', '')
+        company_address = validated_data.pop('company_address', '')
         bank_account = validated_data.pop('bank_account', '')
         bank_name = validated_data.pop('bank_name', '')
         company_id = validated_data.pop('company_id', None)
@@ -124,7 +133,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if user.role == 'employee':
             self._create_employee_profile(user, salary, bank_account, bank_name, company_id)
         elif user.role == 'employer':
-            self._create_employer_company(user, business_name, company_name, employer_documents)
+            self._create_employer_company(
+                user,
+                business_name,
+                company_name,
+                company_tax_id,
+                company_address,
+                employer_documents,
+            )
         elif user.role == 'admin':
             self._create_admin_profile(user)
 
@@ -192,13 +208,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 link=f'/admin/users',
             )
 
-    def _create_employer_company(self, user, business_name, company_name, employer_documents):
+    def _create_employer_company(
+        self,
+        user,
+        business_name,
+        company_name,
+        company_tax_id,
+        company_address,
+        employer_documents,
+    ):
         """Crear empresa para empleador"""
         from companies.models import Company, CompanySettings
 
         company = Company.objects.create(
             name=company_name or business_name,
             legal_name=business_name,
+            tax_id=company_tax_id,
+            address=company_address,
             admin=user,
             phone=user.phone or '',
             email=user.email,

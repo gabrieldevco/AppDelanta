@@ -41,6 +41,8 @@ class AuthService {
     double? salary,
     String? businessName,
     String? companyName,
+    String? companyTaxId,
+    String? companyAddress,
     int? companyId,
     File? rutDocument,
     File? chamberOfCommerceFile,
@@ -76,6 +78,12 @@ class AuthService {
       }
       if (companyName != null && companyName.isNotEmpty) {
         formMap['company_name'] = companyName;
+      }
+      if (companyTaxId != null && companyTaxId.isNotEmpty) {
+        formMap['company_tax_id'] = companyTaxId;
+      }
+      if (companyAddress != null && companyAddress.isNotEmpty) {
+        formMap['company_address'] = companyAddress;
       }
       if (bankAccount != null && bankAccount.isNotEmpty) {
         formMap['bank_account'] = bankAccount;

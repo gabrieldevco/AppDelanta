@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_popup.dart';
 import '../../../auth/data/models/user_model.dart';
 
 class EmployeeAdvanceAuthorizationPage extends StatefulWidget {
@@ -77,6 +78,16 @@ class _EmployeeAdvanceAuthorizationPageState
 
   String get _companyName => _textOrPending(_profile?.companyName);
 
+  String get _companyNit {
+    final value = _profile?.companyTaxId?.trim() ?? '';
+    return value.isEmpty ? 'No registrado' : value;
+  }
+
+  String get _companyAddress {
+    final value = _profile?.companyAddress?.trim() ?? '';
+    return value.isEmpty ? 'No registrado' : value;
+  }
+
   String get _employeeName => _textOrPending(widget.user?.fullName);
 
   String get _documentNumber => _textOrPending(widget.user?.documentNumber);
@@ -86,45 +97,57 @@ class _EmployeeAdvanceAuthorizationPageState
     return text.isEmpty || text == 'No registrado';
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: const Color(0xFFDC2626),
-      ),
+  Future<void> _showMessage(String title, String message) {
+    FocusScope.of(context).unfocus();
+    return AppPopup.show(
+      context,
+      title: title,
+      message: message,
+      type: AppPopupType.warning,
     );
   }
 
-  void _authorize() {
-    final companyTaxId = _textOrPending(_profile?.companyTaxId);
-    final companyAddress = _textOrPending(_profile?.companyAddress);
+  Future<void> _authorize() async {
+    final companyTaxId = _companyNit;
+    final companyAddress = _companyAddress;
     final position = _positionController.text.trim();
     final phone = _phoneController.text.trim();
 
     if (_isMissing(_companyName) ||
         _isMissing(companyTaxId) ||
         _isMissing(companyAddress)) {
-      _showMessage(
+      await _showMessage(
+        'Datos de empresa incompletos',
         'Faltan datos de la empresa vinculada. Pide al empleador completar nombre, NIT y direccion.',
       );
       return;
     }
     if (_isMissing(_employeeName) || _isMissing(_documentNumber)) {
-      _showMessage(
+      await _showMessage(
+        'Datos del empleado incompletos',
         'Faltan tus datos de identificacion. Actualiza tu perfil antes de solicitar.',
       );
       return;
     }
     if (_positionController.text.trim().isEmpty) {
-      _showMessage('Ingresa tu cargo para completar la autorizacion.');
+      await _showMessage(
+        'Cargo requerido',
+        'Ingresa tu cargo para completar la autorizacion.',
+      );
       return;
     }
     if (_phoneController.text.trim().isEmpty) {
-      _showMessage('Ingresa tu telefono para completar la autorizacion.');
+      await _showMessage(
+        'Telefono requerido',
+        'Ingresa tu telefono para completar la autorizacion.',
+      );
       return;
     }
     if (!_hasSignature) {
-      _showMessage('Firma digitalmente la autorizacion antes de continuar.');
+      await _showMessage(
+        'Firma requerida',
+        'Firma digitalmente la autorizacion antes de continuar.',
+      );
       return;
     }
 
@@ -303,8 +326,8 @@ class _EmployeeAdvanceAuthorizationPageState
         children: [
           _dataRows([
             MapEntry('Empresa', _companyName),
-            MapEntry('NIT', _textOrPending(_profile?.companyTaxId)),
-            MapEntry('Direccion', _textOrPending(_profile?.companyAddress)),
+            MapEntry('NIT', _companyNit),
+            MapEntry('Direccion', _companyAddress),
           ]),
           const Divider(height: 28),
           _dataRows([
