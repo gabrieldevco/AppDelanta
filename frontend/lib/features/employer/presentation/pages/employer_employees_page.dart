@@ -8,6 +8,7 @@ import '../../../companies/presentation/providers/company_provider.dart';
 import '../widgets/employer_bottom_nav.dart';
 import '../widgets/employer_header.dart';
 import '../widgets/employer_notifications_drawer.dart';
+import 'employer_create_employee_page.dart';
 
 class EmployerEmployeesPage extends StatefulWidget {
   const EmployerEmployeesPage({super.key});
@@ -168,6 +169,8 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
                         _buildMonthlyProgress(monthTotal, maxAvailable),
                         const SizedBox(height: 16),
                         _buildSearch(),
+                        const SizedBox(height: 12),
+                        _buildAddEmployeeButton(),
                         const SizedBox(height: 16),
                         if (employees.isEmpty)
                           _buildEmpty()
@@ -451,6 +454,46 @@ class _EmployerEmployeesPageState extends State<EmployerEmployeesPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAddEmployeeButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          final created = await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const EmployerCreateEmployeePage(),
+            ),
+          );
+          if (created == true && mounted) {
+            await _load();
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Empleado creado. Se enviaron las credenciales al correo.',
+                ),
+                backgroundColor: Color(0xFF047857),
+              ),
+            );
+          }
+        },
+        icon: const Icon(Icons.person_add_alt_1_rounded),
+        label: const Text('Registrar empleado'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF047857),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
     );
   }

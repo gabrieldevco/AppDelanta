@@ -70,7 +70,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError({'password': 'Las contrasenas no coinciden'})
 
-        role = data.get('role', 'employee')
+        role = data.get('role', 'employer')
 
         if role == 'admin':
             raise serializers.ValidationError({
@@ -78,10 +78,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             })
 
         if role == 'employee':
-            if not data.get('salary'):
-                raise serializers.ValidationError({'salary': 'El salario es requerido para empleados'})
-            if not data.get('company_id'):
-                raise serializers.ValidationError({'company_id': 'Debes seleccionar una empresa para registrarte'})
+            raise serializers.ValidationError({
+                'role': 'Los empleados deben ser registrados por su empleador'
+            })
 
         elif role == 'employer':
             if not data.get('business_name'):
@@ -117,7 +116,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
-            role=validated_data.get('role', 'employee'),
+            role=validated_data.get('role', 'employer'),
             phone=validated_data.get('phone', ''),
             document_number=validated_data.get('document_number', ''),
         )

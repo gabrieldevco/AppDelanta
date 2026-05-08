@@ -9,7 +9,7 @@ import 'login_page.dart';
 
 // Modelos para el registro de 3 pasos
 class RegisterStep1Data {
-  String role = 'employee';
+  String role = 'employer';
   String fullName = '';
   String documentNumber = '';
   String email = '';
@@ -70,7 +70,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    _loadAvailableCompanies();
   }
 
   Future<void> _loadAvailableCompanies() async {
@@ -157,8 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 400;
         final barMargin = isSmallScreen ? 6.0 : 10.0;
-        final isEmployer = step1.role == 'employer';
-        final totalSteps = isEmployer ? 2 : 3;
+        const totalSteps = 2;
 
         return Row(
           mainAxisSize: MainAxisSize.max,
@@ -171,15 +169,6 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             _buildStepIndicator(2, totalSteps: totalSteps),
-            if (!isEmployer) ...[
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: barMargin),
-                  child: _buildProgressLine(isFilled: _currentStep >= 3),
-                ),
-              ),
-              _buildStepIndicator(3, totalSteps: totalSteps),
-            ],
           ],
         );
       },
@@ -297,23 +286,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           const SizedBox(height: 20),
 
-          // Tipo de usuario
-          _buildDropdown(
-            label: 'Tipo de Usuario',
-            value: step1.role,
-            icon: Icons.person,
-            items: [
-              DropdownMenuItem(
-                value: 'employee',
-                child: _buildRoleItem('Empleado', Icons.person),
-              ),
-              DropdownMenuItem(
-                value: 'employer',
-                child: _buildRoleItem('Empleador', Icons.business),
-              ),
-            ],
-            onChanged: (v) => setState(() => step1.role = v!),
-          ),
+          _buildReadOnlyRole(),
           const SizedBox(height: 16),
 
           // Nombre completo
@@ -1008,6 +981,33 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // Widgets auxiliares
+  Widget _buildReadOnlyRole() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tipo de Usuario',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF334155),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFBF7),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1E4D6)),
+          ),
+          child: _buildRoleItem('Empleador', Icons.business),
+        ),
+      ],
+    );
+  }
+
   Widget _buildRoleItem(String text, IconData icon) {
     return Row(
       children: [

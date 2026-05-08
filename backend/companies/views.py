@@ -3,9 +3,15 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from django.core.mail import send_mail
+from django.db import transaction
+from django.utils import timezone
+from decimal import Decimal
 
 from .models import Company, CompanySettings
 from .serializers import CompanySerializer, CompanyListSerializer, CompanySettingsSerializer
+from users.models import User, EmployeeProfile
+from users.serializers import EmployeeProfileSerializer
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -32,6 +38,86 @@ class CompanyViewSet(viewsets.ModelViewSet):
         if not (self.request.user.is_admin or self.request.user.is_employer):
             raise PermissionDenied("No tienes permiso para crear empresas")
         serializer.save()
+
+    @action(detail=True, methods=['post'])
+    def employees(self, request, pk=None):
+        """Crear un empleado desde el modulo del empleador."""
+        company = self.get_object()
+        user = request.user
+        if not (user.is_admin or (user.is_employer and company.admin == user)):
+            return Response({'error': 'Sin permisos'}, status=status.HTTP_403_FORBIDDEN)
+
+        required_fields = ['email', 'password', 'first_name', 'salary']
+        missing = [field for field in required_fields if not request.data.get(field)]
+        if missing:
+            return Response(
+                {'error': f'Campos requeridos: {", ".join(missing)}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = request.data.get('email', '').strip().lower()
+        username = request.data.get('username') or email.split('@')[0]
+        username = username.strip().lower()
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {'email': 'Ya existe un usuario con este correo'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        base_username = username
+        suffix = 1
+        while User.objects.filter(username=username).exists():
+            username = f'{base_username}.{company.id}.{suffix}'
+            suffix += 1
+
+        try:
+            salary = Decimal(str(request.data.get('salary')))
+        except Exception:
+            return Response(
+                {'salary': 'El salario no es valido'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        password = request.data.get('password')
+        hire_date = request.data.get('hire_date') or None
+        if isinstance(hire_date, str) and 'T' in hire_date:
+            hire_date = hire_date.split('T', 1)[0]
+        with transaction.atomic():
+            employee_user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=request.data.get('first_name', '').strip(),
+                last_name=request.data.get('last_name', '').strip(),
+                role='employee',
+                phone=request.data.get('phone', '') or '',
+                document_number=request.data.get('document_number', '') or '',
+            )
+            profile = EmployeeProfile.objects.create(
+                user=employee_user,
+                company=company,
+                salary=salary,
+                available_advance_limit=salary * Decimal('0.5'),
+                hire_date=hire_date,
+                approval_status='approved',
+                approved_at=timezone.now(),
+            )
+
+        send_mail(
+            subject='Credenciales de acceso a AppDelanta',
+            message=(
+                f'Hola {employee_user.get_full_name()},\n\n'
+                f'{company.name} creo tu usuario en AppDelanta.\n'
+                f'Correo: {employee_user.email}\n'
+                f'Contrasena temporal: {password}\n\n'
+                'Ingresa a la app y cambia tu contrasena desde tu perfil.'
+            ),
+            from_email=None,
+            recipient_list=[employee_user.email],
+            fail_silently=True,
+        )
+
+        serializer = EmployeeProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['patch'])
     def verify(self, request, pk=None):
