@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
@@ -8,8 +9,13 @@ from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
 
-from .models import Company, CompanySettings
-from .serializers import CompanySerializer, CompanyListSerializer, CompanySettingsSerializer
+from .models import Company, CompanySettings, EmployeeContract
+from .serializers import (
+    CompanySerializer,
+    CompanyListSerializer,
+    CompanySettingsSerializer,
+    EmployeeContractSerializer,
+)
 from users.models import User, EmployeeProfile
 from users.serializers import EmployeeProfileSerializer
 
@@ -101,6 +107,15 @@ class CompanyViewSet(viewsets.ModelViewSet):
                 approval_status='approved',
                 approved_at=timezone.now(),
             )
+            contract_file = request.FILES.get('contract_file')
+            if contract_file:
+                EmployeeContract.objects.create(
+                    company=company,
+                    employee=profile,
+                    uploaded_by=user,
+                    title=request.data.get('contract_title') or 'Contrato Appdelanta',
+                    contract_file=contract_file,
+                )
 
         send_mail(
             subject='Credenciales de acceso a AppDelanta',
@@ -145,6 +160,63 @@ class CompanySettingsViewSet(viewsets.ModelViewSet):
         elif user.is_employer:
             return CompanySettings.objects.filter(company__admin=user)
         return CompanySettings.objects.none()
+
+
+class EmployeeContractViewSet(viewsets.ModelViewSet):
+    serializer_class = EmployeeContractSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = EmployeeContract.objects.select_related(
+            'company', 'employee__user', 'uploaded_by',
+        )
+        if user.is_admin:
+            return queryset
+        if user.is_employer:
+            return queryset.filter(company__admin=user)
+        if user.is_employee:
+            return queryset.filter(employee__user=user)
+        return queryset.none()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if not (user.is_admin or user.is_employer):
+            raise PermissionDenied('Solo empleadores o administradores pueden subir contratos')
+
+        employee = serializer.validated_data['employee']
+        company = employee.company
+        if company is None:
+            raise PermissionDenied('El empleado no esta vinculado a una empresa')
+        if user.is_employer and company.admin != user:
+            raise PermissionDenied('No puedes subir contratos para este empleado')
+
+        serializer.save(company=company, uploaded_by=user)
+
+    @action(detail=True, methods=['post'])
+    def sign(self, request, pk=None):
+        contract = self.get_object()
+        user = request.user
+        if not (user.is_employee and contract.employee.user == user):
+            return Response({'error': 'Solo el empleado asignado puede firmar'}, status=status.HTTP_403_FORBIDDEN)
+        if contract.status == 'signed':
+            return Response({'error': 'El contrato ya fue firmado'}, status=status.HTTP_400_BAD_REQUEST)
+
+        signature_image = request.FILES.get('signature_image')
+        if not signature_image:
+            return Response({'signature_image': 'La firma es requerida'}, status=status.HTTP_400_BAD_REQUEST)
+
+        forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        signer_ip = forwarded_for.split(',')[0].strip() if forwarded_for else request.META.get('REMOTE_ADDR')
+        contract.signature_image = signature_image
+        contract.status = 'signed'
+        contract.signed_at = timezone.now()
+        contract.signer_ip = signer_ip
+        contract.save(update_fields=['signature_image', 'status', 'signed_at', 'signer_ip', 'updated_at'])
+
+        serializer = self.get_serializer(contract)
+        return Response(serializer.data)
 
 
 @api_view(['GET'])

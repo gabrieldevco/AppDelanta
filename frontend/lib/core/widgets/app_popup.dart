@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 enum AppPopupType { success, error, warning, info }
 
 class AppPopup {
+  static void _safePop<T extends Object?>(BuildContext context, [T? result]) {
+    try {
+      Navigator.maybePop<T>(context, result).catchError((_) => false);
+    } catch (_) {
+      // The route may already be gone if the caller navigated immediately.
+    }
+  }
+
   static Future<void> show(
     BuildContext context, {
     required String title,
@@ -22,7 +30,7 @@ class AppPopup {
           message: message,
           type: type,
           primaryLabel: primaryLabel,
-          onPrimary: () => Navigator.pop(context),
+          onPrimary: () => _safePop(context),
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -62,8 +70,8 @@ class AppPopup {
           type: type,
           primaryLabel: primaryLabel,
           secondaryLabel: secondaryLabel,
-          onPrimary: () => Navigator.pop(context, true),
-          onSecondary: () => Navigator.pop(context, false),
+          onPrimary: () => _safePop(context, true),
+          onSecondary: () => _safePop(context, false),
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {

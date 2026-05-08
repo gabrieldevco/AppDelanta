@@ -12,6 +12,7 @@ class AdvanceService {
     required double amount,
     required String reason,
     int? days,
+    Map<String, dynamic>? authorizationData,
   }) async {
     // Redondear a 2 decimales y convertir a string para evitar precisión excesiva
     final formattedAmount = double.parse(amount.toStringAsFixed(2));
@@ -19,6 +20,9 @@ class AdvanceService {
     final data = <String, dynamic>{'amount': formattedAmount, 'reason': reason};
     if (days != null) {
       data['days'] = days;
+    }
+    if (authorizationData != null) {
+      data['authorization_data'] = authorizationData;
     }
 
     final response = await _apiService.post(ApiConstants.advances, data: data);

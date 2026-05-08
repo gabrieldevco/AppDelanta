@@ -194,6 +194,63 @@ class CompanySettings(models.Model):
         return f"Configuración: {self.company.name}"
 
 
+class EmployeeContract(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pendiente de firma'),
+        ('signed', 'Firmado'),
+    ]
+
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        related_name='employee_contracts',
+        verbose_name='Empresa',
+    )
+    employee = models.ForeignKey(
+        'users.EmployeeProfile',
+        on_delete=models.CASCADE,
+        related_name='contracts',
+        verbose_name='Empleado',
+    )
+    uploaded_by = models.ForeignKey(
+        'users.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='uploaded_employee_contracts',
+        verbose_name='Subido por',
+    )
+    title = models.CharField(max_length=180, default='Contrato Appdelanta')
+    contract_file = models.FileField(
+        upload_to='employee_contracts/originals/',
+        verbose_name='Contrato',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Estado',
+    )
+    signature_image = models.FileField(
+        upload_to='employee_contracts/signatures/',
+        null=True,
+        blank=True,
+        verbose_name='Firma',
+    )
+    signed_at = models.DateTimeField(null=True, blank=True)
+    signer_ip = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Contrato de empleado'
+        verbose_name_plural = 'Contratos de empleados'
+
+    def __str__(self):
+        return f"{self.title} - {self.employee.user.get_full_name()}"
+
+
 class PlatformSettings(models.Model):
     interest_rate_monthly = models.DecimalField(max_digits=5, decimal_places=2, default=2.50)
     max_salary_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=50.00)

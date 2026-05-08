@@ -27,6 +27,7 @@ class ApiConstants {
   static const String companySettings = '$apiPrefix/companies/settings/';
   static const String myCompany = '$apiPrefix/my-company/';
   static const String employeeProfiles = '$apiPrefix/employee-profiles/';
+  static const String employeeContracts = '$apiPrefix/employee-contracts/';
 
   // Advances endpoints
   static const String advances = '$apiPrefix/advances/';

@@ -110,7 +110,7 @@ class _EmployeeNotificationsDrawerState
       ),
       onDismissed: (_) => _deleteNotification(context, notification.id),
       child: GestureDetector(
-        onTap: () => _markAsRead(context, notification.id),
+        onTap: () => _openNotification(context, notification),
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -318,6 +318,86 @@ class _EmployeeNotificationsDrawerState
 
   void _deleteNotification(BuildContext context, int id) {
     context.read<NotificationProvider>().deleteNotification(id);
+  }
+
+  void _openNotification(BuildContext context, dynamic notification) {
+    _markAsRead(context, notification.id);
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 12, 0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          title: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.notifications_active_outlined,
+                  color: Color(0xFFF59E0B),
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  notification.title,
+                  style: const TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    notification.message,
+                    style: const TextStyle(
+                      color: Color(0xFF334155),
+                      fontSize: 14,
+                      height: 1.45,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    _formatTime(notification.createdAt),
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _markAsRead(BuildContext context, int id) {

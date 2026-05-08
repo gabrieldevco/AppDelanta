@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'companies', views.CompanyViewSet)
 router.register(r'company-settings', views.CompanySettingsViewSet)
+router.register(r'employee-contracts', views.EmployeeContractViewSet, basename='employee-contracts')
 
 urlpatterns = [
     path('companies/<int:pk>/stats/', views.company_stats, name='company-stats'),

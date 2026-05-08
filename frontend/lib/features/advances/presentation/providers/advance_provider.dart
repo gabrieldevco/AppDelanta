@@ -74,6 +74,7 @@ class AdvanceProvider extends ChangeNotifier {
     required double amount,
     required String reason,
     int? days,
+    Map<String, dynamic>? authorizationData,
   }) async {
     _status = AdvanceStatus.submitting;
     _errorMessage = null;
@@ -84,6 +85,7 @@ class AdvanceProvider extends ChangeNotifier {
         amount: amount,
         reason: reason,
         days: days,
+        authorizationData: authorizationData,
       );
 
       _advances.insert(0, newAdvance);

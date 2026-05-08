@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/api_service.dart';
 import '../models/company_model.dart';
@@ -167,6 +171,8 @@ class CompanyService {
     String? phone,
     String? documentNumber,
     DateTime? hireDate,
+    File? contractFile,
+    String? contractTitle,
   }) async {
     final data = {
       'username': username,
@@ -178,7 +184,29 @@ class CompanyService {
       'phone': phone,
       'document_number': documentNumber,
       'hire_date': hireDate?.toIso8601String(),
+      'contract_title': contractTitle,
     };
+
+    if (contractFile != null) {
+      final formData = FormData.fromMap(
+        data..removeWhere((key, value) => value == null),
+      );
+      formData.files.add(
+        MapEntry(
+          'contract_file',
+          await MultipartFile.fromFile(
+            contractFile.path,
+            filename: contractFile.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+      final response = await _apiService.post(
+        '${ApiConstants.companies}$companyId/employees/',
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      return EmployeeModel.fromJson(response);
+    }
 
     final response = await _apiService.post(
       '${ApiConstants.companies}$companyId/employees/',

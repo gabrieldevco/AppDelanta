@@ -126,6 +126,8 @@ class EmployeeProfile {
   final int id;
   final int? companyId;
   final String? companyName;
+  final String? companyTaxId;
+  final String? companyAddress;
   final double salary;
   final double availableAdvanceLimit;
   final String approvalStatus;
@@ -137,6 +139,8 @@ class EmployeeProfile {
     required this.id,
     this.companyId,
     this.companyName,
+    this.companyTaxId,
+    this.companyAddress,
     required this.salary,
     required this.availableAdvanceLimit,
     this.approvalStatus = 'pending',
@@ -150,6 +154,8 @@ class EmployeeProfile {
       id: json['id'] ?? 0,
       companyId: json['company'],
       companyName: json['company_name'],
+      companyTaxId: json['company_tax_id'],
+      companyAddress: json['company_address'],
       salary: json['salary'] != null
           ? double.parse(json['salary'].toString())
           : 0.0,
@@ -170,6 +176,8 @@ class EmployeeProfile {
       'id': id,
       'company': companyId,
       'company_name': companyName,
+      'company_tax_id': companyTaxId,
+      'company_address': companyAddress,
       'salary': salary,
       'available_advance_limit': availableAdvanceLimit,
       'approval_status': approvalStatus,

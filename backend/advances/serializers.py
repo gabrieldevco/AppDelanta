@@ -32,7 +32,7 @@ class AdvanceSerializer(serializers.ModelSerializer):
             'employee_email', 'employee_phone', 'employee_document',
             'employee_bank_name', 'employee_bank_account',
             'amount', 'fee', 'total_amount', 'loan_days', 'status', 'status_display',
-            'reason', 'request_date', 'approved_at', 'disbursed_at',
+            'reason', 'authorization_data', 'request_date', 'approved_at', 'disbursed_at',
             'recovery_date', 'approved_by', 'approved_by_name',
             'disbursement_reference', 'created_at', 'updated_at', 'history'
         ]
@@ -46,10 +46,11 @@ class AdvanceSerializer(serializers.ModelSerializer):
 
 class AdvanceCreateSerializer(serializers.ModelSerializer):
     days = serializers.IntegerField(required=False, min_value=1, write_only=True)
+    authorization_data = serializers.JSONField(required=True)
 
     class Meta:
         model = Advance
-        fields = ['amount', 'reason', 'days']
+        fields = ['amount', 'reason', 'days', 'authorization_data']
 
     def validate_amount(self, value):
         employee = self.context['request'].user.employee_profile
@@ -90,6 +91,49 @@ class AdvanceCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"El plazo debe estar entre {settings.min_days} y {settings.max_days} dias"
             )
+        return value
+
+    def validate_authorization_data(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("La autorizacion es requerida")
+
+        required_fields = [
+            'company_name',
+            'company_tax_id',
+            'company_address',
+            'employee_name',
+            'employee_document',
+            'employee_position',
+            'employee_phone',
+            'amount',
+            'total_amount',
+            'request_date',
+            'discount_date',
+            'signed_at',
+        ]
+        missing = [
+            field for field in required_fields
+            if not str(value.get(field, '')).strip()
+            or str(value.get(field, '')).strip() == 'No registrado'
+        ]
+        if missing:
+            raise serializers.ValidationError(
+                f"Faltan datos obligatorios de la autorizacion: {', '.join(missing)}"
+            )
+
+        signature_points = value.get('signature_points')
+        if not isinstance(signature_points, list):
+            raise serializers.ValidationError("La firma digital es requerida")
+
+        valid_points = [
+            point for point in signature_points
+            if isinstance(point, dict)
+            and point.get('x') is not None
+            and point.get('y') is not None
+        ]
+        if len(valid_points) < 2:
+            raise serializers.ValidationError("La firma digital es requerida")
+
         return value
 
     def create(self, validated_data):
@@ -138,7 +182,7 @@ class AdvanceListSerializer(serializers.ModelSerializer):
             'employee_email', 'employee_phone', 'employee_document',
             'employee_bank_name', 'employee_bank_account',
             'amount', 'fee', 'total_amount', 'loan_days',
-            'status', 'status_display', 'reason', 'request_date',
+            'status', 'status_display', 'reason', 'authorization_data', 'request_date',
             'approved_at', 'disbursed_at', 'recovery_date',
             'disbursement_reference', 'created_at', 'updated_at'
         ]

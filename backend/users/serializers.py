@@ -234,15 +234,17 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
     """Serializer para perfil de empleado"""
     user = UserSerializer(read_only=True)
     company_name = serializers.CharField(source='company.name', read_only=True)
+    company_tax_id = serializers.CharField(source='company.tax_id', read_only=True)
+    company_address = serializers.CharField(source='company.address', read_only=True)
     approval_status_display = serializers.CharField(source='get_approval_status_display', read_only=True)
 
     class Meta:
         model = EmployeeProfile
         fields = [
-            'id', 'user', 'company', 'company_name', 'salary',
-            'available_advance_limit', 'hire_date', 'bank_account',
-            'bank_name', 'approval_status', 'approval_status_display',
-            'approved_at',
+            'id', 'user', 'company', 'company_name', 'company_tax_id',
+            'company_address', 'salary', 'available_advance_limit',
+            'hire_date', 'bank_account', 'bank_name', 'approval_status',
+            'approval_status_display', 'approved_at',
         ]
 
 

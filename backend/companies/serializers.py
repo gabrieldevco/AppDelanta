@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Company, CompanySettings
+from .models import Company, CompanySettings, EmployeeContract
 
 
 class CompanySettingsSerializer(serializers.ModelSerializer):
@@ -108,3 +108,40 @@ class CompanyDetailAdminSerializer(CompanyDocumentMixin, serializers.ModelSerial
 
     def get_has_chamber_document(self, obj):
         return bool(obj.chamber_of_commerce_document)
+
+
+class EmployeeContractSerializer(serializers.ModelSerializer):
+    employee_name = serializers.CharField(source='employee.user.get_full_name', read_only=True)
+    employee_email = serializers.CharField(source='employee.user.email', read_only=True)
+    company_name = serializers.CharField(source='company.name', read_only=True)
+    contract_file_url = serializers.SerializerMethodField()
+    signature_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EmployeeContract
+        fields = [
+            'id', 'title', 'company', 'company_name', 'employee',
+            'employee_name', 'employee_email', 'contract_file',
+            'contract_file_url', 'status', 'signature_image',
+            'signature_image_url', 'signed_at', 'signer_ip',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = [
+            'id', 'company', 'company_name', 'employee_name',
+            'employee_email', 'status', 'signature_image', 'signed_at',
+            'signer_ip', 'created_at', 'updated_at',
+        ]
+
+    def _file_url(self, file_field):
+        if file_field:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(file_field.url)
+            return file_field.url
+        return None
+
+    def get_contract_file_url(self, obj):
+        return self._file_url(obj.contract_file)
+
+    def get_signature_image_url(self, obj):
+        return self._file_url(obj.signature_image)

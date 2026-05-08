@@ -63,6 +63,11 @@ class Advance(models.Model):
         blank=True,
         verbose_name='Motivo de la solicitud'
     )
+    authorization_data = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Autorizacion de descuento'
+    )
     
     # Fechas
     request_date = models.DateTimeField(

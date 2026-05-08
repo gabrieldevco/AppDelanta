@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, CompanySettings
+from .models import Company, CompanySettings, EmployeeContract
 
 
 @admin.register(Company)
@@ -33,3 +33,11 @@ class CompanySettingsAdmin(admin.ModelAdmin):
     list_display = ['company', 'payment_day', 'min_advance_amount', 'max_advance_amount']
     search_fields = ['company__name']
     autocomplete_fields = ['company']
+
+
+@admin.register(EmployeeContract)
+class EmployeeContractAdmin(admin.ModelAdmin):
+    list_display = ['title', 'employee', 'company', 'status', 'signed_at', 'created_at']
+    list_filter = ['status', 'created_at', 'signed_at']
+    search_fields = ['title', 'employee__user__first_name', 'employee__user__last_name', 'employee__user__email', 'company__name']
+    autocomplete_fields = ['company', 'employee', 'uploaded_by']

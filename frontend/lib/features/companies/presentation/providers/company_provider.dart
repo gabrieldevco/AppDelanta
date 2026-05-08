@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import '../../data/models/company_model.dart';
 import '../../data/services/company_service.dart';
@@ -161,6 +163,8 @@ class CompanyProvider extends ChangeNotifier {
     String? phone,
     String? documentNumber,
     DateTime? hireDate,
+    File? contractFile,
+    String? contractTitle,
   }) async {
     if (_myCompany == null) return false;
 
@@ -180,6 +184,8 @@ class CompanyProvider extends ChangeNotifier {
         phone: phone,
         documentNumber: documentNumber,
         hireDate: hireDate,
+        contractFile: contractFile,
+        contractTitle: contractTitle,
       );
 
       _employees.add(newEmployee);

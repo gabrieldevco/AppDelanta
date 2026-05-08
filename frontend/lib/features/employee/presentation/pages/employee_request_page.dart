@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../advances/presentation/providers/advance_provider.dart';
+
 import '../../../../core/widgets/app_popup.dart';
-import '../widgets/employee_header.dart';
+import '../../../advances/presentation/providers/advance_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/employee_bottom_nav.dart';
+import '../widgets/employee_header.dart';
 import '../widgets/employee_notifications_drawer.dart';
+import 'employee_advance_authorization_page.dart';
+import 'employee_home_page.dart';
 
 class EmployeeRequestPage extends StatefulWidget {
   const EmployeeRequestPage({super.key});
@@ -15,22 +18,20 @@ class EmployeeRequestPage extends StatefulWidget {
 }
 
 class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
+  final _amountController = TextEditingController(text: '100000');
+
   double _amount = 100000;
   double _days = 25;
-  final TextEditingController _amountController = TextEditingController(
-    text: '100000',
-  );
-
   double _minAmount = 50000;
   double _maxConfigAmount = 1000000;
   double _fee = 5000;
   double _interest = 0;
   double _monthlyRate = 0.025;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    // Refrescar perfil al cargar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().refreshProfile();
       _calculateAdvance();
@@ -43,13 +44,34 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
     super.dispose();
   }
 
-  double get _total {
-    return _amount + _fee + _interest;
-  }
+  double get _total => _amount + _fee + _interest;
 
   double _toDouble(dynamic value) => value is num
       ? value.toDouble()
       : double.tryParse(value?.toString() ?? '') ?? 0;
+
+  String _formatCurrency(double value) {
+    String result = value.toStringAsFixed(0);
+    result = result.replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+    return result;
+  }
+
+  Future<void> _calculateAdvance() async {
+    final provider = context.read<AdvanceProvider>();
+    await provider.calculateAdvance(amount: _amount, days: _days.toInt());
+    if (!mounted || provider.calculation == null) return;
+    final calculation = provider.calculation!;
+    setState(() {
+      _fee = _toDouble(calculation['fee']);
+      _interest = _toDouble(calculation['interest']);
+      _monthlyRate = _toDouble(calculation['interest_rate_monthly']) / 100;
+      _minAmount = _toDouble(calculation['min_amount']);
+      _maxConfigAmount = _toDouble(calculation['max_amount']);
+    });
+  }
 
   void _setAmount(double value, double maxAmount, {bool updateText = false}) {
     final clamped = value.clamp(_minAmount, maxAmount).toDouble();
@@ -72,37 +94,12 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
     _setAmount(typed ?? _minAmount, maxAmount, updateText: true);
   }
 
-  Future<void> _calculateAdvance() async {
-    if (!mounted) return;
-    final provider = context.read<AdvanceProvider>();
-    await provider.calculateAdvance(amount: _amount, days: _days.toInt());
-    final calculation = provider.calculation;
-    if (!mounted) return;
-    if (calculation == null) {
-      return;
-    }
-    setState(() {
-      _fee = _toDouble(calculation['fee']);
-      _interest = _toDouble(calculation['interest']);
-      _monthlyRate = _toDouble(calculation['interest_rate_monthly']) / 100;
-      _minAmount = _toDouble(calculation['min_amount']);
-      _maxConfigAmount = _toDouble(calculation['max_amount']);
-    });
-  }
+  Future<void> _openAuthorizationPage(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final employeeProfile = authProvider.user?.employeeProfile;
 
-  String _formatCurrency(double value) {
-    String result = value.toStringAsFixed(0);
-    result = result.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-    return result;
-  }
-
-  void _showConfirmationDialog(BuildContext context) {
-    final employeeProfile = context.read<AuthProvider>().user?.employeeProfile;
     if (employeeProfile?.isPendingApproval ?? false) {
-      AppPopup.show(
+      await AppPopup.show(
         context,
         title: 'Verificacion pendiente',
         message:
@@ -112,176 +109,73 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
       return;
     }
 
-    final amountFormatted = _formatCurrency(_amount);
-    final totalFormatted = _formatCurrency(_total);
-    final feeFormatted = _formatCurrency(_fee);
-    final interestFormatted = _formatCurrency(_interest);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Confirmar solicitud',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '¿Desea realizar un adelanto por \$ $amountFormatted?',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFF59E0B)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Se descontará de su nómina:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF92400E),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildConfirmRow(
-                      'Monto adelantado:',
-                      '\$ $amountFormatted',
-                    ),
-                    _buildConfirmRow('Fee transacción:', '\$ $feeFormatted'),
-                    _buildConfirmRow('Interés:', '\$ $interestFormatted'),
-                    const Divider(height: 16, color: Color(0xFFF59E0B)),
-                    _buildConfirmRow(
-                      'Total a descontar:',
-                      '\$ $totalFormatted',
-                      isBold: true,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Su empleador debe aprobar esta solicitud.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Color(0xFF64748B)),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                _submitAdvanceRequest(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A86B),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Confirmar'),
-            ),
-          ],
-        );
-      },
+    final authorizationData = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EmployeeAdvanceAuthorizationPage(
+          user: authProvider.user,
+          amount: _amount,
+          fee: _fee,
+          interest: _interest,
+          total: _total,
+          days: _days.toInt(),
+        ),
+      ),
     );
+
+    if (!context.mounted || authorizationData == null) return;
+    await _submitAdvanceRequest(context, authorizationData);
   }
 
-  Widget _buildConfirmRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            color: const Color(0xFF92400E),
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            color: const Color(0xFF92400E),
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _submitAdvanceRequest(BuildContext context) async {
-    // Mostrar loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    // Guardar referencias antes del await
-    final navigator = Navigator.of(context);
+  Future<void> _submitAdvanceRequest(
+    BuildContext context,
+    Map<String, dynamic> authorizationData,
+  ) async {
+    if (_isSubmitting) return;
     final advanceProvider = context.read<AdvanceProvider>();
 
+    setState(() => _isSubmitting = true);
     try {
       final success = await advanceProvider.createAdvance(
         amount: _amount,
-        reason: 'Adelanto de nómina por ${_days.toInt()} días',
+        reason: 'Adelanto de nomina por ${_days.toInt()} dias',
         days: _days.toInt(),
+        authorizationData: authorizationData,
       );
 
       if (!context.mounted) return;
-
-      // Cerrar loading
-      navigator.pop();
+      setState(() => _isSubmitting = false);
 
       if (!success) {
+        final message =
+            advanceProvider.errorMessage ??
+            'No se pudo enviar la solicitud. Intenta nuevamente.';
         await AppPopup.show(
           context,
-          title: 'Verificacion pendiente',
-          message:
-              advanceProvider.errorMessage ??
-              'Debes esperar a que tu empleador verifique tu informacion para poder solicitar adelantos.',
+          title: message.toLowerCase().contains('verifique')
+              ? 'Verificacion pendiente'
+              : 'No se pudo solicitar',
+          message: message,
           type: AppPopupType.warning,
         );
         return;
       }
 
-      if (success) {
-        await AppPopup.show(
-          context,
-          title: 'Solicitud enviada',
-          message: 'Tu solicitud fue enviada exitosamente.',
-          type: AppPopupType.success,
-        );
-        navigator.pop();
-        return;
-      }
-    } catch (e) {
+      await AppPopup.show(
+        context,
+        title: 'Solicitud enviada',
+        message: 'Tu solicitud fue enviada exitosamente.',
+        type: AppPopupType.success,
+      );
       if (!context.mounted) return;
-
-      // Cerrar loading
-      navigator.pop();
-
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const EmployeeHomePage()),
+        (route) => false,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      setState(() => _isSubmitting = false);
       await AppPopup.show(
         context,
         title: 'No se pudo solicitar',
@@ -306,7 +200,6 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
             : configuredMax;
         final salary = user?.employeeProfile?.salary ?? 0.0;
 
-        // Ajustar monto inicial si es mayor al máximo
         if (_amount > maxAmount) {
           _amount = maxAmount > _minAmount ? maxAmount : _minAmount;
           _amountController.text = _amount.toStringAsFixed(0);
@@ -320,388 +213,51 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
               children: [
                 const EmployeeHeader(currentIndex: 1),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: ListView(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Disponible card con datos reales
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFFE8FFF2), Color(0xFFBBF7D0)],
+                    children: [
+                      _availableCard(salary, maxAmount),
+                      const SizedBox(height: 16),
+                      _amountCard(maxAmount),
+                      const SizedBox(height: 16),
+                      _daysCard(),
+                      const SizedBox(height: 16),
+                      _summaryCard(),
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        height: 56,
+                        child: FilledButton(
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _openAuthorizationPage(context),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF00A86B),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFF22C55E)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xFF00A86B,
-                                ).withValues(alpha: 0.14),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
                           ),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Disponible para adelantar (50% de \$${_formatCurrency(salary)})',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF047857),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '\$ ${_formatCurrency(maxAmount)}',
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF00A86B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Monto section
-                        _buildSectionCard(
-                          title: 'Monto a solicitar',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Ingresa el monto',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF374151),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _amountController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  prefixText: '\$ ',
-                                  prefixStyle: const TextStyle(
-                                    color: Color(0xFF64748B),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continuar',
+                                  style: TextStyle(
                                     fontSize: 16,
-                                  ),
-                                  filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
-                                onChanged: (value) {
-                                  final typed = double.tryParse(
-                                    value
-                                        .replaceAll('.', '')
-                                        .replaceAll(',', '.')
-                                        .trim(),
-                                  );
-                                  if (typed == null) return;
-                                  if (typed >= _minAmount &&
-                                      typed <= maxAmount) {
-                                    setState(() => _amount = typed);
-                                    _calculateAdvance();
-                                  }
-                                },
-                                onEditingComplete: () =>
-                                    _commitTypedAmount(maxAmount),
-                                onTapOutside: (_) =>
-                                    _commitTypedAmount(maxAmount),
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                'Ajusta con el deslizador',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF374151),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: const Color(0xFF00A86B),
-                                  inactiveTrackColor: const Color(0xFFE8FFF2),
-                                  thumbColor: const Color(0xFF047857),
-                                  trackHeight: 8,
-                                ),
-                                child: Slider(
-                                  value: _amount,
-                                  min: _minAmount,
-                                  max: maxAmount,
-                                  onChanged: (value) {
-                                    _setAmount(
-                                      value,
-                                      maxAmount,
-                                      updateText: true,
-                                    );
-                                  },
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '\$ ${_formatCurrency(_minAmount)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$ ${_formatCurrency(maxAmount)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
                         ),
-                        const SizedBox(height: 20),
-
-                        // Plazo section
-                        _buildSectionCard(
-                          title: 'Plazo del préstamo',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Días hasta próxima nómina',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF374151),
-                                    ),
-                                  ),
-                                  Text(
-                                    '${_days.toInt()} días',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF00A86B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: const Color(0xFF00A86B),
-                                  inactiveTrackColor: const Color(0xFFE8FFF2),
-                                  thumbColor: const Color(0xFF047857),
-                                  trackHeight: 8,
-                                ),
-                                child: Slider(
-                                  value: _days,
-                                  min: 1,
-                                  max: 30,
-                                  divisions: 29,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _days = value;
-                                    });
-                                    _calculateAdvance();
-                                  },
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '1 día',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                  ),
-                                  Text(
-                                    '30 días',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'El interés se calcula proporcional a los días seleccionados',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF64748B),
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Resumen section
-                        _buildSectionCard(
-                          title: 'Resumen del adelanto',
-                          child: Column(
-                            children: [
-                              _buildSummaryRow(
-                                icon: Icons.attach_money,
-                                iconColor: const Color(0xFF00A86B),
-                                bgColor: const Color(0xFFE8FFF2),
-                                label: 'Monto adelantado',
-                                value:
-                                    '\$ ${_amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
-                                valueColor: Colors.black,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildSummaryRow(
-                                icon: Icons.receipt,
-                                iconColor: const Color(0xFFF59E0B),
-                                bgColor: const Color(0xFFFEF3C7),
-                                label: 'Fee transacción',
-                                value:
-                                    '\$ ${_fee.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
-                                valueColor: const Color(0xFFF59E0B),
-                              ),
-                              const SizedBox(height: 12),
-                              _buildSummaryRow(
-                                icon: Icons.percent,
-                                iconColor: const Color(0xFFEA580C),
-                                bgColor: const Color(0xFFFFEDD5),
-                                label:
-                                    'Interés (${(_monthlyRate * 100).toStringAsFixed(2)}% mensual)',
-                                value:
-                                    '\$ ${_interest.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
-                                valueColor: const Color(0xFFEA580C),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF111827),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Text(
-                                        'Total a descontar en nómina',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      '\$ ${_total.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Botón continuar
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: () => _showConfirmationDialog(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00A86B),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Continuar',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Info importante
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8FFF2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.description,
-                                    size: 16,
-                                    color: Color(0xFF00A86B),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Información importante:',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF047857),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              _buildInfoBullet(
-                                'Monto mínimo: \$ ${_formatCurrency(_minAmount)}',
-                              ),
-                              _buildInfoBullet(
-                                'Límite máximo: \$${_formatCurrency(maxAmount)} (50% de tu salario)',
-                              ),
-                              _buildInfoBullet(
-                                'Fee calculado según la configuración del administrador',
-                              ),
-                              _buildInfoBullet(
-                                'Interés: ${(_monthlyRate * 100).toStringAsFixed(2)}% mensual proporcional a días',
-                              ),
-                              _buildInfoBullet('Descuento en próxima nómina'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 16),
+                      _infoCard(maxAmount),
+                    ],
                   ),
                 ),
               ],
@@ -710,12 +266,243 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
           bottomNavigationBar: const EmployeeBottomNav(currentIndex: 1),
         );
       },
-    ); // Cierra Consumer
+    );
   }
 
-  Widget _buildSectionCard({required String title, required Widget child}) {
+  Widget _availableCard(double salary, double maxAmount) {
     return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8FFF2), Color(0xFFBBF7D0)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF22C55E)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Disponible para adelantar (50% de \$${_formatCurrency(salary)})',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF047857)),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '\$ ${_formatCurrency(maxAmount)}',
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF00A86B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _amountCard(double maxAmount) {
+    return _sectionCard(
+      title: 'Monto a solicitar',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              prefixText: '\$ ',
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: (value) {
+              final typed = double.tryParse(
+                value.replaceAll('.', '').replaceAll(',', '.').trim(),
+              );
+              if (typed == null) return;
+              if (typed >= _minAmount && typed <= maxAmount) {
+                setState(() => _amount = typed);
+                _calculateAdvance();
+              }
+            },
+            onEditingComplete: () => _commitTypedAmount(maxAmount),
+            onTapOutside: (_) => _commitTypedAmount(maxAmount),
+          ),
+          const SizedBox(height: 18),
+          Slider(
+            value: _amount,
+            min: _minAmount,
+            max: maxAmount,
+            activeColor: const Color(0xFF00A86B),
+            onChanged: (value) =>
+                _setAmount(value, maxAmount, updateText: true),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('\$ ${_formatCurrency(_minAmount)}'),
+              Text('\$ ${_formatCurrency(maxAmount)}'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _daysCard() {
+    return _sectionCard(
+      title: 'Plazo del adelanto',
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Dias hasta proxima nomina',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              Text(
+                '${_days.toInt()} dias',
+                style: const TextStyle(
+                  color: Color(0xFF00A86B),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _days,
+            min: 1,
+            max: 30,
+            divisions: 29,
+            activeColor: const Color(0xFF00A86B),
+            onChanged: (value) {
+              setState(() => _days = value);
+              _calculateAdvance();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryCard() {
+    return _sectionCard(
+      title: 'Resumen del adelanto',
+      child: Column(
+        children: [
+          _summaryRow('Monto adelantado', _amount, const Color(0xFF00A86B)),
+          _summaryRow('Fee transaccion', _fee, const Color(0xFFF59E0B)),
+          _summaryRow(
+            'Interes (${(_monthlyRate * 100).toStringAsFixed(2)}% mensual)',
+            _interest,
+            const Color(0xFFEA580C),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF111827),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Total a descontar en nomina',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Text(
+                  '\$ ${_formatCurrency(_total)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryRow(String label, double value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(color: Color(0xFF475569)),
+            ),
+          ),
+          Text(
+            '\$ ${_formatCurrency(value)}',
+            style: TextStyle(color: color, fontWeight: FontWeight.w900),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoCard(double maxAmount) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8FFF2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Informacion importante',
+            style: TextStyle(
+              color: Color(0xFF047857),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _infoBullet('Monto minimo: \$ ${_formatCurrency(_minAmount)}'),
+          _infoBullet('Limite maximo: \$ ${_formatCurrency(maxAmount)}'),
+          _infoBullet('Descuento autorizado en la siguiente nomina'),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoBullet(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('- ', style: TextStyle(color: Color(0xFF00A86B))),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13, color: Color(0xFF047857)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionCard({required String title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -734,67 +521,12 @@ class _EmployeeRequestPageState extends State<EmployeeRequestPage> {
             title,
             style: const TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
               color: Color(0xFF111827),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow({
-    required IconData icon,
-    required Color iconColor,
-    required Color bgColor,
-    required String label,
-    required String value,
-    required Color valueColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoBullet(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('• ', style: TextStyle(color: Color(0xFF00A86B))),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF047857)),
-            ),
-          ),
         ],
       ),
     );

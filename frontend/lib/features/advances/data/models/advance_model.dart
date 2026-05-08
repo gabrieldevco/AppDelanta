@@ -14,6 +14,7 @@ class AdvanceModel {
   final double totalAmount;
   final String status;
   final String? reason;
+  final Map<String, dynamic>? authorizationData;
   final DateTime requestDate;
   final DateTime? approvedAt;
   final DateTime? disbursedAt;
@@ -39,6 +40,7 @@ class AdvanceModel {
     required this.totalAmount,
     required this.status,
     this.reason,
+    this.authorizationData,
     required this.requestDate,
     this.approvedAt,
     this.disbursedAt,
@@ -50,6 +52,7 @@ class AdvanceModel {
   });
 
   factory AdvanceModel.fromJson(Map<String, dynamic> json) {
+    final rawAuthorizationData = json['authorization_data'];
     return AdvanceModel(
       id: json['id'],
       employeeId: json['employee'],
@@ -66,6 +69,9 @@ class AdvanceModel {
       totalAmount: double.parse(json['total_amount'].toString()),
       status: json['status'],
       reason: json['reason'],
+      authorizationData: rawAuthorizationData is Map
+          ? Map<String, dynamic>.from(rawAuthorizationData)
+          : null,
       requestDate: DateTime.parse(json['request_date']),
       approvedAt: json['approved_at'] != null
           ? DateTime.parse(json['approved_at'])
@@ -100,6 +106,7 @@ class AdvanceModel {
       'total_amount': totalAmount,
       'status': status,
       'reason': reason,
+      'authorization_data': authorizationData,
       'request_date': requestDate.toIso8601String(),
       'approved_at': approvedAt?.toIso8601String(),
       'disbursed_at': disbursedAt?.toIso8601String(),
@@ -153,6 +160,7 @@ class AdvanceModel {
     double? totalAmount,
     String? status,
     String? reason,
+    Map<String, dynamic>? authorizationData,
     DateTime? requestDate,
     DateTime? approvedAt,
     DateTime? disbursedAt,
@@ -178,6 +186,7 @@ class AdvanceModel {
       totalAmount: totalAmount ?? this.totalAmount,
       status: status ?? this.status,
       reason: reason ?? this.reason,
+      authorizationData: authorizationData ?? this.authorizationData,
       requestDate: requestDate ?? this.requestDate,
       approvedAt: approvedAt ?? this.approvedAt,
       disbursedAt: disbursedAt ?? this.disbursedAt,
