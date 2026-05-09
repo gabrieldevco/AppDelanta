@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/employee_bottom_nav.dart';
 import '../widgets/employee_header.dart';
@@ -51,45 +52,54 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 const EmployeeHeader(currentIndex: 0),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildGreeting(firstName),
-                        const SizedBox(height: 18),
-                        _buildHeroCard(
-                          availableLimit: availableLimit,
-                          usedAmount: usedAmount.toDouble(),
-                          usagePercent: usagePercent,
+                    padding: ResponsiveUtils.getPagePadding(
+                      context,
+                    ).copyWith(bottom: 24),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: ResponsiveUtils.getMaxContentWidth(context),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: _buildStatCard(
-                                icon: Icons.payments_outlined,
-                                iconColor: const Color(0xFF00A86B),
-                                bgColor: const Color(0xFFDDFBF3),
-                                label: 'Salario',
-                                value: '\$ ${_formatCurrency(salary)}',
-                              ),
+                            _buildGreeting(firstName),
+                            const SizedBox(height: 18),
+                            _buildHeroCard(
+                              availableLimit: availableLimit,
+                              usedAmount: usedAmount.toDouble(),
+                              usagePercent: usagePercent,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildStatCard(
-                                icon: Icons.savings_outlined,
-                                iconColor: const Color(0xFF00A86B),
-                                bgColor: const Color(0xFFECFDF5),
-                                label: 'Cupo 50%',
-                                value:
-                                    '\$ ${_formatCurrency(totalAdvanceLimit)}',
-                              ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildStatCard(
+                                    icon: Icons.payments_outlined,
+                                    iconColor: const Color(0xFF00A86B),
+                                    bgColor: const Color(0xFFDDFBF3),
+                                    label: 'Salario',
+                                    value: '\$ ${_formatCurrency(salary)}',
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildStatCard(
+                                    icon: Icons.savings_outlined,
+                                    iconColor: const Color(0xFF00A86B),
+                                    bgColor: const Color(0xFFECFDF5),
+                                    label: 'Cupo 50%',
+                                    value:
+                                        '\$ ${_formatCurrency(totalAdvanceLimit)}',
+                                  ),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 16),
+                            _buildScheduleCard(),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        _buildScheduleCard(),
-                      ],
+                      ),
                     ),
                   ),
                 ),

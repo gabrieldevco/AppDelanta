@@ -225,6 +225,44 @@ class AdvanceProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> recoverAdvance(int advanceId) async {
+    _status = AdvanceStatus.submitting;
+    notifyListeners();
+
+    try {
+      final updated = await _advanceService.recoverAdvance(advanceId);
+
+      _updateAdvanceInList(updated);
+      _status = AdvanceStatus.success;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = AdvanceStatus.error;
+      _errorMessage = 'Error al marcar reembolsado: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> unrecoverAdvance(int advanceId) async {
+    _status = AdvanceStatus.submitting;
+    notifyListeners();
+
+    try {
+      final updated = await _advanceService.unrecoverAdvance(advanceId);
+
+      _updateAdvanceInList(updated);
+      _status = AdvanceStatus.success;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = AdvanceStatus.error;
+      _errorMessage = 'Error al deshacer reembolso: ${e.toString()}';
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Cancelar solicitud propia (empleado)
   Future<bool> cancelAdvance(int advanceId) async {
     _status = AdvanceStatus.submitting;

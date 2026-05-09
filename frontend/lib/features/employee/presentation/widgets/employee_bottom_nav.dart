@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../pages/employee_home_page.dart';
 import '../pages/employee_request_page.dart';
 import '../pages/employee_history_page.dart';
@@ -34,13 +35,16 @@ class EmployeeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = ResponsiveUtils.getScreenHeight(context);
+    final screenWidth = ResponsiveUtils.getScreenWidth(context);
+    final isLandscapePhone = ResponsiveUtils.isLandscapePhone(context);
     final isSmallScreen = screenHeight < 700;
     final isNarrow = screenWidth < 380;
-    final navHeight = isSmallScreen ? 72.0 : 80.0;
-    final iconSize = isSmallScreen ? 20.0 : 21.0;
-    final activeIconSize = isSmallScreen ? 21.0 : 22.0;
+    final navHeight = ResponsiveUtils.getBottomNavHeight(context);
+    final iconSize = isLandscapePhone ? 19.0 : (isSmallScreen ? 20.0 : 21.0);
+    final activeIconSize = isLandscapePhone
+        ? 20.0
+        : (isSmallScreen ? 21.0 : 22.0);
     final fontSize = isNarrow ? 10.0 : 11.0;
     final activeFontSize = isNarrow ? 10.5 : 11.5;
 
@@ -50,7 +54,7 @@ class EmployeeBottomNav extends StatelessWidget {
       color: Colors.transparent,
       padding: EdgeInsets.zero,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+        padding: EdgeInsets.fromLTRB(10, isLandscapePhone ? 4 : 6, 10, 8),
         decoration: BoxDecoration(
           color: Colors.white,
           border: const Border(top: BorderSide(color: Color(0xFFBBF7D0))),
@@ -154,26 +158,28 @@ class EmployeeBottomNav extends StatelessWidget {
                           size: isSelected ? activeIconSize - 2 : iconSize - 3,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          color: isSelected
-                              ? item.color
-                              : const Color(0xFF94A3B8),
-                          fontWeight: isSelected
-                              ? FontWeight.w800
-                              : FontWeight.w600,
-                          fontSize: isSelected ? activeFontSize : fontSize,
-                          height: 1,
-                          letterSpacing: 0,
+                      if (!isLandscapePhone) ...[
+                        const SizedBox(height: 4),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 200),
+                          style: TextStyle(
+                            color: isSelected
+                                ? item.color
+                                : const Color(0xFF94A3B8),
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                            fontSize: isSelected ? activeFontSize : fontSize,
+                            height: 1,
+                            letterSpacing: 0,
+                          ),
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        child: Text(
-                          item.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

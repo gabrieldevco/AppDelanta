@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/utils/responsive_utils.dart';
 import 'package:frontend/core/widgets/app_popup.dart';
 import 'package:provider/provider.dart';
 import '../../../admin/presentation/pages/admin_main_page.dart';
@@ -156,21 +157,50 @@ class _LoginPageState extends State<LoginPage> {
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final isLandscapePhone = ResponsiveUtils.isLandscapePhone(
+                  context,
+                );
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(22, 18, 22, 28),
+                  padding: EdgeInsets.fromLTRB(
+                    isLandscapePhone ? 18 : 22,
+                    isLandscapePhone ? 10 : 18,
+                    isLandscapePhone ? 18 : 22,
+                    isLandscapePhone ? 18 : 28,
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
+                      maxWidth: isLandscapePhone ? 820 : double.infinity,
                     ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 14),
-                        _buildBrand(),
-                        const SizedBox(height: 24),
-                        _buildLoginCard(isLoading),
-                        const SizedBox(height: 16),
-                        _buildFooter(),
-                      ],
+                    child: Center(
+                      child: isLandscapePhone
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(child: _buildBrand(compact: true)),
+                                const SizedBox(width: 18),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildLoginCard(isLoading, compact: true),
+                                      const SizedBox(height: 10),
+                                      _buildFooter(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                const SizedBox(height: 14),
+                                _buildBrand(),
+                                const SizedBox(height: 24),
+                                _buildLoginCard(isLoading),
+                                const SizedBox(height: 16),
+                                _buildFooter(),
+                              ],
+                            ),
                     ),
                   ),
                 );
@@ -182,21 +212,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildBrand() {
+  Widget _buildBrand({bool compact = false}) {
     return Column(
       children: [
-        _buildBrandMark(),
-        const SizedBox(height: 18),
-        const Text(
+        _buildBrandMark(compact: compact),
+        SizedBox(height: compact ? 10 : 18),
+        Text(
           'AppDelanta',
           style: TextStyle(
-            fontSize: 35,
+            fontSize: compact ? 28 : 35,
             fontWeight: FontWeight.w900,
             color: Color(0xFF101828),
             letterSpacing: 0,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: compact ? 5 : 8),
         const Text(
           'Tu dinero disponible, claro y seguro.',
           textAlign: TextAlign.center,
@@ -207,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
             color: Color(0xFF667085),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: compact ? 10 : 16),
         const Wrap(
           alignment: WrapAlignment.center,
           spacing: 8,
@@ -222,10 +252,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildBrandMark() {
+  Widget _buildBrandMark({bool compact = false}) {
     return Container(
-      width: 92,
-      height: 92,
+      width: compact ? 70 : 92,
+      height: compact ? 70 : 92,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -313,10 +343,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildLoginCard(bool isLoading) {
+  Widget _buildLoginCard(bool isLoading, {bool compact = false}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(compact ? 18 : 22),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(24),
@@ -384,7 +414,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: compact ? 16 : 24),
           _buildLabel('Correo electronico'),
           const SizedBox(height: 8),
           TextField(
@@ -396,7 +426,7 @@ class _LoginPageState extends State<LoginPage> {
               icon: Icons.mail_outline_rounded,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: compact ? 12 : 16),
           Row(
             children: [
               _buildLabel('Contraseña'),
@@ -448,10 +478,10 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: compact ? 16 : 24),
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: compact ? 48 : 54,
             child: ElevatedButton.icon(
               onPressed: isLoading ? null : _login,
               icon: isLoading
@@ -483,10 +513,10 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: compact ? 10 : 12),
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: compact ? 46 : 52,
             child: OutlinedButton.icon(
               onPressed: isLoading
                   ? null

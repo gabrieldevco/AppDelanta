@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:frontend/core/utils/responsive_utils.dart';
 import 'package:frontend/core/widgets/app_popup.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/api_service.dart';
@@ -94,7 +95,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final screenWidth = ResponsiveUtils.getScreenWidth(context);
+    final isSmallScreen = screenWidth < 600;
+    final isLandscapePhone = ResponsiveUtils.isLandscapePhone(context);
 
     return Scaffold(
       body: DecoratedBox(
@@ -115,14 +118,16 @@ class _RegisterPageState extends State<RegisterPage> {
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 16 : 32,
-                vertical: 18,
+                vertical: isLandscapePhone ? 10 : 18,
               ),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
+                constraints: BoxConstraints(
+                  maxWidth: isLandscapePhone ? 760 : 500,
+                ),
                 child: Column(
                   children: [
                     _buildStepHeader(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: isLandscapePhone ? 14 : 24),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.94),
@@ -139,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.all(isLandscapePhone ? 18 : 24),
                         child: _buildCurrentStep(),
                       ),
                     ),

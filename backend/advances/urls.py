@@ -13,5 +13,7 @@ urlpatterns = [
     path('advances/<int:pk>/reject/', views.reject_advance, name='reject-advance'),
     path('advances/<int:pk>/disburse/', views.disburse_advance, name='disburse-advance'),
     path('advances/<int:pk>/undisburse/', views.undisburse_advance, name='undisburse-advance'),
+    path('advances/<int:pk>/recover/', views.recover_advance, name='recover-advance'),
+    path('advances/<int:pk>/unrecover/', views.unrecover_advance, name='unrecover-advance'),
     path('', include(router.urls)),
 ]

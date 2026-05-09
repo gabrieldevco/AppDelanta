@@ -427,3 +427,85 @@ def undisburse_advance(request, pk):
     )
 
     return Response(AdvanceSerializer(advance).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def recover_advance(request, pk):
+    """Marcar un adelanto desembolsado como reembolsado."""
+    try:
+        advance = Advance.objects.get(pk=pk)
+    except Advance.DoesNotExist:
+        return Response({'error': 'Adelanto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if not user.is_admin:
+        return Response({'error': 'Solo los administradores pueden marcar pagos recibidos'},
+                       status=status.HTTP_403_FORBIDDEN)
+
+    if advance.status != 'disbursed':
+        return Response({'error': 'Solo se pueden reembolsar adelantos desembolsados'},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    old_status = advance.status
+    advance.status = 'recovered'
+    advance.recovery_date = timezone.now()
+    advance.save()
+
+    advance.employee.available_advance_limit += advance.amount
+    advance.employee.save()
+
+    AdvanceHistory.objects.create(
+        advance=advance,
+        status_from=old_status,
+        status_to='recovered',
+        changed_by=user,
+        notes=request.data.get('notes', 'Pago recibido marcado como reembolsado')
+    )
+
+    Notification.objects.create(
+        user=advance.employee.user,
+        type='success',
+        title='Pago recibido',
+        message=f'Tu adelanto de ${advance.amount:,.0f} fue marcado como reembolsado',
+        related_advance=advance
+    )
+
+    return Response(AdvanceSerializer(advance).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unrecover_advance(request, pk):
+    """Deshacer un reembolso marcado por error."""
+    try:
+        advance = Advance.objects.get(pk=pk)
+    except Advance.DoesNotExist:
+        return Response({'error': 'Adelanto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if not user.is_admin:
+        return Response({'error': 'Solo los administradores pueden deshacer reembolsos'},
+                       status=status.HTTP_403_FORBIDDEN)
+
+    if advance.status != 'recovered':
+        return Response({'error': 'Solo se pueden deshacer pagos recibidos reembolsados'},
+                       status=status.HTTP_400_BAD_REQUEST)
+
+    old_status = advance.status
+    advance.status = 'disbursed'
+    advance.recovery_date = None
+    advance.save()
+
+    advance.employee.available_advance_limit -= advance.amount
+    advance.employee.save()
+
+    AdvanceHistory.objects.create(
+        advance=advance,
+        status_from=old_status,
+        status_to='disbursed',
+        changed_by=user,
+        notes=request.data.get('notes', 'Reembolso deshecho')
+    )
+
+    return Response(AdvanceSerializer(advance).data)

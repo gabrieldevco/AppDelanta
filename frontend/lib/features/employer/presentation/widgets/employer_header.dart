@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/widgets/logout_confirmation_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
@@ -32,9 +33,15 @@ class _EmployerHeaderState extends State<EmployerHeader> {
         final companyName = user?.company?.name ?? 'Mi Empresa';
         final iconColors = _tabIconColors(widget.currentIndex);
         final iconShadowColor = iconColors.first;
+        final isLandscapePhone = ResponsiveUtils.isLandscapePhone(context);
 
         return Container(
-          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+          padding: EdgeInsets.fromLTRB(
+            14,
+            isLandscapePhone ? 6 : 10,
+            14,
+            isLandscapePhone ? 8 : 12,
+          ),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
@@ -55,8 +62,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: isLandscapePhone ? 34 : 40,
+                height: isLandscapePhone ? 34 : 40,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -93,6 +100,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                     ),
                     Text(
                       companyName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -210,6 +219,7 @@ class _HeaderActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscapePhone = ResponsiveUtils.isLandscapePhone(context);
     return Padding(
       padding: const EdgeInsets.only(left: 3),
       child: IconButton(
@@ -218,7 +228,10 @@ class _HeaderActionButton extends StatelessWidget {
           child: icon,
         ),
         padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+        constraints: BoxConstraints(
+          minWidth: isLandscapePhone ? 30 : 34,
+          minHeight: isLandscapePhone ? 30 : 34,
+        ),
         style: IconButton.styleFrom(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(

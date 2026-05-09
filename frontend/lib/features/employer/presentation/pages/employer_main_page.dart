@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../advances/data/models/advance_model.dart';
 import '../../../advances/presentation/providers/advance_provider.dart';
 import '../../../companies/presentation/providers/company_provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../widgets/employer_bottom_nav.dart';
 import '../widgets/employer_header.dart';
@@ -71,23 +72,38 @@ class _EmployerMainPageState extends State<EmployerMainPage> {
                         .fold<double>(0, (sum, a) => sum + a.amount);
 
                     return ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+                      padding: ResponsiveUtils.getPagePadding(
+                        context,
+                      ).copyWith(bottom: 24),
                       children: [
-                        _buildHeroHeader(
-                          employeeCount: employees.length,
-                          pendingDiscount: pendingDiscount,
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: ResponsiveUtils.getMaxContentWidth(
+                                context,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildHeroHeader(
+                                  employeeCount: employees.length,
+                                  pendingDiscount: pendingDiscount,
+                                ),
+                                const SizedBox(height: 18),
+                                _buildMetricsCards(
+                                  employeeCount: employees.length,
+                                  totalAdvanced: totalAdvanced,
+                                  pendingDiscount: pendingDiscount,
+                                  requestCount: advances.length,
+                                ),
+                                const SizedBox(height: 22),
+                                _buildRecentRequests(advances.take(3).toList()),
+                                const SizedBox(height: 22),
+                                _buildImportantInfo(),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 18),
-                        _buildMetricsCards(
-                          employeeCount: employees.length,
-                          totalAdvanced: totalAdvanced,
-                          pendingDiscount: pendingDiscount,
-                          requestCount: advances.length,
-                        ),
-                        const SizedBox(height: 22),
-                        _buildRecentRequests(advances.take(3).toList()),
-                        const SizedBox(height: 22),
-                        _buildImportantInfo(),
                       ],
                     );
                   },

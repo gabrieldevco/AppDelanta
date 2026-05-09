@@ -7,6 +7,8 @@ import '../widgets/admin_bottom_nav.dart';
 import '../widgets/admin_header.dart';
 import '../widgets/admin_notifications_drawer.dart';
 
+enum _DisbursementTabMode { pending, completed, recovered }
+
 class AdminDisbursementsPage extends StatefulWidget {
   const AdminDisbursementsPage({super.key});
 
@@ -16,12 +18,13 @@ class AdminDisbursementsPage extends StatefulWidget {
 
 class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     with SingleTickerProviderStateMixin {
+  static const int _tabCount = 3;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: _tabCount, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
@@ -35,8 +38,22 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     await context.read<AdvanceProvider>().loadMyAdvances();
   }
 
+  void _ensureTabControllerLength() {
+    if (_tabController.length == _tabCount) return;
+
+    final previousIndex = _tabController.index.clamp(0, _tabCount - 1);
+    _tabController.dispose();
+    _tabController = TabController(
+      length: _tabCount,
+      vsync: this,
+      initialIndex: previousIndex,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    _ensureTabControllerLength();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
       endDrawer: const AdminNotificationsDrawer(),
@@ -53,6 +70,9 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                       .toList();
                   final completed = provider.advances
                       .where((advance) => advance.isDisbursed)
+                      .toList();
+                  final recovered = provider.advances
+                      .where((advance) => advance.isRecovered)
                       .toList();
 
                   return Padding(
@@ -77,7 +97,11 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                           ),
                         ),
                         const SizedBox(height: 20),
-                        _buildTabs(pending.length, completed.length),
+                        _buildTabs(
+                          pending.length,
+                          completed.length,
+                          recovered.length,
+                        ),
                         const SizedBox(height: 18),
                         Expanded(
                           child: provider.isLoading && provider.advances.isEmpty
@@ -88,12 +112,17 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                                     _buildList(
                                       pending,
                                       'No hay desembolsos en esta categoria',
-                                      completed: false,
+                                      mode: _DisbursementTabMode.pending,
                                     ),
                                     _buildList(
                                       completed,
                                       'No hay desembolsos completados',
-                                      completed: true,
+                                      mode: _DisbursementTabMode.completed,
+                                    ),
+                                    _buildList(
+                                      recovered,
+                                      'No hay pagos recibidos',
+                                      mode: _DisbursementTabMode.recovered,
                                     ),
                                   ],
                                 ),
@@ -111,7 +140,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     );
   }
 
-  Widget _buildTabs(int pending, int completed) {
+  Widget _buildTabs(int pending, int completed, int recovered) {
     return Container(
       height: 48,
       padding: const EdgeInsets.all(4),
@@ -134,16 +163,14 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
             controller: _tabController,
             indicator: BoxDecoration(
               gradient: LinearGradient(
-                colors: _tabController.index == 0
-                    ? [const Color(0xFFF59E0B), const Color(0xFFFBBF24)]
-                    : [const Color(0xFF10B981), const Color(0xFF34D399)],
+                colors: _tabColors(_tabController.index),
               ),
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: _tabController.index == 0
-                      ? const Color(0xFFF59E0B).withValues(alpha: 0.3)
-                      : const Color(0xFF10B981).withValues(alpha: 0.3),
+                  color: _tabColors(
+                    _tabController.index,
+                  ).first.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -162,8 +189,9 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
             ),
             dividerColor: Colors.transparent,
             tabs: [
-              Tab(text: 'Pendientes $pending'),
-              Tab(text: 'Completados $completed'),
+              _tabLabel('Pendientes $pending'),
+              _tabLabel('Completados $completed'),
+              _tabLabel('Pagos recibidos $recovered'),
             ],
           );
         },
@@ -171,10 +199,24 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     );
   }
 
+  Tab _tabLabel(String label) {
+    return Tab(
+      child: FittedBox(fit: BoxFit.scaleDown, child: Text(label, maxLines: 1)),
+    );
+  }
+
+  List<Color> _tabColors(int index) {
+    return switch (index) {
+      0 => const [Color(0xFFF59E0B), Color(0xFFFBBF24)],
+      1 => const [Color(0xFF10B981), Color(0xFF34D399)],
+      _ => const [Color(0xFF0EA5E9), Color(0xFF38BDF8)],
+    };
+  }
+
   Widget _buildList(
     List<AdvanceModel> advances,
     String emptyMessage, {
-    required bool completed,
+    required _DisbursementTabMode mode,
   }) {
     if (advances.isEmpty) {
       return RefreshIndicator(
@@ -195,7 +237,7 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
         padding: const EdgeInsets.only(bottom: 18),
         itemCount: advances.length,
         itemBuilder: (context, index) {
-          return _buildDisbursementCard(advances[index], completed: completed);
+          return _buildDisbursementCard(advances[index], mode: mode);
         },
       ),
     );
@@ -238,11 +280,14 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
 
   Widget _buildDisbursementCard(
     AdvanceModel advance, {
-    required bool completed,
+    required _DisbursementTabMode mode,
   }) {
     final hasBankInfo =
         _hasText(advance.employeeBankName) ||
         _hasText(advance.employeeBankAccount);
+    final isPending = mode == _DisbursementTabMode.pending;
+    final isCompleted = mode == _DisbursementTabMode.completed;
+    final isRecovered = mode == _DisbursementTabMode.recovered;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -308,7 +353,13 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
                   ],
                 ),
               ),
-              _statusChip(completed ? 'Completado' : 'Pendiente'),
+              _statusChip(
+                isRecovered
+                    ? 'Reembolsado'
+                    : isCompleted
+                    ? 'Completado'
+                    : 'Pendiente',
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -382,8 +433,10 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
             children: [
               _infoPill('Aprobado', _date(advance.approvedAt)),
               _infoPill('Solicitado', _date(advance.requestDate)),
-              if (completed)
+              if (!isPending)
                 _infoPill('Desembolsado', _date(advance.disbursedAt)),
+              if (isRecovered)
+                _infoPill('Reembolsado', _date(advance.recoveryDate)),
               if (_hasText(advance.disbursementReference))
                 _infoPill('Ref', advance.disbursementReference!),
             ],
@@ -391,34 +444,54 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: completed
-                ? OutlinedButton.icon(
-                    onPressed: () => _markIncomplete(advance),
-                    icon: const Icon(Icons.undo, size: 18),
-                    label: const Text('Marcar como incompleto'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFB45309),
-                      side: const BorderSide(color: Color(0xFFFDE68A)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  )
-                : ElevatedButton.icon(
-                    onPressed: () => _markCompleted(advance),
-                    icon: const Icon(Icons.check_circle_outline, size: 18),
-                    label: const Text('Marcar como completado'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7C3AED),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
+            child: _buildCardAction(advance, mode),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCardAction(AdvanceModel advance, _DisbursementTabMode mode) {
+    if (mode == _DisbursementTabMode.pending) {
+      return ElevatedButton.icon(
+        onPressed: () => _markCompleted(advance),
+        icon: const Icon(Icons.check_circle_outline, size: 18),
+        label: const Text('Marcar como completado'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF7C3AED),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+
+    if (mode == _DisbursementTabMode.completed) {
+      return ElevatedButton.icon(
+        onPressed: () => _markRecovered(advance),
+        icon: const Icon(Icons.payments_outlined, size: 18),
+        label: const Text('Marcar como reembolsado'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0EA5E9),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+
+    return OutlinedButton.icon(
+      onPressed: () => _undoRecovered(advance),
+      icon: const Icon(Icons.undo, size: 18),
+      label: const Text('Deshacer reembolso'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF0369A1),
+        side: const BorderSide(color: Color(0xFFBAE6FD)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -501,8 +574,11 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
   }
 
   Widget _statusChip(String label) {
-    final completed = label == 'Completado';
-    final color = completed ? const Color(0xFF0D9488) : const Color(0xFF7C3AED);
+    final color = switch (label) {
+      'Completado' => const Color(0xFF0D9488),
+      'Reembolsado' => const Color(0xFF0284C7),
+      _ => const Color(0xFF7C3AED),
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
@@ -569,40 +645,242 @@ class _AdminDisbursementsPageState extends State<AdminDisbursementsPage>
     }
   }
 
-  Future<void> _markIncomplete(AdvanceModel advance) async {
+  Future<void> _markRecovered(AdvanceModel advance) async {
     final provider = context.read<AdvanceProvider>();
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Marcar como incompleto'),
-        content: const Text('El adelanto volvera a pendientes de desembolso.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Confirmar'),
-          ),
-        ],
-      ),
+    final confirm = await _showActionDialog(
+      advance: advance,
+      title: 'Marcar como reembolsado',
+      message:
+          'El adelanto pasara a Pagos recibidos y el cupo del empleado se restaurara.',
+      icon: Icons.payments_outlined,
+      accentColor: const Color(0xFF0EA5E9),
+      confirmLabel: 'Confirmar',
     );
     if (confirm != true) return;
 
-    final ok = await provider.undisburseAdvance(advance.id);
+    final ok = await provider.recoverAdvance(advance.id);
     if (!mounted) return;
+    final errorMessage = provider.errorMessage ?? 'No se pudo marcar';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          ok ? 'Desembolso marcado como incompleto' : 'No se pudo revertir',
-        ),
+        content: Text(ok ? 'Pago marcado como reembolsado' : errorMessage),
       ),
     );
     if (ok) {
-      _tabController.animateTo(0);
+      _tabController.animateTo(2);
       await _load();
     }
+  }
+
+  Future<void> _undoRecovered(AdvanceModel advance) async {
+    final provider = context.read<AdvanceProvider>();
+    final confirm = await _showActionDialog(
+      advance: advance,
+      title: 'Deshacer reembolso',
+      message:
+          'El adelanto volvera a Completados por si marcaste el pago por error.',
+      icon: Icons.undo_rounded,
+      accentColor: const Color(0xFFF97316),
+      confirmLabel: 'Deshacer',
+    );
+    if (confirm != true) return;
+
+    final ok = await provider.unrecoverAdvance(advance.id);
+    if (!mounted) return;
+    final errorMessage = provider.errorMessage ?? 'No se pudo deshacer';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? 'Reembolso deshecho' : errorMessage)),
+    );
+    if (ok) {
+      _tabController.animateTo(1);
+      await _load();
+    }
+  }
+
+  Future<bool?> _showActionDialog({
+    required AdvanceModel advance,
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color accentColor,
+    required String confirmLabel,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 390),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: accentColor.withValues(alpha: 0.16)),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: 0.16),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          accentColor,
+                          Color.lerp(accentColor, Colors.black, 0.16)!,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: accentColor.withValues(alpha: 0.24),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            color: Color(0xFF111827),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            height: 1.12,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          message,
+                          style: const TextStyle(
+                            color: Color(0xFF475569),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  children: [
+                    _dialogInfoRow(
+                      Icons.person_outline,
+                      advance.employeeName,
+                      _money(advance.amount),
+                    ),
+                    const SizedBox(height: 10),
+                    _dialogInfoRow(
+                      Icons.business_outlined,
+                      advance.companyName,
+                      'Total ${_money(advance.totalAmount)}',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF64748B),
+                        minimumSize: const Size(0, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        minimumSize: const Size(0, 48),
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        textStyle: const TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                      child: Text(confirmLabel),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _dialogInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFF64748B), size: 18),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF334155),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
+    );
   }
 
   bool _hasText(String? value) => value != null && value.trim().isNotEmpty;

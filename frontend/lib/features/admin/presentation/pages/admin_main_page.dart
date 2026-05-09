@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../providers/admin_provider.dart';
 import '../widgets/admin_header.dart';
 import '../widgets/admin_bottom_nav.dart';
@@ -49,74 +50,85 @@ class _AdminMainPageState extends State<AdminMainPage> {
               children: [
                 const AdminHeader(currentIndex: 0),
                 const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeroAdminCard(advances, users),
-                      const SizedBox(height: 20),
-                      Row(
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: ResponsiveUtils.getMaxContentWidth(context),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveUtils.getHorizontalPadding(
+                          context,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: _buildStatsCard(
-                              title: 'Desembolsado',
-                              amount: _formatCurrency(
-                                advances['total_disbursed'],
+                          _buildHeroAdminCard(advances, users),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatsCard(
+                                  title: 'Desembolsado',
+                                  amount: _formatCurrency(
+                                    advances['total_disbursed'],
+                                  ),
+                                  icon: Icons.attach_money,
+                                  color: const Color(0xFFDC2626),
+                                ),
                               ),
-                              icon: Icons.attach_money,
-                              color: const Color(0xFFDC2626),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatsCard(
-                              title: 'Recuperado',
-                              amount: _formatCurrency(
-                                advances['total_recovered'],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatsCard(
+                                  title: 'Recuperado',
+                                  amount: _formatCurrency(
+                                    advances['total_recovered'],
+                                  ),
+                                  subtitle: _recoveryPercentage(advances),
+                                  icon: Icons.trending_up,
+                                  color: const Color(0xFF10B981),
+                                ),
                               ),
-                              subtitle: _recoveryPercentage(advances),
-                              icon: Icons.trending_up,
-                              color: const Color(0xFF10B981),
-                            ),
+                            ],
                           ),
+                          const SizedBox(height: 16),
+                          if (adminProvider.isLoading && stats.isEmpty)
+                            const Center(child: CircularProgressIndicator())
+                          else if (adminProvider.error != null && stats.isEmpty)
+                            _buildErrorCard(adminProvider.error!)
+                          else
+                            _buildEarningsCard(earnings),
+                          const SizedBox(height: 16),
+                          _buildChartCard(stats),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildCountCard(
+                                  title: 'Empleadores',
+                                  count: '${_toInt(users['employers'])}',
+                                  icon: Icons.business,
+                                  color: const Color(0xFF7C3AED),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildCountCard(
+                                  title: 'Empleados',
+                                  count: '${_toInt(users['employees'])}',
+                                  icon: Icons.people,
+                                  color: const Color(0xFF0D9488),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _buildInfoCard(),
+                          const SizedBox(height: 140),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      if (adminProvider.isLoading && stats.isEmpty)
-                        const Center(child: CircularProgressIndicator())
-                      else if (adminProvider.error != null && stats.isEmpty)
-                        _buildErrorCard(adminProvider.error!)
-                      else
-                        _buildEarningsCard(earnings),
-                      const SizedBox(height: 16),
-                      _buildChartCard(stats),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildCountCard(
-                              title: 'Empleadores',
-                              count: '${_toInt(users['employers'])}',
-                              icon: Icons.business,
-                              color: const Color(0xFF7C3AED),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildCountCard(
-                              title: 'Empleados',
-                              count: '${_toInt(users['employees'])}',
-                              icon: Icons.people,
-                              color: const Color(0xFF0D9488),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoCard(),
-                      const SizedBox(height: 140),
-                    ],
+                    ),
                   ),
                 ),
               ],
