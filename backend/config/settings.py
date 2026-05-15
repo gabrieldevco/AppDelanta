@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     # Apps del proyecto
-    'users',
+    'users.apps.UsersConfig',
     'companies',
     'advances',
     'notifications',
