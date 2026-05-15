@@ -1,5 +1,18 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models
+
+
+class UserManager(DjangoUserManager):
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('role', 'admin')
+        user = super().create_superuser(
+            username=username,
+            email=email,
+            password=password,
+            **extra_fields,
+        )
+        SuperUserProfile.objects.get_or_create(user=user)
+        return user
 
 
 class User(AbstractUser):
@@ -27,6 +40,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = UserManager()
     
     class Meta:
         verbose_name = 'Usuario'
