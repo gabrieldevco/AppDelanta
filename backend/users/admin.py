@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, EmployeeProfile, AdminProfile
+from .models import User, EmployeeProfile, AdminProfile, SuperUserProfile
 
 
 @admin.register(User)
@@ -29,4 +29,11 @@ class AdminProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'is_super_admin']
     list_filter = ['is_super_admin']
     search_fields = ['user__first_name', 'user__last_name', 'user__email']
+    autocomplete_fields = ['user']
+
+
+@admin.register(SuperUserProfile)
+class SuperUserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'created_at', 'updated_at']
+    search_fields = ['user__username', 'user__email']
     autocomplete_fields = ['user']

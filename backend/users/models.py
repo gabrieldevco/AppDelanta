@@ -149,3 +149,27 @@ class AdminProfile(models.Model):
     
     def __str__(self):
         return f"Admin: {self.user.get_full_name()}"
+
+
+class SuperUserProfile(models.Model):
+    """Perfil adicional para cuentas de superusuario de Django."""
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='superuser_profile',
+        verbose_name='Superusuario',
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name='Notas',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Perfil de Superusuario'
+        verbose_name_plural = 'Perfiles de Superusuarios'
+
+    def __str__(self):
+        return f"Superuser: {self.user.username}"
